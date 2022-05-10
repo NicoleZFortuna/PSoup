@@ -9,7 +9,7 @@
 #'              "up regulate", "down regulate", "necessary stimulation", "necessary inhibition",
 #'              "sufficient stimulation", "sufficient inhibition".
 #' @slot travel specifies if the hormone travels between compartments. Can be either
-#'              "Up", "Down", or "None".
+#'              "up", "down", or "none".
 #' @slot genotype data.frame with column names Gene, and Influence.
 
 Hormone <- setClass("Hormone", slots = c(name = "character",
@@ -31,4 +31,8 @@ Hormone <- setClass("Hormone", slots = c(name = "character",
 
 Genotype <- setClass("Genotype", slots = c(name = "character",
                                            expression = "data.frame"))
+
+listNodes
+
+listGenotypes
 
