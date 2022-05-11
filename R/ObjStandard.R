@@ -4,8 +4,8 @@ StrigolactoneR <- new("Hormone",
                       inputs = data.frame(Node = c("FeedbackR", "Inhibitor"),
                                           Influence = c("up regulate", "down regulate")),
                       outputs = data.frame(Node = "StrigolactoneS", Influence = "up regulate"),
-                      travel = "up",
-                      genotypes = c("RMS1", "RMS5"))
+                      travel = 0.8,
+                      genotypes = c("RMS1", "RMS5", "RMS3", "RMS4"))
 
 StrigolactoneS <- new("Hormone",
                       name = "StrigolactoneR",
@@ -13,7 +13,7 @@ StrigolactoneS <- new("Hormone",
                       inputs = data.frame(Node = c("FeedbackS", "StrigolactoneR"),
                                           Influence = c("up regulate", "up regulate")),
                       outputs = data.frame(Node = "BranchInhibitor", Influence = "up regulate"),
-                      travel = "none",
+                      travel = 0,
                       genotypes = c("RMS1", "RMS5"))
 
 FeedbackR <- new("Hormone",
@@ -23,7 +23,7 @@ FeedbackR <- new("Hormone",
                                      Influence = "up regulate"),
                  outputs = data.frame(Node = c("Cytokinin", "StrigolactoneR"),
                                       Influence = c("down regulate", "up regulate")),
-                 travel = "none",
+                 travel = 0,
                  genotypes = "RMS2")
 
 FeedbackS <- new("Hormone",
@@ -33,7 +33,7 @@ FeedbackS <- new("Hormone",
                                      Influence = c("down regulate")),
                  outputs = data.frame(Node = c("FeedbackR", "StrigolactoneS"),
                                       Influence = c("up regulate", "up regulate")),
-                 travel = "down",
+                 travel = 1,
                  genotypes = "RMS2")
 
 Cytokinin <- new("Hormone",
@@ -43,7 +43,7 @@ Cytokinin <- new("Hormone",
                                      Influence = "down regulate"),
                  outputs = data.frame(Node = "Bud Outgrowth",
                                      Influence = "up regulate"),
-                 travel = "up")
+                 travel = 0.8)
 
 BranchInhibitor = new("Hormone",
                       name = "BranchInhibitor",
@@ -52,8 +52,42 @@ BranchInhibitor = new("Hormone",
                                           Influence = "up regulate"),
                       outputs = data.frame(Node = c("BudRelease", "FeedbackS"),
                                            Influence = c("down regulation", "down regulation")),
-                      travel = "none",
+                      travel = 1,
                       genotypes = c("RMS3", "RMS4"))
+
+BudRelease <- new("Hormone",
+                  name = "BudRelease",
+                  container = "scion",
+                  inputs = data.frame(Node = "StrigolactoneS",
+                                      Influence = "up regulation"),
+                  outputs = data.frame(Node = c("BranchInhibitor",
+                                                "FeedbackS"),
+                                       Influence = c("down regulation",
+                                                     "down regulation")),
+                  travel = 0,
+                  genotypes = c("RMS3", "RMS4"))
+
+BranchOutgrowth <- new("Hormone",
+                       name = "BranchOutgrowth",
+                       container = "scion",
+                       inputs = data.frame(Node = c("BudRelease",
+                                                    "Cytokinin"),
+                                           Influence = c("necessary stimulation",
+                                                         "upregulation")),
+                       outputs = data.frame(Node = "ShootSignal",
+                                            Influence = "necessary stimulation"),
+                       travel = 0)
+
+ShootSignal <- new("Hormone",
+                   name = "ShootSignal",
+                   container = "scion",
+                   inputs = data.frame(Node = "BranchOutgrowth",
+                                       Influence = "necessary stimulation"),
+                   outputs = data.frame(Node = c("StrigolactoneS",
+                                                 "StrigolactoneR"),
+                                        Influence = c("up regulation",
+                                                      "up regulation")),
+                   travel = 1)
 
 RMS1 <- new("Genotype",
             name = "RMS1",

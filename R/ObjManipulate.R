@@ -8,15 +8,18 @@
 #' @slot outputs data.frame with column names Node, and Influence. Influences can one of either
 #'              "up regulate", "down regulate", "necessary stimulation", "necessary inhibition",
 #'              "sufficient stimulation", "sufficient inhibition".
-#' @slot travel specifies if the hormone travels between compartments. Can be either
-#'              "up", "down", or "none".
+#' @slot travel specifies if the hormone travels between compartments. Hormones travel from
+#'              their current container, to the other. Is a numeric value specifying the rate of
+#'              travel. Is 0 if there is not travel between compartments. Default for hormones
+#'              traveling down is 1, and up is 0.8 to reflect that signals moving up take a
+#'              longer time than signals moving down.
 #' @slot genotype data.frame with column names Gene, and Influence.
 
 Hormone <- setClass("Hormone", slots = c(name = "character",
                                          container = "character",
                                          inputs = "data.frame",
                                          outputs = "data.frame",
-                                         travel = "character",
+                                         travel = "numeric",
                                          genotypes = "character"))
 
 
