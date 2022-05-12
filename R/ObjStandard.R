@@ -1,3 +1,5 @@
+### This file will need to be moved to the data-raw folder
+
 StrigolactoneR <- new("Hormone",
                       name = "StrigolactoneR",
                       container = "rootstock",
@@ -128,6 +130,8 @@ RMS4 <- new("Genotype",
             expression = data.frame(Container = c("scion", "rootstock"),
                                     Expression = c(1, 1)))
 save(RMS4, file = "./Data/RMS4.RData")
+
+#peaNetwork <-
 
 
 
