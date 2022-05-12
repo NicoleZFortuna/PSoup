@@ -4,7 +4,7 @@ Title: A Package That Models Pea Hormone Interactions, And Predicts Branching Ph
 Version: 0.1.0
 Authors@R:person("Nicole", "Fortuna", email = "nicole.fortuna@uqconnect.edu.au", role = c("aut", "cre"))
 Description: This package builds networks of interacting hormones to predict branching outcomes in
-    pea based on genotypic inputs.\
+    pea based on genotypic inputs.
 Depends: R (>= 4.1.3)
 License: GPL-2
 Encoding: UTF-8
