@@ -6,6 +6,8 @@ StrigolactoneR <- new("Hormone",
                       outputs = data.frame(Node = "StrigolactoneS", Influence = "up regulate"),
                       travel = 0.8,
                       genotypes = c("RMS1", "RMS5", "RMS3", "RMS4"))
+save(StrigolactoneR, file = "./Data/StrigolactoneR.RData")
+
 
 StrigolactoneS <- new("Hormone",
                       name = "StrigolactoneR",
@@ -15,6 +17,7 @@ StrigolactoneS <- new("Hormone",
                       outputs = data.frame(Node = "BranchInhibitor", Influence = "up regulate"),
                       travel = 0,
                       genotypes = c("RMS1", "RMS5"))
+save(StrigolactoneS, file = "./Data/StrigolactoneS.RData")
 
 FeedbackR <- new("Hormone",
                  name = "FeedbackR",
@@ -25,6 +28,7 @@ FeedbackR <- new("Hormone",
                                       Influence = c("down regulate", "up regulate")),
                  travel = 0,
                  genotypes = "RMS2")
+save(FeedbackR, file = "./Data/FeedbackR.RData")
 
 FeedbackS <- new("Hormone",
                  name = "FeedbackS",
@@ -35,6 +39,7 @@ FeedbackS <- new("Hormone",
                                       Influence = c("up regulate", "up regulate")),
                  travel = 1,
                  genotypes = "RMS2")
+save(FeedbackS, file = "./Data/FeedbackS.RData")
 
 Cytokinin <- new("Hormone",
                  name = "Cytokinin",
@@ -44,6 +49,7 @@ Cytokinin <- new("Hormone",
                  outputs = data.frame(Node = "Bud Outgrowth",
                                      Influence = "up regulate"),
                  travel = 0.8)
+save(Cytokinin, file = "./Data/Cytokinin.RData")
 
 BranchInhibitor = new("Hormone",
                       name = "BranchInhibitor",
@@ -54,6 +60,7 @@ BranchInhibitor = new("Hormone",
                                            Influence = c("down regulation", "down regulation")),
                       travel = 1,
                       genotypes = c("RMS3", "RMS4"))
+save(BranchInhibitor, file = "./Data/BranchInhibitor.RData")
 
 BudRelease <- new("Hormone",
                   name = "BudRelease",
