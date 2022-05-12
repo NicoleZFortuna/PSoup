@@ -6,6 +6,7 @@ StrigolactoneR <- new("Hormone",
                       outputs = data.frame(Node = "StrigolactoneS", Influence = "up regulate"),
                       travel = "up",
                       genotypes = c("RMS1", "RMS5"))
+save(StrigolactoneR, file = "./Data/StrigolactoneR.RData")
 
 StrigolactoneS <- new("Hormone",
                       name = "StrigolactoneR",
@@ -15,6 +16,7 @@ StrigolactoneS <- new("Hormone",
                       outputs = data.frame(Node = "BranchInhibitor", Influence = "up regulate"),
                       travel = "none",
                       genotypes = c("RMS1", "RMS5"))
+save(StrigolactoneS, file = "./Data/StrigolactoneS.RData")
 
 FeedbackR <- new("Hormone",
                  name = "FeedbackR",
@@ -25,6 +27,7 @@ FeedbackR <- new("Hormone",
                                       Influence = c("down regulate", "up regulate")),
                  travel = "none",
                  genotypes = "RMS2")
+save(FeedbackR, file = "./Data/FeedbackR.RData")
 
 FeedbackS <- new("Hormone",
                  name = "FeedbackS",
@@ -35,6 +38,7 @@ FeedbackS <- new("Hormone",
                                       Influence = c("up regulate", "up regulate")),
                  travel = "down",
                  genotypes = "RMS2")
+save(FeedbackS, file = "./Data/FeedbackS.RData")
 
 Cytokinin <- new("Hormone",
                  name = "Cytokinin",
@@ -44,6 +48,7 @@ Cytokinin <- new("Hormone",
                  outputs = data.frame(Node = "Bud Outgrowth",
                                      Influence = "up regulate"),
                  travel = "up")
+save(Cytokinin, file = "./Data/Cytokinin.RData")
 
 BranchInhibitor = new("Hormone",
                       name = "BranchInhibitor",
@@ -54,6 +59,7 @@ BranchInhibitor = new("Hormone",
                                            Influence = c("down regulation", "down regulation")),
                       travel = "none",
                       genotypes = c("RMS3", "RMS4"))
+save(BranchInhibitor, file = "./Data/BranchInhibitor.RData")
 
 RMS1 <- new("Genotype",
             name = "RMS1",
