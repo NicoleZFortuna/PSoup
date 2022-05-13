@@ -37,6 +37,14 @@ Hormone <- setClass("Hormone", slots = c(name = "character",
 Genotype <- setClass("Genotype", slots = c(name = "character",
                                            expression = "data.frame"))
 
+#' A function to generate objects of class 'Network'
+#'
+#' @slot name the name of the network.
+#' @slot model a list of length 2 with the names Hormones and Genotypes
+
+Network <- setClass("Network", slots = c(name = "character",
+                                         objects = "list"))
+
 #' A function for building a network object
 #'
 #' This function accepts a list of nodes and a list of genotypes. It will check
@@ -47,14 +55,59 @@ Genotype <- setClass("Genotype", slots = c(name = "character",
 #'
 #' @param hormones a list containing objects of class hormone.
 #' @param genotypes a list containing objects of class hormone.
+#' @param name the name to be given to the network
+#' @export
 
-network <- function(hormones, genotypes) {
+buildNetwork <- function(hormones, genotypes, name) {
+  # Making sure that data will be of the correct format
   if (class(hormones) != "list" | class(genotypes) != "list") {
     stop("Make sure that you have provided you hormones and genotypes in list form")
   }
 
+  h = NULL
+  for (i in 1:length(hormones)) {
+    if (class(hormones[[i]]) != "Hormone") {
+      h = c(h, i)
+    }
+  }
 
+  g = NULL
+  for (i in 1:length(genotypes)) {
+    if (class(genotypes[[i]]) != "Genotype") {
+      g = c(g, i)
+    }
+  }
+
+  if (!is.null(h)) {
+    print(paste("Hormone object:", h, "of incorrect data type."))
+  }
+
+  if (!is.null(g)) {
+    print(paste("Hormone object:", g, "of incorrect data type."))
+  }
+
+  if (!is.null(h) | !is.null(g)) {
+    stop("Please provide objects of correct data type!")
+  }
+
+  # Making sure that data is correctly self referential
+    # stop if points to something that doesn't exist
+    # stop if objects are not mutually referential
+
+  # Build object of class network
+  network <- new("Network",
+                    name = name,
+                    objects = list(Hormones = hormones,
+                                   Genotypes = genotypes))
+
+  return(network)
 }
+
+print.Network <- setMethod(f = "show",
+  signature = "Network",
+  definition = function(object){
+  print(paste())
+})
 
 #' A function to list all objects of class hormone in the current environment
 #'
@@ -80,23 +133,15 @@ listGenotypes <- function() {
 #' @export
 
 restoreBaseModel <- function() {
+
   nodes = listNodes()
   rm(nodes)
 
   geno = listGenotypes()
   rm(geno)
 
-  obj = data(package="peaSoup", verbose = T)$results[,3]
-  for (i in obj) data(i)
-}
+  files <- paste0(getwd(), "/", list.files("Data", full.names = T))
 
-#' A function to restore a constructed model.
-#'
-#' All hormone and genotype objects will be purged from the environment,
-#' and the objects of the desired model will be loaded.
-#'
-#' @export
-#'
-loadMyModel <- function(wd = ".") {
-
+  #obj = data(package="peaSoup", verbose = T)$results[,3]
+  for (i in files) load(i, envir = parent.env(environment()))
 }

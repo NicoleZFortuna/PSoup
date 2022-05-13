@@ -131,8 +131,22 @@ RMS4 <- new("Genotype",
                                     Expression = c(1, 1)))
 save(RMS4, file = "./Data/RMS4.RData")
 
-#peaNetwork <-
-
+peaNetwork <- buildNetwork(hormones = list(StrigolactoneR,
+                                           StrigolactoneS,
+                                           FeedbackR,
+                                           FeedbackS,
+                                           Cytokinin,
+                                           BranchInhibitor,
+                                           BudRelease,
+                                           BranchOutgrowth,
+                                           ShootSignal),
+                           genotypes = list(RMS1,
+                                            RMS2,
+                                            RMS3,
+                                            RMS4,
+                                            RMS5),
+                           name = "peaNetwork")
+save(peaNetwork, file = "./Data/peaNetwork.RData")
 
 
 
