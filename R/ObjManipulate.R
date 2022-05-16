@@ -103,10 +103,20 @@ buildNetwork <- function(hormones, genotypes, name) {
   return(network)
 }
 
+#' This is a function which specifies the print method for objects
+#' of class Network.
+#'
+#' This method is applies automatically with out needing to call
+#' the print function.
+#' @export
+
 print.Network <- setMethod(f = "show",
   signature = "Network",
   definition = function(object){
-  print(paste())
+  writeLines(paste("This is an object of class Newtork. It contains:\n",
+                   length(peaNetwork@objects$Hormones), "hormones\n",
+                   length(peaNetwork@objects$Genotypes), "genotypes"))
+
 })
 
 #' A function to list all objects of class hormone in the current environment
