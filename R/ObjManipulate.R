@@ -35,7 +35,8 @@ Hormone <- setClass("Hormone", slots = c(name = "character",
 #' @export
 
 Genotype <- setClass("Genotype", slots = c(name = "character",
-                                           expression = "data.frame"))
+                                           expression = "data.frame",
+                                           coregulator = "character"))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ))
 
 #' A function to generate objects of class 'Network'
 #'
@@ -116,8 +117,13 @@ print.Network <- setMethod(f = "show",
   writeLines(paste("This is an object of class Newtork. It contains:\n",
                    length(peaNetwork@objects$Hormones), "hormones\n",
                    length(peaNetwork@objects$Genotypes), "genotypes"))
+  # list out what the relevant hormones and genotypes are?
 
 })
+
+## print method for hormone class?
+
+## print method for genotype class?
 
 #' A function to list all objects of class hormone in the current environment
 #'

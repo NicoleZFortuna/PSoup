@@ -104,13 +104,15 @@ save(ShootSignal, file = "./Data/ShootSignal.RData")
 RMS1 <- new("Genotype",
             name = "RMS1",
             expression = data.frame(Container = c("scion", "rootstock"),
-                                    Expression = c(1, 1)))
+                                    Expression = c(1, 1)),
+            coregulator = "RMS5")
 save(RMS1, file = "./Data/RMS1.RData")
 
 RMS5 <- new("Genotype",
             name = "RMS5",
             expression = data.frame(Container = c("scion", "rootstock"),
-                                    Expression = c(1, 1)))
+                                    Expression = c(1, 1)),
+            coregulator = "RMS1")
 save(RMS5, file = "./Data/RMS5.RData")
 
 RMS2 <- new("Genotype",
@@ -122,13 +124,15 @@ save(RMS2, file = "./Data/RMS2.RData")
 RMS3 <- new("Genotype",
             name = "RMS3",
             expression = data.frame(Container = c("scion", "rootstock"),
-                                    Expression = c(1, 1)))
+                                    Expression = c(1, 1)),
+            coregulator = "RMS4")
 save(RMS3, file = "./Data/RMS3.RData")
 
 RMS4 <- new("Genotype",
             name = "RMS4",
             expression = data.frame(Container = c("scion", "rootstock"),
-                                    Expression = c(1, 1)))
+                                    Expression = c(1, 1)),
+            coregulator = "RMS3")
 save(RMS4, file = "./Data/RMS4.RData")
 
 peaNetwork <- buildNetwork(hormones = list(StrigolactoneR,
