@@ -10,10 +10,11 @@
 #'              "sufficient stimulation", "sufficient inhibition".
 #' @slot travel specifies if the hormone travels between compartments. Hormones travel from
 #'              their current container, to the other. Is a numeric value specifying the rate of
-#'              travel. Is 0 if there is not travel between compartments. Default for hormones
+#'              travel. Is 0 if there is no travel between compartments. Default for hormones
 #'              traveling down is 1, and up is 0.8 to reflect that signals moving up take a
 #'              longer time than signals moving down.
-#' @slot genotype data.frame with column names Gene, and Influence.
+#' @slot genotype a vector with objects of class character. Lists the genotypes that
+#'              are important to this node.
 #' @export
 
 Hormone <- setClass("Hormone", slots = c(name = "character",
@@ -32,11 +33,14 @@ Hormone <- setClass("Hormone", slots = c(name = "character",
 #'                 The expression column is a numerical value set between 0 (no expression),
 #'                 and 1 (full expression). All expression levels are set to the default 1
 #'                 (the wildtype genotype).
+#' @slot influence a data.frame with the column names Node and Influence. Influences can one
+#'                 of either "production", "degradation", "inhibition", "perception".
 #' @export
 
 Genotype <- setClass("Genotype", slots = c(name = "character",
                                            expression = "data.frame",
-                                           coregulator = "character"))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ))
+                                           coregulator = "character",
+                                           influence = "data.frame"))
 
 #' A function to generate objects of class 'Network'
 #'

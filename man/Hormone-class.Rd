@@ -25,10 +25,11 @@ A function to generate objects of class 'Hormone'
 
 \item{\code{travel}}{specifies if the hormone travels between compartments. Hormones travel from
 their current container, to the other. Is a numeric value specifying the rate of
-travel. Is 0 if there is not travel between compartments. Default for hormones
+travel. Is 0 if there is no travel between compartments. Default for hormones
 traveling down is 1, and up is 0.8 to reflect that signals moving up take a
 longer time than signals moving down.}
 
-\item{\code{genotype}}{data.frame with column names Gene, and Influence.}
+\item{\code{genotype}}{a vector with objects of class character. Lists the genotypes that
+are important to this node.}
 }}
 

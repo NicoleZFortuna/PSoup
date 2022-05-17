@@ -18,5 +18,8 @@ The compartment column can include "scion", or "rootstock".
 The expression column is a numerical value set between 0 (no expression),
 and 1 (full expression). All expression levels are set to the default 1
 (the wildtype genotype).}
+
+\item{\code{influence}}{a data.frame with the column names Node and Influence. Influences can one
+of either "production", "degradation", "inhibition", "perception".}
 }}
 
