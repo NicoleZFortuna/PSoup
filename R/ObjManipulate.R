@@ -13,7 +13,7 @@
 #'              travel. Is 0 if there is no travel between compartments. Default for hormones
 #'              traveling down is 1, and up is 0.8 to reflect that signals moving up take a
 #'              longer time than signals moving down.
-#' @slot genotype a vector with objects of class character. Lists the genotypes that
+#' @slot genotypes a vector with objects of class character. Lists the genotypes that
 #'              are important to this node.
 #' @export
 
@@ -33,6 +33,7 @@ Hormone <- setClass("Hormone", slots = c(name = "character",
 #'                 The expression column is a numerical value set between 0 (no expression),
 #'                 and 1 (full expression). All expression levels are set to the default 1
 #'                 (the wildtype genotype).
+#' @slot coregulator of class character. The names of other genotypes that coregulate together.
 #' @slot influence a data.frame with the column names Node and Influence. Influences can one
 #'                 of either "production", "degradation", "inhibition", "perception".
 #' @export
@@ -61,6 +62,7 @@ Network <- setClass("Network", slots = c(name = "character",
 #' @param hormones a list containing objects of class hormone.
 #' @param genotypes a list containing objects of class hormone.
 #' @param name the name to be given to the network
+#' @importFrom methods new
 #' @export
 
 buildNetwork <- function(hormones, genotypes, name) {
@@ -100,7 +102,7 @@ buildNetwork <- function(hormones, genotypes, name) {
     # stop if objects are not mutually referential
 
   # Build object of class network
-  network <- new("Network",
+  network <- methods::new("Network",
                     name = name,
                     objects = list(Hormones = hormones,
                                    Genotypes = genotypes))
@@ -119,10 +121,14 @@ print.Network <- setMethod(f = "show",
   signature = "Network",
   definition = function(object){
   writeLines(paste("This is an object of class Newtork. It contains:\n",
-                   length(peaNetwork@objects$Hormones), "hormones\n",
-                   length(peaNetwork@objects$Genotypes), "genotypes"))
-  # list out what the relevant hormones and genotypes are?
+                   length(object@objects$Hormones), "hormones"))
 
+  writeLines(paste0("\t", listNodes()))
+
+  writeLines(paste( length(object@objects$Genotypes), "genotypes"))
+
+  writeLines(paste0("\t", listGenotypes()))
+  # list out what the relevant hormones and genotypes are?
 })
 
 ## print method for hormone class?
