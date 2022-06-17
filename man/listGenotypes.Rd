@@ -4,7 +4,15 @@
 \alias{listGenotypes}
 \title{A function to list all objects of class genotype in the current environment}
 \usage{
-listGenotypes()
+listGenotypes(base = T)
+}
+\arguments{
+\item{base}{logical. Indicates whether the user wants to return a
+list of genotypes that were contained in the original
+base package. Default is set to true. If the user
+wants to return genotypes listed in the main environment
+(genotypes that they have built themselves), they should
+set this parameter to FALSE.}
 }
 \description{
 A function to list all objects of class genotype in the current environment

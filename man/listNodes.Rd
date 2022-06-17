@@ -4,11 +4,19 @@
 \alias{listNodes}
 \title{A function to list all objects of class hormone in the current environment}
 \usage{
-listNodes()
+listNodes(base = T)
+}
+\arguments{
+\item{base}{logical. Indicates whether the user wants to return a
+list of nodes that were contained in the original
+base package. Default is set to true. If the user
+wants to return nodes listed in the main environment
+(nodes that they have built themselves), they should
+set this parameter to FALSE.}
 }
 \description{
 A function to list all objects of class hormone in the current environment
 }
 \examples{
-NA
+listNodes()
 }

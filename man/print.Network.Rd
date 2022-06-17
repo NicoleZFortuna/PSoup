@@ -12,7 +12,7 @@ An object of class \code{character} of length 1.
 print.Network
 }
 \description{
-This method is applies automatically with out needing to call
+This method is applied automatically with out needing to call
 the print function.
 }
 \examples{

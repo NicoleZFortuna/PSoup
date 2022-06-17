@@ -3,11 +3,11 @@
 #' @slot name the name of the hormone. Will be used as a tag to place node within the network.
 #' @slot container the location of action for the hormone. Either "scion", or "rootstock".
 #' @slot inputs data.frame with column names Node, and Influence. Influences can one of either
-#'              "up regulate", "down regulate", "necessary stimulation", "necessary inhibition",
-#'              "sufficient stimulation", "sufficient inhibition".
+#'              "stimulation", "inhibition", "necessary stimulation", "necessary inhibition",
+#'              "sufficient stimulation", "sufficient inhibition", "Unknown".
 #' @slot outputs data.frame with column names Node, and Influence. Influences can one of either
-#'              "up regulate", "down regulate", "necessary stimulation", "necessary inhibition",
-#'              "sufficient stimulation", "sufficient inhibition".
+#'              "stimulation", "inhibition", "necessary stimulation", "necessary inhibition",
+#'              "sufficient stimulation", "sufficient inhibition", "Unknown".
 #' @slot travel specifies if the hormone travels between compartments. Hormones travel from
 #'              their current container, to the other. Is a numeric value specifying the rate of
 #'              travel. Is 0 if there is no travel between compartments. Default for hormones
@@ -144,7 +144,7 @@ print.Network <- setMethod(f = "show",
 
   writeLines(paste0("\t", listNodes()))
 
-  writeLines(paste( length(object@objects$Genotypes), "genotypes"))
+  writeLines(paste(length(object@objects$Genotypes), "genotypes"))
 
   writeLines(paste0("\t", listGenotypes()))
   # list out what the relevant hormones and genotypes are?
@@ -164,9 +164,10 @@ print.Network <- setMethod(f = "show",
 #'             set this parameter to FALSE.
 #' @export
 #' @examples
-#' NA
+#' listNodes()
 
 listNodes <- function(base = T) {
+  #browser()
   if (base == T) {
     Filter(function(x) inherits(get(x), "Hormone"),
            ls(envir=parent.env(parent.env(environment()))))
