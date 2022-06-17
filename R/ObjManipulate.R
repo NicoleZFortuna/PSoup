@@ -106,6 +106,17 @@ buildNetwork <- function(hormones, genotypes, name) {
   # Making sure that data is correctly self referential
     # stop if points to something that doesn't exist
     # stop if objects are not mutually referential
+  Hnames <- rep(NA, length(hormones))
+  for (i in 1:length(hormones)) {
+    Hnames[i] <- hormones[[i]]@name
+  }
+  names(hormones) <- Hnames
+
+  Gnames <- rep(NA, length(genotypes))
+  for (i in 1:length(genotypes)) {
+    Gnames[i] <- genotypes[[i]]@name
+  }
+  names(genotypes) <- Gnames
 
   # Build object of class network
   network <- methods::new("Network",
@@ -119,7 +130,7 @@ buildNetwork <- function(hormones, genotypes, name) {
 #' This is a function which specifies the print method for objects
 #' of class Network.
 #'
-#' This method is applies automatically with out needing to call
+#' This method is applied automatically with out needing to call
 #' the print function.
 #' @export
 #' @examples
@@ -145,22 +156,46 @@ print.Network <- setMethod(f = "show",
 
 #' A function to list all objects of class hormone in the current environment
 #'
+#' @param base logical. Indicates whether the user wants to return a
+#'             list of nodes that were contained in the original
+#'             base package. Default is set to true. If the user
+#'             wants to return nodes listed in the main environment
+#'             (nodes that they have built themselves), they should
+#'             set this parameter to FALSE.
 #' @export
 #' @examples
 #' NA
 
-listNodes <- function() {
-  Filter(function(x) inherits(get(x), "Hormone"), ls(envir=parent.env(environment())))
+listNodes <- function(base = T) {
+  if (base == T) {
+    Filter(function(x) inherits(get(x), "Hormone"),
+           ls(envir=parent.env(parent.env(environment()))))
+  } else {
+    Filter(function(x) inherits(get(x), "Hormone"),
+         ls(envir=parent.env(environment())))
+  }
 }
 
 #' A function to list all objects of class genotype in the current environment
 #'
+#' @param base logical. Indicates whether the user wants to return a
+#'             list of genotypes that were contained in the original
+#'             base package. Default is set to true. If the user
+#'             wants to return genotypes listed in the main environment
+#'             (genotypes that they have built themselves), they should
+#'             set this parameter to FALSE.
 #' @export
 #' @examples
 #' NA
 
-listGenotypes <- function() {
-  Filter(function(x) inherits(get(x), "Genotype"), ls(envir=parent.env(environment())))
+listGenotypes <- function(base = T) {
+  if (base == T) {
+    Filter(function(x) inherits(get(x), "Genotype"),
+           ls(envir=parent.env(parent.env(environment()))))
+  } else {
+    Filter(function(x) inherits(get(x), "Genotype"),
+         ls(envir=parent.env(environment())))
+  }
 }
 
 #' A function to restore the base model.

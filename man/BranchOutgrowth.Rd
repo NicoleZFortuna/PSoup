@@ -5,7 +5,7 @@
 \alias{BranchOutgrowth}
 \title{Definition for the BranchOutgrowth object.}
 \format{
-A data frame with 53940 rows and 10 variables:
+A list containing 6 objects:
 \describe{
   \item{name}{name of object}
   \item{container}{location of action}

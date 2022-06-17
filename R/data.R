@@ -2,7 +2,7 @@
 #'
 #' An object of class hormone.
 #'
-#' @format A data frame with 53940 rows and 10 variables:
+#' @format A list containing 6 objects:
 #' \describe{
 #'   \item{name}{name of object}
 #'   \item{container}{location of action}
@@ -18,7 +18,7 @@
 #'
 #' An object of class hormone.
 #'
-#' @format A data frame with 53940 rows and 10 variables:
+#' @format A list containing 6 objects:
 #' \describe{
 #'   \item{name}{name of object}
 #'   \item{container}{location of action}
@@ -35,7 +35,7 @@
 #'
 #' An object of class hormone.
 #'
-#' @format A data frame with 53940 rows and 10 variables:
+#' @format A list containing 6 objects:
 #' \describe{
 #'   \item{name}{name of object}
 #'   \item{container}{location of action}
@@ -51,7 +51,7 @@
 #'
 #' An object of class hormone.
 #'
-#' @format A data frame with 53940 rows and 10 variables:
+#' @format A list containing 6 objects:
 #' \describe{
 #'   \item{name}{name of object}
 #'   \item{container}{location of action}
@@ -67,7 +67,7 @@
 #'
 #' An object of class hormone.
 #'
-#' @format A data frame with 53940 rows and 10 variables:
+#' @format A list containing 6 objects:
 #' \describe{
 #'   \item{name}{name of object}
 #'   \item{container}{location of action}
@@ -83,7 +83,7 @@
 #'
 #' An object of class hormone.
 #'
-#' @format A data frame with 53940 rows and 10 variables:
+#' @format A list containing 6 objects:
 #' \describe{
 #'   \item{name}{name of object}
 #'   \item{container}{location of action}
@@ -99,7 +99,7 @@
 #'
 #' An object of class hormone.
 #'
-#' @format A data frame with 53940 rows and 10 variables:
+#' @format A list containing 6 objects:
 #' \describe{
 #'   \item{name}{name of object}
 #'   \item{container}{location of action}
@@ -115,7 +115,7 @@
 #'
 #' An object of class hormone.
 #'
-#' @format A data frame with 53940 rows and 10 variables:
+#' @format A list containing 6 objects:
 #' \describe{
 #'   \item{name}{name of object}
 #'   \item{container}{location of action}
@@ -131,7 +131,7 @@
 #'
 #' An object of class hormone.
 #'
-#' @format A data frame with 53940 rows and 10 variables:
+#' @format A list containing 6 objects:
 #' \describe{
 #'   \item{name}{name of object}
 #'   \item{container}{location of action}
@@ -147,7 +147,7 @@
 #'
 #' An object of class genotype.
 #'
-#' @format A data frame with 53940 rows and 10 variables:
+#' @format A list containing 4 objects:
 #' \describe{
 #'   \item{name}{name of object}
 #'   \item{expression}{location of action}
@@ -160,7 +160,7 @@
 #'
 #' An object of class genotype.
 #'
-#' @format A data frame with 53940 rows and 10 variables:
+#' @format A list containing 4 objects:
 #' \describe{
 #'   \item{name}{name of object}
 #'   \item{expression}{location of action}
@@ -173,7 +173,7 @@
 #'
 #' An object of class genotype.
 #'
-#' @format A data frame with 53940 rows and 10 variables:
+#' @format A list containing 4 objects:
 #' \describe{
 #'   \item{name}{name of object}
 #'   \item{expression}{location of action}
@@ -186,7 +186,7 @@
 #'
 #' An object of class genotype.
 #'
-#' @format A data frame with 53940 rows and 10 variables:
+#' @format A list containing 4 objects:
 #' \describe{
 #'   \item{name}{name of object}
 #'   \item{expression}{location of action}
@@ -199,7 +199,7 @@
 #'
 #' An object of class genotype.
 #'
-#' @format A data frame with 53940 rows and 10 variables:
+#' @format A list containing 4 objects:
 #' \describe{
 #'   \item{name}{name of object}
 #'   \item{expression}{location of action}
@@ -212,7 +212,7 @@
 #'
 #' An object of class Network
 #'
-#' @format A data frame with 53940 rows and 10 variables:
+#' @format A list containing 4 objects:
 #' \describe{
 #'   \item{name}{name of object}
 #'   \item{expression}{location of action}
@@ -220,22 +220,3 @@
 #'   \item{influence}{influenced nodes}
 #' }
 "peaNetwork"
-# peaNetwork <- buildNetwork(hormones = list(StrigolactoneR,
-#                                            StrigolactoneS,
-#                                            FeedbackR,
-#                                            FeedbackS,
-#                                            Cytokinin,
-#                                            BranchInhibitor,
-#                                            BudRelease,
-#                                            BranchOutgrowth,
-#                                            ShootSignal),
-#                            genotypes = list(RMS1,
-#                                             RMS2,
-#                                             RMS3,
-#                                             RMS4,
-#                                             RMS5),
-#                            name = "peaNetwork")
-# save(peaNetwork, file = "./Data/peaNetwork.RData")
-#
-#
-#
