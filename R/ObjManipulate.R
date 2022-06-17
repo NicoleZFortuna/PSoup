@@ -16,6 +16,8 @@
 #' @slot genotypes a vector with objects of class character. Lists the genotypes that
 #'              are important to this node.
 #' @export
+#' @examples
+#' NA
 
 Hormone <- setClass("Hormone", slots = c(name = "character",
                                          container = "character",
@@ -37,6 +39,8 @@ Hormone <- setClass("Hormone", slots = c(name = "character",
 #' @slot influence a data.frame with the column names Node and Influence. Influences can one
 #'                 of either "production", "degradation", "inhibition", "perception".
 #' @export
+#' @examples
+#' NA
 
 Genotype <- setClass("Genotype", slots = c(name = "character",
                                            expression = "data.frame",
@@ -64,6 +68,8 @@ Network <- setClass("Network", slots = c(name = "character",
 #' @param name the name to be given to the network
 #' @importFrom methods new
 #' @export
+#' @examples
+#' NA
 
 buildNetwork <- function(hormones, genotypes, name) {
   # Making sure that data will be of the correct format
@@ -116,6 +122,8 @@ buildNetwork <- function(hormones, genotypes, name) {
 #' This method is applies automatically with out needing to call
 #' the print function.
 #' @export
+#' @examples
+#' NA
 
 print.Network <- setMethod(f = "show",
   signature = "Network",
@@ -138,6 +146,8 @@ print.Network <- setMethod(f = "show",
 #' A function to list all objects of class hormone in the current environment
 #'
 #' @export
+#' @examples
+#' NA
 
 listNodes <- function() {
   Filter(function(x) inherits(get(x), "Hormone"), ls(envir=parent.env(environment())))
@@ -146,6 +156,8 @@ listNodes <- function() {
 #' A function to list all objects of class genotype in the current environment
 #'
 #' @export
+#' @examples
+#' NA
 
 listGenotypes <- function() {
   Filter(function(x) inherits(get(x), "Genotype"), ls(envir=parent.env(environment())))
@@ -157,6 +169,8 @@ listGenotypes <- function() {
 #' and the standard objects reloaded.
 #'
 #' @export
+#' @examples
+#' NA
 
 restoreBaseModel <- function() {
 

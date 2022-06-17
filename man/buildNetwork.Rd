@@ -20,3 +20,6 @@ class network. Will check the network to make sure that all objects and
 genotypes have been pointed to, and will return a list of objects that have
 not been.
 }
+\examples{
+NA
+}

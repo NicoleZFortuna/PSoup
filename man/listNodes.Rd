@@ -9,3 +9,6 @@ listNodes()
 \description{
 A function to list all objects of class hormone in the current environment
 }
+\examples{
+NA
+}

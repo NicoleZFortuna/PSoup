@@ -15,4 +15,7 @@ print.Network
 This method is applies automatically with out needing to call
 the print function.
 }
+\examples{
+NA
+}
 \keyword{datasets}

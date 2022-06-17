@@ -25,3 +25,6 @@ and 1 (full expression). All expression levels are set to the default 1
 of either "production", "degradation", "inhibition", "perception".}
 }}
 
+\examples{
+NA
+}

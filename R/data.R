@@ -14,141 +14,212 @@
 #' }
 "StrigolactoneR"
 
+#' Definition for the StrigolactoneS object.
+#'
+#' An object of class hormone.
+#'
+#' @format A data frame with 53940 rows and 10 variables:
+#' \describe{
+#'   \item{name}{name of object}
+#'   \item{container}{location of action}
+#'   \item{inputs}{influencing nodes}
+#'   \item{outputs}{influenced nodes}
+#'   \item{travel}{speed of travel}
+#'   \item{genotypes}{controlling genotypes}
+#'   ...
+#' }
+"StrigolactoneS"
 
-# StrigolactoneS <- new("Hormone",
-#                       name = "StrigolactoneR",
-#                       container = "scion",
-#                       inputs = data.frame(Node = c("FeedbackS", "StrigolactoneR"),
-#                                           Influence = c("up regulate", "up regulate")),
-#                       outputs = data.frame(Node = "BranchInhibitor", Influence = "up regulate"),
-#                       travel = 0,
-#                       genotypes = c("RMS1", "RMS5"))
-# save(StrigolactoneS, file = "./Data/StrigolactoneS.RData")
-#
-# FeedbackR <- new("Hormone",
-#                  name = "FeedbackR",
-#                  container = "rootstock",
-#                  inputs = data.frame(Node = "FeedbackS",
-#                                      Influence = "up regulate"),
-#                  outputs = data.frame(Node = c("Cytokinin", "StrigolactoneR"),
-#                                       Influence = c("down regulate", "up regulate")),
-#                  travel = 0,
-#                  genotypes = "RMS2")
-# save(FeedbackR, file = "./Data/FeedbackR.RData")
-#
-# FeedbackS <- new("Hormone",
-#                  name = "FeedbackS",
-#                  container = "scion",
-#                  inputs = data.frame(Node = c("BranchInhibitor"),
-#                                      Influence = c("down regulate")),
-#                  outputs = data.frame(Node = c("FeedbackR", "StrigolactoneS"),
-#                                       Influence = c("up regulate", "up regulate")),
-#                  travel = 1,
-#                  genotypes = "RMS2")
-# save(FeedbackS, file = "./Data/FeedbackS.RData")
-#
-# Cytokinin <- new("Hormone",
-#                  name = "Cytokinin",
-#                  container = "rootstock",
-#                  inputs = data.frame(Node = "FeedbackR",
-#                                      Influence = "down regulate"),
-#                  outputs = data.frame(Node = "Bud Outgrowth",
-#                                      Influence = "up regulate"),
-#                  travel = 0.8)
-# save(Cytokinin, file = "./Data/Cytokinin.RData")
-#
-# BranchInhibitor = new("Hormone",
-#                       name = "BranchInhibitor",
-#                       container = "scion",
-#                       inputs = data.frame(Node = "StrigolactoneS",
-#                                           Influence = "up regulate"),
-#                       outputs = data.frame(Node = c("BudRelease", "FeedbackS"),
-#                                            Influence = c("down regulation", "down regulation")),
-#                       travel = 1,
-#                       genotypes = c("RMS3", "RMS4"))
-# save(BranchInhibitor, file = "./Data/BranchInhibitor.RData")
-#
-# BudRelease <- new("Hormone",
-#                   name = "BudRelease",
-#                   container = "scion",
-#                   inputs = data.frame(Node = "StrigolactoneS",
-#                                       Influence = "up regulation"),
-#                   outputs = data.frame(Node = c("BranchInhibitor",
-#                                                 "FeedbackS"),
-#                                        Influence = c("down regulation",
-#                                                      "down regulation")),
-#                   travel = 0,
-#                   genotypes = c("RMS3", "RMS4"))
-# save(BudRelease, file = "./Data/BudRelease.RData")
-#
-# BranchOutgrowth <- new("Hormone",
-#                        name = "BranchOutgrowth",
-#                        container = "scion",
-#                        inputs = data.frame(Node = c("BudRelease",
-#                                                     "Cytokinin"),
-#                                            Influence = c("necessary stimulation",
-#                                                          "upregulation")),
-#                        outputs = data.frame(Node = "ShootSignal",
-#                                             Influence = "necessary stimulation"),
-#                        travel = 0)
-# save(BranchOutgrowth, file = "./Data/BranchOutgrowth.RData")
-#
-# ShootSignal <- new("Hormone",
-#                    name = "ShootSignal",
-#                    container = "scion",
-#                    inputs = data.frame(Node = "BranchOutgrowth",
-#                                        Influence = "necessary stimulation"),
-#                    outputs = data.frame(Node = c("StrigolactoneS",
-#                                                  "StrigolactoneR"),
-#                                         Influence = c("up regulation",
-#                                                       "up regulation")),
-#                    travel = 1)
-# save(ShootSignal, file = "./Data/ShootSignal.RData")
-#
-# RMS1 <- new("Genotype",
-#             name = "RMS1",
-#             expression = data.frame(Container = c("scion", "rootstock"),
-#                                     Expression = c(1, 1)),
-#             coregulator = "RMS5",
-#             influence = data.frame(Node = c("StrigolactoneR", "StrigolactoneS"),
-#                                    Influence = c("production", "production")))
-# save(RMS1, file = "./Data/RMS1.RData")
-#
-# RMS5 <- new("Genotype",
-#             name = "RMS5",
-#             expression = data.frame(Container = c("scion", "rootstock"),
-#                                     Expression = c(1, 1)),
-#             coregulator = "RMS1",
-#             influence = data.frame(Node = c("StrigolactoneR", "StrigolactoneS"),
-#                                    Influence = c("production", "production")))
-# save(RMS5, file = "./Data/RMS5.RData")
-#
-# RMS2 <- new("Genotype",
-#             name = "RMS2",
-#             expression = data.frame(Container = c("scion", "rootstock"),
-#                                     Expression = c(1, 1)),
-#             influence = data.frame(Node = c("FeedbackR", "FeedbackS"),
-#                                    Influence = c("production", "production")))
-# save(RMS2, file = "./Data/RMS2.RData")
-#
-# RMS3 <- new("Genotype",
-#             name = "RMS3",
-#             expression = data.frame(Container = c("scion", "rootstock"),
-#                                     Expression = c(1, 1)),
-#             coregulator = "RMS4",
-#             influence = data.frame(Node = c("StrigolactoneR", "Strigolactone"),
-#                                    Influence = c("inhibution", "perception")))
-# save(RMS3, file = "./Data/RMS3.RData")
-#
-# RMS4 <- new("Genotype",
-#             name = "RMS4",
-#             expression = data.frame(Container = c("scion", "rootstock"),
-#                                     Expression = c(1, 1)),
-#             coregulator = "RMS3",
-#             influence = data.frame(Node = c("StrigolactoneR", "Strigolactone"),
-#                                    Influence = c("inhibution", "perception")))
-# save(RMS4, file = "./Data/RMS4.RData")
-#
+
+#' Definition for the FeedbackR object.
+#'
+#' An object of class hormone.
+#'
+#' @format A data frame with 53940 rows and 10 variables:
+#' \describe{
+#'   \item{name}{name of object}
+#'   \item{container}{location of action}
+#'   \item{inputs}{influencing nodes}
+#'   \item{outputs}{influenced nodes}
+#'   \item{travel}{speed of travel}
+#'   \item{genotypes}{controlling genotypes}
+#'   ...
+#' }
+"FeedbackR"
+
+#' Definition for the FeedbackS object.
+#'
+#' An object of class hormone.
+#'
+#' @format A data frame with 53940 rows and 10 variables:
+#' \describe{
+#'   \item{name}{name of object}
+#'   \item{container}{location of action}
+#'   \item{inputs}{influencing nodes}
+#'   \item{outputs}{influenced nodes}
+#'   \item{travel}{speed of travel}
+#'   \item{genotypes}{controlling genotypes}
+#'   ...
+#' }
+"FeedbackS"
+
+#' Definition for the Cytokinin object.
+#'
+#' An object of class hormone.
+#'
+#' @format A data frame with 53940 rows and 10 variables:
+#' \describe{
+#'   \item{name}{name of object}
+#'   \item{container}{location of action}
+#'   \item{inputs}{influencing nodes}
+#'   \item{outputs}{influenced nodes}
+#'   \item{travel}{speed of travel}
+#'   \item{genotypes}{controlling genotypes}
+#'   ...
+#' }
+"Cytokinin"
+
+#' Definition for the BranchInhibitor object.
+#'
+#' An object of class hormone.
+#'
+#' @format A data frame with 53940 rows and 10 variables:
+#' \describe{
+#'   \item{name}{name of object}
+#'   \item{container}{location of action}
+#'   \item{inputs}{influencing nodes}
+#'   \item{outputs}{influenced nodes}
+#'   \item{travel}{speed of travel}
+#'   \item{genotypes}{controlling genotypes}
+#'   ...
+#' }
+"BranchInhibitor"
+
+#' Definition for the BudRelease object.
+#'
+#' An object of class hormone.
+#'
+#' @format A data frame with 53940 rows and 10 variables:
+#' \describe{
+#'   \item{name}{name of object}
+#'   \item{container}{location of action}
+#'   \item{inputs}{influencing nodes}
+#'   \item{outputs}{influenced nodes}
+#'   \item{travel}{speed of travel}
+#'   \item{genotypes}{controlling genotypes}
+#'   ...
+#' }
+"BudRelease"
+
+#' Definition for the BranchOutgrowth object.
+#'
+#' An object of class hormone.
+#'
+#' @format A data frame with 53940 rows and 10 variables:
+#' \describe{
+#'   \item{name}{name of object}
+#'   \item{container}{location of action}
+#'   \item{inputs}{influencing nodes}
+#'   \item{outputs}{influenced nodes}
+#'   \item{travel}{speed of travel}
+#'   \item{genotypes}{controlling genotypes}
+#'   ...
+#' }
+"BranchOutgrowth"
+
+#' Definition for the ShootSignal object.
+#'
+#' An object of class hormone.
+#'
+#' @format A data frame with 53940 rows and 10 variables:
+#' \describe{
+#'   \item{name}{name of object}
+#'   \item{container}{location of action}
+#'   \item{inputs}{influencing nodes}
+#'   \item{outputs}{influenced nodes}
+#'   \item{travel}{speed of travel}
+#'   \item{genotypes}{controlling genotypes}
+#'   ...
+#' }
+"ShootSignal"
+
+#' Definition for the RMS1 object.
+#'
+#' An object of class genotype.
+#'
+#' @format A data frame with 53940 rows and 10 variables:
+#' \describe{
+#'   \item{name}{name of object}
+#'   \item{expression}{location of action}
+#'   \item{coregulator}{coregulating genotypes}
+#'   \item{influence}{influenced nodes}
+#' }
+"RMS1"
+
+#' Definition for the RMS5 object.
+#'
+#' An object of class genotype.
+#'
+#' @format A data frame with 53940 rows and 10 variables:
+#' \describe{
+#'   \item{name}{name of object}
+#'   \item{expression}{location of action}
+#'   \item{coregulator}{coregulating genotypes}
+#'   \item{influence}{influenced nodes}
+#' }
+"RMS5"
+
+#' Definition for the RMS2 object.
+#'
+#' An object of class genotype.
+#'
+#' @format A data frame with 53940 rows and 10 variables:
+#' \describe{
+#'   \item{name}{name of object}
+#'   \item{expression}{location of action}
+#'   \item{coregulator}{coregulating genotypes}
+#'   \item{influence}{influenced nodes}
+#' }
+"RMS2"
+
+#' Definition for the RMS3 object.
+#'
+#' An object of class genotype.
+#'
+#' @format A data frame with 53940 rows and 10 variables:
+#' \describe{
+#'   \item{name}{name of object}
+#'   \item{expression}{location of action}
+#'   \item{coregulator}{coregulating genotypes}
+#'   \item{influence}{influenced nodes}
+#' }
+"RMS3"
+
+#' Definition for the RMS4 object.
+#'
+#' An object of class genotype.
+#'
+#' @format A data frame with 53940 rows and 10 variables:
+#' \describe{
+#'   \item{name}{name of object}
+#'   \item{expression}{location of action}
+#'   \item{coregulator}{coregulating genotypes}
+#'   \item{influence}{influenced nodes}
+#' }
+"RMS4"
+
+#' Definition for the peaNetwork object.
+#'
+#' An object of class Network
+#'
+#' @format A data frame with 53940 rows and 10 variables:
+#' \describe{
+#'   \item{name}{name of object}
+#'   \item{expression}{location of action}
+#'   \item{coregulator}{coregulating genotypes}
+#'   \item{influence}{influenced nodes}
+#' }
+"peaNetwork"
 # peaNetwork <- buildNetwork(hormones = list(StrigolactoneR,
 #                                            StrigolactoneS,
 #                                            FeedbackR,

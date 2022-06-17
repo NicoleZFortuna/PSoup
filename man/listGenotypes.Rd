@@ -9,3 +9,6 @@ listGenotypes()
 \description{
 A function to list all objects of class genotype in the current environment
 }
+\examples{
+NA
+}
