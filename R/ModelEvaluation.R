@@ -8,11 +8,11 @@
 #
 # @param network an object of class network.
 consistencyCheck <- function(network) {
-  Hnames <- names(peaNetwork@objects$Hormones)
-  Gnames <- names(peaNetwork@objects$Genotypes)
+  Hnames <- names(network@objects$Hormones)
+  Gnames <- names(network@objects$Genotypes)
 
   for (i in Hnames) {
-    peaNetwork@objects$Hormones[[i]]@inputs
+    network@objects$Hormones[[i]]@inputs
   }
 
   # travel
