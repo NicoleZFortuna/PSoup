@@ -12,7 +12,10 @@ consistencyCheck <- function(network) {
   Gnames <- names(network@objects$Genotypes)
 
   for (i in Hnames) {
-    network@objects$Hormones[[i]]@inputs
+    for (j in 1:nrow(network@objects$Hormones[[i]]@inputs)) {
+      network@objects$Hormones[[i]]@inputs
+    }
+
   }
 
   # travel
