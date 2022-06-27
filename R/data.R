@@ -143,6 +143,22 @@
 #' }
 "ShootSignal"
 
+#' Definition for the Inhibitor object.
+#'
+#' An object of class hormone.
+#'
+#' @format A list containing 6 objects:
+#' \describe{
+#'   \item{name}{name of object}
+#'   \item{container}{location of action}
+#'   \item{inputs}{influencing nodes}
+#'   \item{outputs}{influenced nodes}
+#'   \item{travel}{speed of travel}
+#'   \item{genotypes}{controlling genotypes}
+#'   ...
+#' }
+"Inhibitor"
+
 #' Definition for the RMS1 object.
 #'
 #' An object of class genotype.

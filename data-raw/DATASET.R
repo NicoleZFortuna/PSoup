@@ -17,7 +17,7 @@ save(StrigolactoneR, file = "./Data/StrigolactoneR.RData")
 
 
 StrigolactoneS <- new("Hormone",
-                      name = "StrigolactoneR",
+                      name = "StrigolactoneS",
                       container = "scion",
                       inputs = data.frame(Node = c("FeedbackS", "StrigolactoneR"),
                                           Influence = c("stimulation", "stimulation")),
@@ -64,7 +64,7 @@ BranchInhibitor = new("Hormone",
                       inputs = data.frame(Node = "StrigolactoneS",
                                           Influence = "stimulation"),
                       outputs = data.frame(Node = c("BudRelease", "FeedbackS"),
-                                           Influence = c("down regulation", "down regulation")),
+                                           Influence = c("inhibition", "inhibition")),
                       travel = 1,
                       genotypes = c("RMS3", "RMS4"))
 save(BranchInhibitor, file = "./Data/BranchInhibitor.RData")
@@ -76,8 +76,8 @@ BudRelease <- new("Hormone",
                                       Influence = "up regulation"),
                   outputs = data.frame(Node = c("BranchInhibitor",
                                                 "FeedbackS"),
-                                       Influence = c("down regulation",
-                                                     "down regulation")),
+                                       Influence = c("inhibition",
+                                                     "inhibition")),
                   travel = 0,
                   genotypes = c("RMS3", "RMS4"))
 save(BudRelease, file = "./Data/BudRelease.RData")
@@ -101,10 +101,22 @@ ShootSignal <- new("Hormone",
                                        Influence = "necessary stimulation"),
                    outputs = data.frame(Node = c("StrigolactoneS",
                                                  "StrigolactoneR"),
-                                        Influence = c("up regulation",
-                                                      "up regulation")),
-                   travel = 1)
+                                        Influence = c("stimulation",
+                                                      "stimulation")),
+                   travel = 1,
+                   genotypes = c("RMS3", "RMS4"))
 save(ShootSignal, file = "./Data/ShootSignal.RData")
+
+Inhibitor <- new("Hormone",
+                   name = "Inhibitor",
+                   container = "rootstock",
+                   inputs = data.frame(Node = NULL,
+                                       Influence = NULL),
+                   outputs = data.frame(Node = "StrigolactoneR",
+                                        Influence = "inhibition"),
+                   travel = 1,
+                 genotypes = c("RMS3", "RMS4"))
+save(Inhibitor, file = "./Data/Inhibitor.RData")
 
 RMS1 <- new("Genotype",
             name = "RMS1",
@@ -158,7 +170,8 @@ peaNetwork <- buildNetwork(hormones = list(StrigolactoneR,
                                            BranchInhibitor,
                                            BudRelease,
                                            BranchOutgrowth,
-                                           ShootSignal),
+                                           ShootSignal,
+                                           Inhibitor),
                            genotypes = list(RMS1,
                                             RMS2,
                                             RMS3,

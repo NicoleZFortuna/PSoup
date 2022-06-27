@@ -11,9 +11,28 @@ consistencyCheck <- function(network) {
   Hnames <- names(network@objects$Hormones)
   Gnames <- names(network@objects$Genotypes)
 
-  for (i in Hnames) {
-    for (j in 1:nrow(network@objects$Hormones[[i]]@inputs)) {
-      network@objects$Hormones[[i]]@inputs
+  errorList = list()
+  eL=1
+
+  for (h in 1:length(Hnames)) { #Checking the each hormone against their inputs and outputs
+    key = network@objects$Hormones[[h]]@name
+
+    for (i in 1:nrow(network@objects$Hormones[[key]]@inputs)) {
+      inKey = network@objects$Hormones[[key]]@inputs$Node[i]
+      if (network@objects$Hormones[[key]]@inputs$Influence[i] !=
+          network@objects$Hormones[[inKey]]@outputs$Influence[network@objects$Hormones[[inKey]]@outputs$Node==key]) {
+        errorList[[eL]] <- paste("There is a discrepancy between hormones:", key, "and,", inKey)
+        eL = eL + 1
+      }
+    }
+
+    for (o in 1:nrow(network@objects$Hormones[[key]]@outputs)) {
+      outKey = network@objects$Hormones[[key]]@outputs$Node[i]
+      if (network@objects$Hormones[[key]]@outputs$Influence[i] !=
+          network@objects$Hormones[[outKey]]@inputs$Influence[network@objects$Hormones[[outKey]]@inputs$Node==key]) {
+        errorList[[eL]] <- paste("There is a discrepancy between hormones:", key, "and,", inKey)
+        eL = eL + 1
+      }
     }
 
   }
