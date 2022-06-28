@@ -1,15 +1,12 @@
-## code to prepare `DATASET` dataset goes here
-
-usethis::use_data(DATASET, overwrite = TRUE)
-
-### This file will need to be moved to the data-raw folder
-
-
 StrigolactoneR <- new("Hormone",
                       name = "StrigolactoneR",
                       container = "rootstock",
-                      inputs = data.frame(Node = c("FeedbackR", "Inhibitor"),
-                                          Influence = c("stimulation", "inhibition")),
+                      inputs = data.frame(Node = c("FeedbackR",
+                                                   "Inhibitor",
+                                                   "ShootSignal"),
+                                          Influence = c("stimulation",
+                                                        "inhibition",
+                                                        "stimulation")),
                       outputs = data.frame(Node = "StrigolactoneS", Influence = "stimulation"),
                       travel = 0.8,
                       genotypes = c("RMS1", "RMS5", "RMS3", "RMS4"))
@@ -19,8 +16,12 @@ save(StrigolactoneR, file = "./Data/StrigolactoneR.RData")
 StrigolactoneS <- new("Hormone",
                       name = "StrigolactoneS",
                       container = "scion",
-                      inputs = data.frame(Node = c("FeedbackS", "StrigolactoneR"),
-                                          Influence = c("stimulation", "stimulation")),
+                      inputs = data.frame(Node = c("FeedbackS",
+                                                   "StrigolactoneR",
+                                                   "ShootSignal"),
+                                          Influence = c("stimulation",
+                                                        "stimulation",
+                                                        "stimulation")),
                       outputs = data.frame(Node = "BranchInhibitor", Influence = "stimulation"),
                       travel = 0,
                       genotypes = c("RMS1", "RMS5"))
@@ -53,7 +54,7 @@ Cytokinin <- new("Hormone",
                  container = "rootstock",
                  inputs = data.frame(Node = "FeedbackR",
                                      Influence = "inhibition"),
-                 outputs = data.frame(Node = "Bud Outgrowth",
+                 outputs = data.frame(Node = "BranchOutgrowth",
                                      Influence = "stimulation"),
                  travel = 0.8)
 save(Cytokinin, file = "./Data/Cytokinin.RData")
@@ -72,12 +73,10 @@ save(BranchInhibitor, file = "./Data/BranchInhibitor.RData")
 BudRelease <- new("Hormone",
                   name = "BudRelease",
                   container = "scion",
-                  inputs = data.frame(Node = "StrigolactoneS",
-                                      Influence = "up regulation"),
-                  outputs = data.frame(Node = c("BranchInhibitor",
-                                                "FeedbackS"),
-                                       Influence = c("inhibition",
-                                                     "inhibition")),
+                  inputs = data.frame(Node = "BranchInhibitor",
+                                      Influence = "inhibition"),
+                  outputs = data.frame(Node = "BranchOutgrowth",
+                                       Influence = c("necessary stimulation")),
                   travel = 0,
                   genotypes = c("RMS3", "RMS4"))
 save(BudRelease, file = "./Data/BudRelease.RData")
@@ -88,7 +87,7 @@ BranchOutgrowth <- new("Hormone",
                        inputs = data.frame(Node = c("BudRelease",
                                                     "Cytokinin"),
                                            Influence = c("necessary stimulation",
-                                                         "upregulation")),
+                                                         "stimulation")),
                        outputs = data.frame(Node = "ShootSignal",
                                             Influence = "necessary stimulation"),
                        travel = 0)
