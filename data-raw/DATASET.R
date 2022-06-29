@@ -148,7 +148,7 @@ RMS3 <- new("Genotype",
             expression = data.frame(Container = c("scion", "rootstock"),
                                     Expression = c(1, 1)),
             coregulator = "RMS4",
-            influence = data.frame(Node = c("StrigolactoneR", "Strigolactone"),
+            influence = data.frame(Node = c("StrigolactoneR", "StrigolactoneS"),
                                    Influence = c("inhibution", "perception")))
 save(RMS3, file = "./Data/RMS3.RData")
 
@@ -157,7 +157,7 @@ RMS4 <- new("Genotype",
             expression = data.frame(Container = c("scion", "rootstock"),
                                     Expression = c(1, 1)),
             coregulator = "RMS3",
-            influence = data.frame(Node = c("StrigolactoneR", "Strigolactone"),
+            influence = data.frame(Node = c("StrigolactoneR", "StrigolactoneS"),
                                    Influence = c("inhibution", "perception")))
 save(RMS4, file = "./Data/RMS4.RData")
 
