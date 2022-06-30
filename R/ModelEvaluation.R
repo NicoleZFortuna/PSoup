@@ -115,6 +115,7 @@ consistencyCheck <- function(network) {
 
   # Cycle through all genotype objects
   for (g in 1:length(Gnames)) {
+    gKey = network@objects$Genotypes[[g]]@name
     # Check if there is a coregulator
     if (length(network@objects$Genotypes[[g]]@coregulator) > 0) {
       for (cr in 1:length(network@objects$Genotypes[[g]]@coregulator)) {
@@ -159,8 +160,9 @@ consistencyCheck <- function(network) {
 
   if (length(errorList) > 0) {
     stop(writeLines(paste(errorList, sep = "/n")))
+  } else {
+    print("Network is internally consistant.")
   }
-
 }
 
 # validityCheck

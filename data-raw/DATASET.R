@@ -9,7 +9,7 @@ StrigolactoneR <- new("Hormone",
                                                         "stimulation")),
                       outputs = data.frame(Node = "StrigolactoneS", Influence = "stimulation"),
                       travel = 0.8,
-                      genotypes = c("RMS1", "RMS5", "RMS3", "RMS4"))
+                      genotypes = c("RMS1", "RMS5"))
 save(StrigolactoneR, file = "./Data/StrigolactoneR.RData")
 
 
@@ -77,8 +77,7 @@ BudRelease <- new("Hormone",
                                       Influence = "inhibition"),
                   outputs = data.frame(Node = "BranchOutgrowth",
                                        Influence = c("necessary stimulation")),
-                  travel = 0,
-                  genotypes = c("RMS3", "RMS4"))
+                  travel = 0)
 save(BudRelease, file = "./Data/BudRelease.RData")
 
 BranchOutgrowth <- new("Hormone",
@@ -102,8 +101,7 @@ ShootSignal <- new("Hormone",
                                                  "StrigolactoneR"),
                                         Influence = c("stimulation",
                                                       "stimulation")),
-                   travel = 1,
-                   genotypes = c("RMS3", "RMS4"))
+                   travel = 1)
 save(ShootSignal, file = "./Data/ShootSignal.RData")
 
 Inhibitor <- new("Hormone",
@@ -148,8 +146,8 @@ RMS3 <- new("Genotype",
             expression = data.frame(Container = c("scion", "rootstock"),
                                     Expression = c(1, 1)),
             coregulator = "RMS4",
-            influence = data.frame(Node = c("StrigolactoneR", "StrigolactoneS"),
-                                   Influence = c("inhibution", "perception")))
+            influence = data.frame(Node = c("BranchInhibitor", "Inhibitor"),
+                                   Influence = c("production", "production")))
 save(RMS3, file = "./Data/RMS3.RData")
 
 RMS4 <- new("Genotype",
@@ -157,8 +155,8 @@ RMS4 <- new("Genotype",
             expression = data.frame(Container = c("scion", "rootstock"),
                                     Expression = c(1, 1)),
             coregulator = "RMS3",
-            influence = data.frame(Node = c("StrigolactoneR", "StrigolactoneS"),
-                                   Influence = c("inhibution", "perception")))
+            influence = data.frame(Node = c("BranchInhibitor", "Inhibitor"),
+                                   Influence = c("production", "production")))
 save(RMS4, file = "./Data/RMS4.RData")
 
 peaNetwork <- buildNetwork(hormones = list(StrigolactoneR,
