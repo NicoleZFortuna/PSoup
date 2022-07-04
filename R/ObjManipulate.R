@@ -221,3 +221,7 @@ restoreBaseModel <- function() {
   #obj = data(package="peaSoup", verbose = T)$results[,3]
   for (i in files) load(i, envir = parent.env(environment()))
 }
+
+# saveNetwork
+
+# loadNetwork
