@@ -16,19 +16,21 @@ convertSBGNdiagram <- function(file, path, networkName) {
   nodeTypes <- xml_name(nodes)
   classes <- unlist(lapply(nodesList, attr, which = ".class"))
   ids <- unlist(lapply(nodesList, attr, which = "id"))
-  comp <- which(classes == "compartment")
+  compIndex <- which(classes == "compartment")
+  nodeIndex <- which(classes == "biological activity")
+  arcIndex <- which(nodeTypes == "arc")
+  logicIndex <- which(classes %in% c("delay", "and", "or", "not"))
 
-  compartment <- data.frame(index = comp, name = NA, id = NA)
-  for (i in 1:length(comp)) {
-    compartment[i ,2:3] <- c(attr(nodesList[[comp[i]]]$label,"text"), ids[comp[i]])
+  compartment <- data.frame(name = rep(NA, length(compIndex)), id = NA)
+  for (i in 1:length(compIndex)) {
+    compartment[i , ] <- c(attr(nodesList[[compIndex[i]]]$label,"text"), ids[compIndex[i]])
   }
 
-  nodeIndex <- which(nodeTypes == "glyph" & classes == "biological activity")
-  arcIndex <- which(nodeTypes == "arc")
-
-  nodeInfo <- data.frame(name = NA, id = ids[nodeIndex])
+  nodeInfo <- data.frame(name = NA, id = ids[nodeIndex], compartment = NA)
   for (i in 1:nrow(nodeInfo)) {
     nodeInfo$name[i] <- attr(nodesList[[nodeIndex[i]]]$label,"text")
+    nodeInfo$compartment[i] <- compartment$name[attr(nodesList[[nodeIndex[i]]],
+                                                     "compartmentRef") == compartment$id]
   }
 
   arcInfo <- data.frame(influence = rep(NA, length(arcIndex)), source = NA, target = NA)
@@ -39,19 +41,23 @@ convertSBGNdiagram <- function(file, path, networkName) {
   }
 
   hormones <- vector("list",length=length(nodeIndex))
-  for (i in length(nodeIndex)) {
+  for (i in 1:length(nodeIndex)) {
     id = attr(nodesList[[nodeIndex[i]]],"id")
-
 
     hormones[[i]] <- new("Hormone",
                          name = attr(nodesList[[nodeIndex[i]]]$label,"text"),
                          container = compartment$name[attr(nodesList[[nodeIndex[i]]],
                                                            "compartmentRef") == compartment$id],
-                         inputs = data.frame(Node = c(nodeInfo$name[nodeInfo$id == arcInfo$source[id == arcInfo$target]]),
+                         inputs = data.frame(Node = c(nodeInfo$name[nodeInfo$id %in% arcInfo$source[id == arcInfo$target]]),
                                              Influence = c(arcInfo$influence[id == arcInfo$target])),
-                         outputs = data.frame(Node = nodeInfo$name[nodeInfo$id == arcInfo$target[id == arcInfo$source]],
+                         outputs = data.frame(Node = nodeInfo$name[nodeInfo$id %in% arcInfo$target[id == arcInfo$source]],
                                               Influence = arcInfo$influence[id == arcInfo$source]),
-                         travel = 0)
+                         travel = as.numeric(length(unique(nodeInfo$compartment[nodeInfo$name %in% c(nodeInfo$name[i], nodeInfo$name[nodeInfo$id == arcInfo$target[id == arcInfo$source]])])) > 1))
+
+    # append genotype information in available
+    if ("glyph" %in% names(nodesList[[nodeIndex[i]]])) {
+      hormones[[i]]@genotypes <- strsplit(attr(nodesList[[nodeIndex[i]]]$glyph$label,"text"), ", ")[[1]]
+    }
   }
 
 }
