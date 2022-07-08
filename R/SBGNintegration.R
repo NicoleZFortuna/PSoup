@@ -1,14 +1,14 @@
 #' A function that converts an SBGN-ML text file into a network object
 #'
-#' @param file A string. A text file with extension .xml containing the markdown output
+#' @param file a string. A text file with extension .xml containing the markdown output
 #'             of an sbgn diagram.
-#' @param path A string. The path directory for where to store the network.
-#' @param networkName A string. The name that you wish to give the network.
+#' @param path a string. The path directory for where to store the network.
+#' @param networkName a string. The name that you wish to give the network.
 #' @importFrom xml2 read_xml
 #' @importFrom xml2 xml_children
 #' @importFrom xml2 as_list
 
-convertSBGNdiagram <- function(file, path = ".", networkName) {
+convertSBGNdiagram <- function(file, networkName) {
   text <- read_xml(file)
   lang <- attr(as_list(xml_children(text))[[1]],"language")
   nodes <- xml_children(xml_children(text))
