@@ -177,5 +177,26 @@ peaNetwork <- buildNetwork(hormones = list(StrigolactoneR,
                            name = "peaNetwork")
 save(peaNetwork, file = "./Data/peaNetwork.RData")
 
+langConversion <- data.frame(peaSoup = c("stimulation",
+                                           "inhibition",
+                                           "necessary stimulation",
+                                           "necessary inhibition",
+                                           "sufficient stimulation",
+                                           "sufficient inhibition",
+                                           "unknown"),
+                             AF = c("positive influence",
+                                      "negative influence",
+                                      "necessary stimulation",
+                                      NA, NA, NA,
+                                      "unknown influence"),
+                             ER = c("stimulation",
+                                    "inhibition",
+                                    "necessary stimulation",
+                                    NA,
+                                    "absolute stimulation",
+                                    "absolute inhibition",
+                                    "modulation"))
+save(langConversion, file = "./Data/langConversion.RData")
+
 
 

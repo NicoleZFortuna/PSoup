@@ -223,5 +223,8 @@ restoreBaseModel <- function() {
 }
 
 # saveNetwork
+saveNetwork <- function(network, path) {
+
+}
 
 # loadNetwork
