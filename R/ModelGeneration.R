@@ -132,13 +132,16 @@ convertSBGNdiagram <- function(file, path, networkName) {
           }
           genCount = genCount + 1
         } else {
-          genotypes[[which(hormones[[i]]@genotypes[g] %in% genTracker)]]@expression[g,] <- c(hormones[[i]]@container, 1)
+          whichGen <- which(genTracker %in% hormones[[i]]@genotypes[g])
+          genotypes[[whichGen]]@expression[nrow(genotypes[[whichGen]]@expression) + 1,] <- c(hormones[[i]]@container, 1)
 
-          genotypes[[which(hormones[[i]]@genotypes[g] %in% genTracker)]]@influence[g,] <- c(hormones[[i]]@name, "production")
+          genotypes[[whichGen]]@influence[nrow(genotypes[[whichGen]]@influence) + 1,] <- c(hormones[[i]]@name, "production")
         }
       }
     }
   }
+
+  # convert language to my preferred options?
 
   # build into network
 
