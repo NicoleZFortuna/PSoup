@@ -8,7 +8,8 @@ StrigolactoneR <- new("Hormone",
                                                         "inhibition",
                                                         "stimulation")),
                       outputs = data.frame(Node = "StrigolactoneS", Influence = "stimulation"),
-                      travel = 0.8,
+                      travel = 1,
+                      degradation = 1,
                       genotypes = c("RMS1", "RMS5"))
 save(StrigolactoneR, file = "./Data/StrigolactoneR.RData")
 
@@ -23,7 +24,8 @@ StrigolactoneS <- new("Hormone",
                                                         "stimulation",
                                                         "stimulation")),
                       outputs = data.frame(Node = "BranchInhibitor", Influence = "stimulation"),
-                      travel = 0,
+                      travel = 1,
+                      degradation = 1,
                       genotypes = c("RMS1", "RMS5"))
 save(StrigolactoneS, file = "./Data/StrigolactoneS.RData")
 
@@ -34,7 +36,8 @@ FeedbackR <- new("Hormone",
                                      Influence = "stimulation"),
                  outputs = data.frame(Node = c("Cytokinin", "StrigolactoneR"),
                                       Influence = c("inhibition", "stimulation")),
-                 travel = 0,
+                 travel = 1,
+                 degradation = 1,
                  genotypes = "RMS2")
 save(FeedbackR, file = "./Data/FeedbackR.RData")
 
@@ -46,6 +49,7 @@ FeedbackS <- new("Hormone",
                  outputs = data.frame(Node = c("FeedbackR", "StrigolactoneS"),
                                       Influence = c("stimulation", "stimulation")),
                  travel = 1,
+                 degradation = 1,
                  genotypes = "RMS2")
 save(FeedbackS, file = "./Data/FeedbackS.RData")
 
@@ -56,7 +60,8 @@ Cytokinin <- new("Hormone",
                                      Influence = "inhibition"),
                  outputs = data.frame(Node = "BranchOutgrowth",
                                      Influence = "stimulation"),
-                 travel = 0.8)
+                 travel = 1,
+                 degradation = 1)
 save(Cytokinin, file = "./Data/Cytokinin.RData")
 
 BranchInhibitor = new("Hormone",
@@ -67,6 +72,7 @@ BranchInhibitor = new("Hormone",
                       outputs = data.frame(Node = c("BudRelease", "FeedbackS"),
                                            Influence = c("inhibition", "inhibition")),
                       travel = 1,
+                      degradation = 1,
                       genotypes = c("RMS3", "RMS4"))
 save(BranchInhibitor, file = "./Data/BranchInhibitor.RData")
 
@@ -77,7 +83,8 @@ BudRelease <- new("Hormone",
                                       Influence = "inhibition"),
                   outputs = data.frame(Node = "BranchOutgrowth",
                                        Influence = c("necessary stimulation")),
-                  travel = 0)
+                  travel = 1,
+                  degradation = 1)
 save(BudRelease, file = "./Data/BudRelease.RData")
 
 BranchOutgrowth <- new("Hormone",
@@ -89,7 +96,8 @@ BranchOutgrowth <- new("Hormone",
                                                          "stimulation")),
                        outputs = data.frame(Node = "ShootSignal",
                                             Influence = "necessary stimulation"),
-                       travel = 0)
+                       travel = 1,
+                       degradation = 1)
 save(BranchOutgrowth, file = "./Data/BranchOutgrowth.RData")
 
 ShootSignal <- new("Hormone",
@@ -101,17 +109,19 @@ ShootSignal <- new("Hormone",
                                                  "StrigolactoneR"),
                                         Influence = c("stimulation",
                                                       "stimulation")),
-                   travel = 1)
+                   travel = 1,
+                   degradation = 1)
 save(ShootSignal, file = "./Data/ShootSignal.RData")
 
 Inhibitor <- new("Hormone",
-                   name = "Inhibitor",
-                   container = "rootstock",
-                   inputs = data.frame(Node = NULL,
-                                       Influence = NULL),
-                   outputs = data.frame(Node = "StrigolactoneR",
-                                        Influence = "inhibition"),
-                   travel = 1,
+                 name = "Inhibitor",
+                 container = "rootstock",
+                 inputs = data.frame(Node = NULL,
+                                     Influence = NULL),
+                 outputs = data.frame(Node = "StrigolactoneR",
+                                      Influence = "inhibition"),
+                 travel = 1,
+                 degradation = 1,
                  genotypes = c("RMS3", "RMS4"))
 save(Inhibitor, file = "./Data/Inhibitor.RData")
 

@@ -13,6 +13,7 @@
 #'              travel. Is 0 if there is no travel between compartments. Default for hormones
 #'              traveling down is 1, and up is 0.8 to reflect that signals moving up take a
 #'              longer time than signals moving down.
+#' @slot degradation the rate at which the hormone degrades.
 #' @slot genotypes a vector with objects of class character. Lists the genotypes that
 #'              are important to this node.
 #' @export
@@ -24,6 +25,7 @@ Hormone <- setClass("Hormone", slots = c(name = "character",
                                          inputs = "data.frame",
                                          outputs = "data.frame",
                                          travel = "numeric",
+                                         degradation = "numeric",
                                          genotypes = "character"))
 
 

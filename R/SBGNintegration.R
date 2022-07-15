@@ -59,7 +59,10 @@ convertSBGNdiagram <- function(file, networkName) {
                                                Influence = arcInfo$influence[id == arcInfo$target]),
                            outputs = data.frame(Node = nodeInfo$name[nodeInfo$id %in% arcInfo$target[id == arcInfo$source]],
                                                 Influence = arcInfo$influence[id == arcInfo$source]),
-                           travel = as.numeric(length(unique(nodeInfo$compartment[nodeInfo$name %in% c(nodeInfo$name[i], nodeInfo$name[nodeInfo$id == arcInfo$target[id == arcInfo$source]])])) > 1))
+                           travel = 1,
+                           degradation = 1)
+
+                           #travel = as.numeric(length(unique(nodeInfo$compartment[nodeInfo$name %in% c(nodeInfo$name[i], nodeInfo$name[nodeInfo$id == arcInfo$target[id == arcInfo$source]])])) > 1))
     } else {
       # if one of the inputs are logical
       if (any(which(ids %in% arcInfo$source[id == arcInfo$target]) %in% logicIndex)) {
@@ -82,7 +85,10 @@ convertSBGNdiagram <- function(file, networkName) {
                                                  Influence = arcInfo$influence[id == arcInfo$target]),
                              outputs = data.frame(Node = nodeInfo$name[nodeInfo$id %in% arcInfo$target[id == arcInfo$source]],
                                                   Influence = arcInfo$influence[id == arcInfo$source]),
-                             travel = as.numeric(length(unique(nodeInfo$compartment[nodeInfo$name %in% c(nodeInfo$name[i], nodeInfo$name[nodeInfo$id == arcInfo$target[id == arcInfo$source]])])) > 1))
+                             travel = 1,
+                             degradation = 1)
+
+                             #travel = as.numeric(length(unique(nodeInfo$compartment[nodeInfo$name %in% c(nodeInfo$name[i], nodeInfo$name[nodeInfo$id == arcInfo$target[id == arcInfo$source]])])) > 1))
       }
 
       # if one of the outputs are logical
@@ -109,7 +115,10 @@ convertSBGNdiagram <- function(file, networkName) {
                                                  Influence = arcInfo$influence[id == arcInfo$target]),
                              outputs = data.frame(Node = N,
                                                   Influence = I),
-                             travel = as.numeric(length(unique(nodeInfo$compartment[nodeInfo$name %in% c(nodeInfo$name[i], nodeInfo$name[nodeInfo$id == arcInfo$target[id == arcInfo$source]])])) > 1))
+                             travel = 1,
+                             degradation = 1)
+
+                             #travel = as.numeric(length(unique(nodeInfo$compartment[nodeInfo$name %in% c(nodeInfo$name[i], nodeInfo$name[nodeInfo$id == arcInfo$target[id == arcInfo$source]])])) > 1))
         # will need to incur a temporal penalty in the case of a delay
       }
     }
