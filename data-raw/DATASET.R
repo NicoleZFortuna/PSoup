@@ -127,8 +127,7 @@ save(Inhibitor, file = "./Data/Inhibitor.RData")
 
 RMS1 <- new("Genotype",
             name = "RMS1",
-            expression = data.frame(Container = c("scion", "rootstock"),
-                                    Expression = c(1, 1)),
+            expression = c("scion" = 1, "rootstock" = 1),
             coregulator = "RMS5",
             influence = data.frame(Node = c("StrigolactoneR", "StrigolactoneS"),
                                    Influence = c("production", "production")))
@@ -136,8 +135,7 @@ save(RMS1, file = "./Data/RMS1.RData")
 
 RMS5 <- new("Genotype",
             name = "RMS5",
-            expression = data.frame(Container = c("scion", "rootstock"),
-                                    Expression = c(1, 1)),
+            expression = c("scion" = 1, "rootstock" = 1),
             coregulator = "RMS1",
             influence = data.frame(Node = c("StrigolactoneR", "StrigolactoneS"),
                                    Influence = c("production", "production")))
@@ -145,16 +143,14 @@ save(RMS5, file = "./Data/RMS5.RData")
 
 RMS2 <- new("Genotype",
             name = "RMS2",
-            expression = data.frame(Container = c("scion", "rootstock"),
-                                    Expression = c(1, 1)),
+            expression = c("scion" = 1, "rootstock" = 1),
             influence = data.frame(Node = c("FeedbackR", "FeedbackS"),
                                    Influence = c("production", "production")))
 save(RMS2, file = "./Data/RMS2.RData")
 
 RMS3 <- new("Genotype",
             name = "RMS3",
-            expression = data.frame(Container = c("scion", "rootstock"),
-                                    Expression = c(1, 1)),
+            expression = c("scion" = 1, "rootstock" = 1),
             coregulator = "RMS4",
             influence = data.frame(Node = c("BranchInhibitor", "Inhibitor"),
                                    Influence = c("production", "production")))
@@ -162,8 +158,7 @@ save(RMS3, file = "./Data/RMS3.RData")
 
 RMS4 <- new("Genotype",
             name = "RMS4",
-            expression = data.frame(Container = c("scion", "rootstock"),
-                                    Expression = c(1, 1)),
+            expression = c("scion" = 1, "rootstock" = 1),
             coregulator = "RMS3",
             influence = data.frame(Node = c("BranchInhibitor", "Inhibitor"),
                                    Influence = c("production", "production")))

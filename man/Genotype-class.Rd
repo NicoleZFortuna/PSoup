@@ -4,19 +4,18 @@
 \name{Genotype-class}
 \alias{Genotype-class}
 \alias{Genotype}
-\title{A function to generate objects of class 'Hormone'}
+\title{A function to generate objects of class 'Genotype'}
 \description{
-A function to generate objects of class 'Hormone'
+A function to generate objects of class 'Genotype'
 }
 \section{Slots}{
 
 \describe{
 \item{\code{name}}{the name of the gene. Will be used as a tag to place influence within the network.}
 
-\item{\code{expression}}{data.frame with column names Compartment, and Expression.
-The compartment column can include "scion", or "rootstock".
-The expression column is a numerical value set between 0 (no expression),
-and 1 (full expression). All expression levels are set to the default 1
+\item{\code{expression}}{numeric vector with names "scion", and "rootstock".
+Numerical values set between 0 (no expression),
+and 1 (full expression). The default expression is 1
 (the wildtype genotype).}
 
 \item{\code{coregulator}}{of class character. The names of other genotypes that coregulate together.}

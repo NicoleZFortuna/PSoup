@@ -12,6 +12,7 @@ A list containing 6 objects:
   \item{inputs}{influencing nodes}
   \item{outputs}{influenced nodes}
   \item{travel}{speed of travel}
+  \item{degradation}{rate of degradation of product}
   \item{genotypes}{controlling genotypes}
   ...
 }

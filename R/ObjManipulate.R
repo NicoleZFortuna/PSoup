@@ -29,13 +29,12 @@ Hormone <- setClass("Hormone", slots = c(name = "character",
                                          genotypes = "character"))
 
 
-#' A function to generate objects of class 'Hormone'
+#' A function to generate objects of class 'Genotype'
 #'
 #' @slot name the name of the gene. Will be used as a tag to place influence within the network.
-#' @slot expression data.frame with column names Compartment, and Expression.
-#'                 The compartment column can include "scion", or "rootstock".
-#'                 The expression column is a numerical value set between 0 (no expression),
-#'                 and 1 (full expression). All expression levels are set to the default 1
+#' @slot expression numeric vector with names "scion", and "rootstock".
+#'                 Numerical values set between 0 (no expression),
+#'                 and 1 (full expression). The default expression is 1
 #'                 (the wildtype genotype).
 #' @slot coregulator of class character. The names of other genotypes that coregulate together.
 #' @slot influence a data.frame with the column names Node and Influence. Influences can one
@@ -45,7 +44,7 @@ Hormone <- setClass("Hormone", slots = c(name = "character",
 #' NA
 
 Genotype <- setClass("Genotype", slots = c(name = "character",
-                                           expression = "data.frame",
+                                           expression = "numeric",
                                            coregulator = "character",
                                            influence = "data.frame"))
 
