@@ -10,7 +10,7 @@
 #' @param file the name of the file that you want the equations to be saved to.
 #'                The default is to create an R script called equations.R in the
 #'                current working directory.
-buildEquation <- function(network, upPenalty, containerPenalty, file = "./equations.R") {
+buildEquation <- function(network, upPenalty = NA, containerPenalty = NA, file = "./equations.R") {
   # a place to save the equations
   if (file.exists(file)) {
     print("The folder already exists")
@@ -21,34 +21,47 @@ buildEquation <- function(network, upPenalty, containerPenalty, file = "./equati
   nodes = peaNetwork@objects$Hormones
   genotypes = peaNetwork@objects$Genotypes
 
+  for (i in 1:length(genotypes)) {
+    cat(paste0(genotypes[[i]]@name, substr(names(genotypes[[i]]@expression), 1, 1),
+               " = ", genotypes[[i]]@expression), sep = "\n", append = T, file = file)
+  }
+
   inhibition = c("inhibition", "sufficient inhibition", "necessary inhibition")
   stimulation = c("stimulation", "sufficient stimulation", "necessary stimulation")
 
   for (i in 1:length(nodes)) {
     if (any(inhibition %in% nodes[[i]]@inputs$Influence)) {
       if (any(stimulation %in% nodes[[i]]@inputs$Influence)) {
-        cat(sprintf("%s = (2 * %s)/", nodes[[i]]@name, paste(nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% stimulation],
-                                                            collapse = " * ")),
-            sprintf("(1 + %s)", paste(nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% inhibition],
-                                  collapse = " * ")), "\n", sep = "", append = T,  file = file)
+        cat(sprintf("%s[t] = (2 * %s)/", nodes[[i]]@name, paste0(nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% stimulation],
+                                                                 "[t-1]", collapse = " * ")),
+            sprintf("(1 + %s)", paste0(nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% inhibition],
+                                       "[t-1]", collapse = " * ")),
+            if (length(nodes[[i]]@genotypes) == 0) {NULL} else {paste0(" * ", nodes[[i]]@genotypes,
+                                                                       substr(nodes[[i]]@container, 1, 1))},
+            "\n", sep = "", append = T,  file = file)
       } else {
-        cat(sprintf("%s = 2/", nodes[[i]]@name),
-            sprintf("(1 + %s)", paste(nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% inhibition],
-                                  collapse = " * ")), "\n", sep = "", append = T,  file = file)
+        cat(sprintf("%s[t] = 2/", nodes[[i]]@name),
+            sprintf("(1 + %s)", paste0(nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% inhibition],
+                                       "[t-1]", collapse = " * ")),
+            if (length(nodes[[i]]@genotypes) == 0) {NULL} else {paste0(" * ", nodes[[i]]@genotypes,
+                                                                       substr(nodes[[i]]@container, 1, 1))},
+            "\n", sep = "", append = T,  file = file)
       }
     } else {
       if (any(stimulation %in% nodes[[i]]@inputs$Influence)) {
-        cat(sprintf("%s = %s", nodes[[i]]@name, paste(nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% stimulation],
-                                                      collapse = " * ")), "\n",
-            sep = "", append = T,  file = file)
+        cat(sprintf("%s[t] = %s", nodes[[i]]@name, paste0(nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% stimulation],
+                                                          "[t-1]", collapse = " * ")),
+            if (length(nodes[[i]]@genotypes) == 0) {NULL} else {paste0(" * ", nodes[[i]]@genotypes,
+                                                                       substr(nodes[[i]]@container, 1, 1))},
+            "\n", sep = "", append = T,  file = file)
       } else {
-        cat(sprintf("%s = 1", nodes[[i]]@name), "\n", sep = "", append = T,  file = file)
+        cat(sprintf("%s[t] = 1", nodes[[i]]@name),
+            if (length(nodes[[i]]@genotypes) == 0) {NULL} else {paste0(" * ", nodes[[i]]@genotypes,
+                                                                       substr(nodes[[i]]@container, 1, 1))},
+            "\n", sep = "", append = T,  file = file)
       }
     }
   }
-
-  # what are the names of
-
 }
 
 #plantSimulator
