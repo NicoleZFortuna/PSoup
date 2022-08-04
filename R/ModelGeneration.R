@@ -9,10 +9,10 @@
 #' @param file the name of the file that you want the equations to be saved to.
 #'                The default is to create an R script called equations.R in the
 #'                current working directory.
-buildEquation <- function(network, upPenalty = NA, containerPenalty = NA, file = "./equations.R") {
+buildSimulator <- function(network, upPenalty = NA, containerPenalty = NA, file = "./equations.R") {
   # a place to save the equations
   if (file.exists(file)) {
-    print("The folder already exists")
+    warning("This file already exists and will be overwritten.")
   } else {
     file.create(file)
   }
@@ -37,16 +37,19 @@ buildEquation <- function(network, upPenalty = NA, containerPenalty = NA, file =
   for (i in 1:length(nodes)) {
     if (any(inhibition %in% nodes[[i]]@inputs$Influence)) {
       if (any(stimulation %in% nodes[[i]]@inputs$Influence)) {
-        cat(sprintf("dat$%s[t] = (2 * %s)/", nodes[[i]]@name, paste0(nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% stimulation],
-                                                                 "[t-1]", collapse = " * ")),
-            sprintf("(1 + %s)", paste0(nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% inhibition],
-                                       "[t-1]", collapse = " * ")),
+        cat(sprintf("dat$%s[t] = (2 * %s)/",
+                    nodes[[i]]@name,
+                    paste0("dat$", nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% stimulation],
+                           "[t-1]", collapse = " * ")),
+            sprintf("(1 + %s)",
+                    paste0("dat$", nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% inhibition],
+                           "[t-1]", collapse = " * ")),
             if (length(nodes[[i]]@genotypes) == 0) {NULL} else {paste0(" * ", nodes[[i]]@genotypes,
                                                                        substr(nodes[[i]]@container, 1, 1))},
             "\n", sep = "", append = T,  file = file)
       } else {
         cat(sprintf("dat$%s[t] = 2/", nodes[[i]]@name),
-            sprintf("(1 + %s)", paste0(nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% inhibition],
+            sprintf("(1 + %s)", paste0("dat$", nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% inhibition],
                                        "[t-1]", collapse = " * ")),
             if (length(nodes[[i]]@genotypes) == 0) {NULL} else {paste0(" * ", nodes[[i]]@genotypes,
                                                                        substr(nodes[[i]]@container, 1, 1))},
@@ -54,8 +57,10 @@ buildEquation <- function(network, upPenalty = NA, containerPenalty = NA, file =
       }
     } else {
       if (any(stimulation %in% nodes[[i]]@inputs$Influence)) {
-        cat(sprintf("dat$%s[t] = %s", nodes[[i]]@name, paste0(nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% stimulation],
-                                                          "[t-1]", collapse = " * ")),
+        cat(sprintf("dat$%s[t] = %s",
+                    nodes[[i]]@name,
+                    paste0("dat$", nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% stimulation],
+                           "[t-1]", collapse = " * ")),
             if (length(nodes[[i]]@genotypes) == 0) {NULL} else {paste0(" * ", nodes[[i]]@genotypes,
                                                                        substr(nodes[[i]]@container, 1, 1))},
             "\n", sep = "", append = T,  file = file)
@@ -69,9 +74,3 @@ buildEquation <- function(network, upPenalty = NA, containerPenalty = NA, file =
   }
 }
 
-#' A function to simulate the outcome of a network
-#'
-#'
-networkSimulator <- function(equations = "./equations.R") {
-
-}

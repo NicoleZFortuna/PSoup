@@ -140,8 +140,8 @@ buildNetwork <- function(hormones, genotypes, name) {
 print.Network <- setMethod(f = "show",
   signature = "Network",
   definition = function(object){
-  writeLines(paste("This is an object of class Newtork. It contains:\n",
-                   length(object@objects$Hormones), "hormones"))
+  writeLines("This is an object of class Newtork. It contains:")
+  writeLines(paste(length(object@objects$Hormones), "hormones"))
 
   writeLines(paste0("\t", names(object@objects$Hormones)))
 
