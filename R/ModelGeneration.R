@@ -9,7 +9,7 @@
 #' @param file the name of the file that you want the equations to be saved to.
 #'                The default is to create an R script called equations.R in the
 #'                current working directory.
-buildSimulator <- function(network, upPenalty = NA, containerPenalty = NA, file = "./equations.R") {
+buildModel <- function(network, upPenalty = NA, containerPenalty = NA, file = "./equations.R") {
   # a place to save the equations
   if (file.exists(file)) {
     warning("This file already exists and will be overwritten.")
@@ -17,12 +17,13 @@ buildSimulator <- function(network, upPenalty = NA, containerPenalty = NA, file 
     file.create(file)
   }
 
-  nodes = peaNetwork@objects$Hormones
-  genotypes = peaNetwork@objects$Genotypes
+  nodes = network@objects$Hormones
+  genotypes = network@objects$Genotypes
 
   cat("# defining genotype values\n", file = file)
+  cat("gen = list()\n", file = file, append = T)
   for (i in 1:length(genotypes)) {
-    cat(paste0(genotypes[[i]]@name, substr(names(genotypes[[i]]@expression), 1, 1),
+    cat(paste0("gen$", genotypes[[i]]@name, substr(names(genotypes[[i]]@expression), 1, 1),
                " = ", genotypes[[i]]@expression), sep = "\n", append = T, file = file)
   }
 
@@ -33,44 +34,62 @@ buildSimulator <- function(network, upPenalty = NA, containerPenalty = NA, file 
   inhibition = c("inhibition", "sufficient inhibition", "necessary inhibition")
   stimulation = c("stimulation", "sufficient stimulation", "necessary stimulation")
 
-  cat("\n# defining node equations\n", file = file, append = T)
+  cat("\n# defining node equations", file = file, append = T)
+  cat("\nnextStep <- function(dat) {\n", file = file, append = T)
+  cat("\tdat[nrow(dat) + 1, ] = rep(NA, ncol(dat))\n", file = file, append = T)
+  cat("\tt = nrow(dat)\n\n", file = file, append = T)
   for (i in 1:length(nodes)) {
     if (any(inhibition %in% nodes[[i]]@inputs$Influence)) {
       if (any(stimulation %in% nodes[[i]]@inputs$Influence)) {
-        cat(sprintf("dat$%s[t] = (2 * %s)/",
+        cat(sprintf("\tdat$%s[t] = (2 * %s)/",
                     nodes[[i]]@name,
                     paste0("dat$", nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% stimulation],
                            "[t-1]", collapse = " * ")),
             sprintf("(1 + %s)",
                     paste0("dat$", nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% inhibition],
                            "[t-1]", collapse = " * ")),
-            if (length(nodes[[i]]@genotypes) == 0) {NULL} else {paste0(" * ", nodes[[i]]@genotypes,
+            if (length(nodes[[i]]@genotypes) == 0) {NULL} else {paste0(" * gen$", nodes[[i]]@genotypes,
                                                                        substr(nodes[[i]]@container, 1, 1))},
             "\n", sep = "", append = T,  file = file)
       } else {
-        cat(sprintf("dat$%s[t] = 2/", nodes[[i]]@name),
+        cat(sprintf("\tdat$%s[t] = 2/", nodes[[i]]@name),
             sprintf("(1 + %s)", paste0("dat$", nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% inhibition],
                                        "[t-1]", collapse = " * ")),
-            if (length(nodes[[i]]@genotypes) == 0) {NULL} else {paste0(" * ", nodes[[i]]@genotypes,
+            if (length(nodes[[i]]@genotypes) == 0) {NULL} else {paste0(" * gen$", nodes[[i]]@genotypes,
                                                                        substr(nodes[[i]]@container, 1, 1))},
             "\n", sep = "", append = T,  file = file)
       }
     } else {
       if (any(stimulation %in% nodes[[i]]@inputs$Influence)) {
-        cat(sprintf("dat$%s[t] = %s",
+        cat(sprintf("\tdat$%s[t] = %s",
                     nodes[[i]]@name,
                     paste0("dat$", nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% stimulation],
                            "[t-1]", collapse = " * ")),
-            if (length(nodes[[i]]@genotypes) == 0) {NULL} else {paste0(" * ", nodes[[i]]@genotypes,
+            if (length(nodes[[i]]@genotypes) == 0) {NULL} else {paste0(" * gen$", nodes[[i]]@genotypes,
                                                                        substr(nodes[[i]]@container, 1, 1))},
             "\n", sep = "", append = T,  file = file)
       } else {
-        cat(sprintf("dat$%s[t] = 1", nodes[[i]]@name),
-            if (length(nodes[[i]]@genotypes) == 0) {NULL} else {paste0(" * ", nodes[[i]]@genotypes,
+        cat(sprintf("\tdat$%s[t] = 1", nodes[[i]]@name),
+            if (length(nodes[[i]]@genotypes) == 0) {NULL} else {paste0(" * gen$", nodes[[i]]@genotypes,
                                                                        substr(nodes[[i]]@container, 1, 1))},
             "\n", sep = "", append = T,  file = file)
       }
     }
   }
+  cat("\tdat[t, ]\n", file = file, append = T)
+  cat("}", file = file, append = T)
 }
 
+#' A function that simulates the outcomes of network peturbations
+#'
+#' This function takes the model generated by the buildModel function, and uses that
+#' as a basis to simulate the model
+#' @param file the same file pathway that was used to generate the model with
+#'             the buildModel function.
+#' @param nsteps the number of steps that you wish to simulate the model. One
+#'             of two methods for deciding when to stop simulating.
+#' @param method method for determining when to stop simulating. Can be set to
+#'             "Euler". One of two methods for deciding when to stop simulating.
+simulateNetwork <- function(file, nsteps = NA, method = NA) {
+  source(file)
+}
