@@ -35,7 +35,7 @@ buildModel <- function(network, upPenalty = NA, containerPenalty = NA, file = ".
   stimulation = c("stimulation", "sufficient stimulation", "necessary stimulation")
 
   cat("\n# defining node equations", file = file, append = T)
-  cat("\nnextStep <- function(dat) {\n", file = file, append = T)
+  cat("\nnextStep <- function(dat, gen) {\n", file = file, append = T)
   cat("\tdat[nrow(dat) + 1, ] = rep(NA, ncol(dat))\n", file = file, append = T)
   cat("\tt = nrow(dat)\n\n", file = file, append = T)
   for (i in 1:length(nodes)) {
