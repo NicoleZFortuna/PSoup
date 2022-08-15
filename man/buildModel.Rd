@@ -25,5 +25,12 @@ The default is to create an R script called equations.R in the
 current working directory.}
 }
 \description{
-A function to generate equations from a network object
+This function is used to define the script that is needed to simulate the
+model of interest. It defines the genotypes of the network, and sets them
+to a default of 1. It also initiates that data.frame which will record the
+changes to the system over time, including initiating the starting values
+for the nodes. The default starting values are 1. A nextStep function is
+also defined, which provides the information needed to calculate the next
+time step in the simulation. This file can be edited by the user as required.
+The file will need to be provided to the simulateNetwork function as an input.
 }

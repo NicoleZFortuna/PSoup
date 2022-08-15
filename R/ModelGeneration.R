@@ -1,6 +1,14 @@
 
 #' A function to generate equations from a network object
 #'
+#' This function is used to define the script that is needed to simulate the
+#' model of interest. It defines the genotypes of the network, and sets them
+#' to a default of 1. It also initiates that data.frame which will record the
+#' changes to the system over time, including initiating the starting values
+#' for the nodes. The default starting values are 1. A nextStep function is
+#' also defined, which provides the information needed to calculate the next
+#' time step in the simulation. This file can be edited by the user as required.
+#' The file will need to be provided to the simulateNetwork function as an input.
 #' @param network an object of class network
 #' @param upPenalty a penalty applied to hormones traveling upwards. Behaves as
 #'                a multiplier.
@@ -27,17 +35,18 @@ buildModel <- function(network, upPenalty = NA, containerPenalty = NA, file = ".
                " = ", genotypes[[i]]@expression), sep = "\n", append = T, file = file)
   }
 
-  cat("\n# defining storage data.frame\n", file = file, append = T)
-  cat(sprintf("dat <- setNames(data.frame(matrix(ncol = %s, nrow = 0)), ", length(nodes)), file = file, append = T)
-  cat("c('", paste(names(nodes), collapse = "', '"), "'))\n", sep="", file = file, append = T)
+  cat("\n# defining storage data.frame and node initial values\n", file = file, append = T)
+  cat("dat <- data.frame(\n'", paste(names(nodes), collapse = "' = 1, \n'"), "' = 1\n)\n",
+      sep="", file = file, append = T)
 
   inhibition = c("inhibition", "sufficient inhibition", "necessary inhibition")
   stimulation = c("stimulation", "sufficient stimulation", "necessary stimulation")
 
   cat("\n# defining node equations", file = file, append = T)
-  cat("\nnextStep <- function(dat, gen) {\n", file = file, append = T)
-  cat("\tdat[nrow(dat) + 1, ] = rep(NA, ncol(dat))\n", file = file, append = T)
+  cat("\nnextStep <- function(dat, gen, delay = NA) {\n", file = file, append = T)
+  cat("\tdat[nrow(dat) + 1, ] = NA\n", file = file, append = T)
   cat("\tt = nrow(dat)\n\n", file = file, append = T)
+
   for (i in 1:length(nodes)) {
     if (any(inhibition %in% nodes[[i]]@inputs$Influence)) {
       if (any(stimulation %in% nodes[[i]]@inputs$Influence)) {
@@ -92,4 +101,10 @@ buildModel <- function(network, upPenalty = NA, containerPenalty = NA, file = ".
 #'             "Euler". One of two methods for deciding when to stop simulating.
 simulateNetwork <- function(file, nsteps = NA, method = NA) {
   source(file)
+
+  dat[2:nsteps, ] <- NA
+
+  for (t in 2:nsteps) {
+    dat[t, ] <- nextStep(dat = dat[t - 1], gen = gen, delay = NA)
+  }
 }

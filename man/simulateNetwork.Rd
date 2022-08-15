@@ -4,7 +4,7 @@
 \alias{simulateNetwork}
 \title{A function that simulates the outcomes of network peturbations}
 \usage{
-simulateNetwork(file, nsteps = NA, method = NA)
+simulateNetwork(file, network, nsteps = NA, method = NA)
 }
 \arguments{
 \item{file}{the same file pathway that was used to generate the model with
