@@ -52,6 +52,18 @@ consistencyCheck <- function(network) {
             }
           }
         }
+
+        #Check if the input has a coregulator
+        if (!is.na(network@objects$Hormones[[key]]@inputs$Coregulator[i])) {
+          coKey = network@objects$Hormones[[key]]@inputs$Coregulator[i]
+          #Check that the output coregulator disagrees
+          if (coKey !=
+              network@objects$Hormones[[coKey]]@outputs$Coregulator[network@objects$Hormones[[coKey]]@outputs$Node==key])
+              errorList[[eL]] <- paste("The nodes", key, "and", coKey,
+                                       "disagree on whether they corregulate.")
+              eL = eL + 1
+        }
+
       }
     }
 
@@ -81,6 +93,17 @@ consistencyCheck <- function(network) {
               eL = eL + 1
             }
           }
+        }
+
+        #Check if the output has a coregulator
+        if (!is.na(network@objects$Hormones[[key]]@outputs$Coregulator[o])) {
+          coKey = network@objects$Hormones[[key]]@outputs$Coregulator[o]
+          #Check that the input coregulator disagrees
+          if (coKey !=
+              network@objects$Hormones[[coKey]]@inputs$Coregulator[network@objects$Hormones[[coKey]]@inputs$Node==key])
+            errorList[[eL]] <- paste("The nodes", key, "and", coKey,
+                                     "disagree on whether they corregulate.")
+          eL = eL + 1
         }
       }
     }
