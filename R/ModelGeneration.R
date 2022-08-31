@@ -88,3 +88,29 @@ buildModel <- function(network, upPenalty = NA, containerPenalty = NA, file = ".
   cat("\tdat[t, ]\n", file = file, append = T)
   cat("}", file = file, append = T)
 }
+
+
+#' A function that creates a string with coregulators multiplied together
+#'
+#' Coregulators are sorted so that their multiplications are only represented
+#' once. Each modulator is given a temporal modifier. Sets of coregulators are
+#' summed.
+#'
+#' @param coregulators a subsed of a the inputs of a hormone object. This subset
+#'        must all have the same modulating effect, and have coregulators
+#' @param returnNum return the number of unique coregulator sets. Default is
+#'        set to FLASE.
+coregulators <- function(coreg, returnNum = FALSE) {
+  coreg <- unname(as.matrix(coreg))
+  for (r in 1:nrow(coreg)) {
+    coreg[r, ] <- sort(coreg[r, ])
+    coreg[r, ] <- paste0("dat$", coreg[r, ], "[t-1]")
+  }
+
+  coreg <- unique(paste(coreg[,1], coreg[,2], sep = "*"))
+  if (returnNum == T) num = length(coreg)
+  coreg <- paste0(coreg, collapse = " + ")
+
+  if (returnNum == FALSE) return(coreg)
+  else return(list(coreg = coreg, num = num))
+}
