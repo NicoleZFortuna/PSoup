@@ -89,7 +89,7 @@ buildModel <- function(network, upPenalty = NA, containerPenalty = NA, file = ".
       # if there are only inhibitory effects
       allModulations <- sprintf("%s/(1 + %s)", numInhib + 1, inhibString)
     } else if (class(stimString) == "character" & class(inhibString) == "character") {
-      allModulations <- sprintf("(%s*%s)/(1 + %s)", numInhib + 1, stimString, inhibString)
+      allModulations <- sprintf("%s*(%s)/(1 + %s)", numInhib + 1, stimString, inhibString)
     } else if (is.na(stimString) & is.na(inhibString)) {
       # if it is constituent wo influence from other nodes
       allModulations <- 1
