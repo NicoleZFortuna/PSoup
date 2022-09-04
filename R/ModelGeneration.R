@@ -32,7 +32,7 @@ buildModel <- function(network, upPenalty = NA, containerPenalty = NA, file = ".
   cat("gen = data.frame(\n", file = file, append = T)
   for (i in 1:length(genotypes)) {
     cat(paste0("\tgen$", genotypes[[i]]@name, substr(names(genotypes[[i]]@expression), 1, 1),
-               " = ", genotypes[[i]]@expression), sep = ",\n", append = T, file = file)
+               " = ", genotypes[[i]]@expression,","), sep = "\n", append = T, file = file)
   }
   cat(")\n", file = file, append = T)
 
