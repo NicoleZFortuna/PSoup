@@ -15,13 +15,15 @@ A function to generate objects of class 'Hormone'
 
 \item{\code{container}}{the location of action for the hormone. Either "scion", or "rootstock".}
 
-\item{\code{inputs}}{data.frame with column names Node, and Influence. Influences can one of either
-"stimulation", "inhibition", "necessary stimulation", "necessary inhibition",
-"sufficient stimulation", "sufficient inhibition", "Unknown".}
+\item{\code{inputs}}{data.frame with column names Node, Coregulator, and Influence. Influences can
+one of either "stimulation", "inhibition", "necessary stimulation",
+"necessary inhibition", "altSource" (in the case that some hormone is produced
+somewhere else and travels to the location), and "Unknown".}
 
-\item{\code{outputs}}{data.frame with column names Node, and Influence. Influences can one of either
-"stimulation", "inhibition", "necessary stimulation", "necessary inhibition",
-"sufficient stimulation", "sufficient inhibition", "Unknown".}
+\item{\code{outputs}}{data.frame with column names Node, Coregulator, and Influence. Influences can
+one of either "stimulation", "inhibition", "necessary stimulation",
+"necessary inhibition", "altSource" (in the case that some hormone is produced
+somewhere else and travels to the location), and "Unknown".}
 
 \item{\code{travel}}{specifies if the hormone travels between compartments. Hormones travel from
 their current container, to the other. Is a numeric value specifying the rate of
