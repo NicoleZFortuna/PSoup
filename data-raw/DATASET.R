@@ -1,6 +1,6 @@
 StrigolactoneR <- new("Hormone",
                       name = "StrigolactoneR",
-                      container = "rootstock",
+                      container = "Rootstock",
                       inputs = data.frame(Node = c("FeedbackR",
                                                    "Inhibitor",
                                                    "ShootSignal"),
@@ -19,7 +19,7 @@ save(StrigolactoneR, file = "./Data/StrigolactoneR.RData")
 
 StrigolactoneS <- new("Hormone",
                       name = "StrigolactoneS",
-                      container = "scion",
+                      container = "Scion",
                       inputs = data.frame(Node = c("FeedbackS",
                                                    "StrigolactoneR",
                                                    "ShootSignal"),
@@ -37,7 +37,7 @@ save(StrigolactoneS, file = "./Data/StrigolactoneS.RData")
 
 FeedbackR <- new("Hormone",
                  name = "FeedbackR",
-                 container = "rootstock",
+                 container = "Rootstock",
                  inputs = data.frame(Node = "FeedbackS",
                                      Coregulator = NA,
                                      Influence = "altSource"),
@@ -51,7 +51,7 @@ save(FeedbackR, file = "./Data/FeedbackR.RData")
 
 FeedbackS <- new("Hormone",
                  name = "FeedbackS",
-                 container = "scion",
+                 container = "Scion",
                  inputs = data.frame(Node = c("BranchInhibitor"),
                                      Coregulator = NA,
                                      Influence = c("inhibition")),
@@ -65,7 +65,7 @@ save(FeedbackS, file = "./Data/FeedbackS.RData")
 
 Cytokinin <- new("Hormone",
                  name = "Cytokinin",
-                 container = "rootstock",
+                 container = "Rootstock",
                  inputs = data.frame(Node = "FeedbackR",
                                      Coregulator = NA,
                                      Influence = "inhibition"),
@@ -78,7 +78,7 @@ save(Cytokinin, file = "./Data/Cytokinin.RData")
 
 BranchInhibitor = new("Hormone",
                       name = "BranchInhibitor",
-                      container = "scion",
+                      container = "Scion",
                       inputs = data.frame(Node = "StrigolactoneS",
                                           Coregulator = NA,
                                           Influence = "stimulation"),
@@ -92,7 +92,7 @@ save(BranchInhibitor, file = "./Data/BranchInhibitor.RData")
 
 BudRelease <- new("Hormone",
                   name = "BudRelease",
-                  container = "scion",
+                  container = "Scion",
                   inputs = data.frame(Node = "BranchInhibitor",
                                       Coregulator = NA,
                                       Influence = "inhibition"),
@@ -105,7 +105,7 @@ save(BudRelease, file = "./Data/BudRelease.RData")
 
 BranchOutgrowth <- new("Hormone",
                        name = "BranchOutgrowth",
-                       container = "scion",
+                       container = "Scion",
                        inputs = data.frame(Node = c("BudRelease",
                                                     "Cytokinin"),
                                            Coregulator = c(NA, NA),
@@ -120,7 +120,7 @@ save(BranchOutgrowth, file = "./Data/BranchOutgrowth.RData")
 
 ShootSignal <- new("Hormone",
                    name = "ShootSignal",
-                   container = "scion",
+                   container = "Scion",
                    inputs = data.frame(Node = "BranchOutgrowth",
                                        Coregulator = NA,
                                        Influence = "necessary stimulation"),
@@ -135,7 +135,7 @@ save(ShootSignal, file = "./Data/ShootSignal.RData")
 
 Inhibitor <- new("Hormone",
                  name = "Inhibitor",
-                 container = "rootstock",
+                 container = "Rootstock",
                  inputs = data.frame(Node = NULL,
                                      Coregulator = NULL,
                                      Influence = NULL),
@@ -149,7 +149,7 @@ save(Inhibitor, file = "./Data/Inhibitor.RData")
 
 RMS1 <- new("Genotype",
             name = "RMS1",
-            expression = c("scion" = 1, "rootstock" = 1),
+            expression = c("Scion" = 1, "Rootstock" = 1),
             coregulator = "RMS5",
             influence = data.frame(Node = c("StrigolactoneR", "StrigolactoneS"),
                                    Influence = c("production", "production")))
@@ -157,7 +157,7 @@ save(RMS1, file = "./Data/RMS1.RData")
 
 RMS5 <- new("Genotype",
             name = "RMS5",
-            expression = c("scion" = 1, "rootstock" = 1),
+            expression = c("Scion" = 1, "Rootstock" = 1),
             coregulator = "RMS1",
             influence = data.frame(Node = c("StrigolactoneR", "StrigolactoneS"),
                                    Influence = c("production", "production")))
@@ -165,14 +165,14 @@ save(RMS5, file = "./Data/RMS5.RData")
 
 RMS2 <- new("Genotype",
             name = "RMS2",
-            expression = c("scion" = 1, "rootstock" = 1),
+            expression = c("Scion" = 1, "Rootstock" = 1),
             influence = data.frame(Node = c("FeedbackR", "FeedbackS"),
                                    Influence = c("production", "production")))
 save(RMS2, file = "./Data/RMS2.RData")
 
 RMS3 <- new("Genotype",
             name = "RMS3",
-            expression = c("scion" = 1, "rootstock" = 1),
+            expression = c("Scion" = 1, "Rootstock" = 1),
             coregulator = "RMS4",
             influence = data.frame(Node = c("BranchInhibitor", "Inhibitor"),
                                    Influence = c("production", "production")))
@@ -180,7 +180,7 @@ save(RMS3, file = "./Data/RMS3.RData")
 
 RMS4 <- new("Genotype",
             name = "RMS4",
-            expression = c("scion" = 1, "rootstock" = 1),
+            expression = c("Scion" = 1, "Rootstock" = 1),
             coregulator = "RMS3",
             influence = data.frame(Node = c("BranchInhibitor", "Inhibitor"),
                                    Influence = c("production", "production")))

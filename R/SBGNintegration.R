@@ -50,19 +50,22 @@ convertSBGNdiagram <- function(file, networkName) {
   for (i in 1:length(hormones)) {
     id = attr(nodesList[[nodeIndex[i]]],"id")
 
+    #checking that we are not dealing with a hormone that is associated with a logical operator
     if (!any(which(ids %in% c(arcInfo$source[id == arcInfo$target], arcInfo$target[id == arcInfo$source])) %in% logicIndex)) {
+      inNames <- nodeInfo$name[nodeInfo$id %in% arcInfo$source[id == arcInfo$target]]
+      outNames <- nodeInfo$name[nodeInfo$id %in% arcInfo$target[id == arcInfo$source]]
       hormones[[i]] <- new("Hormone",
                            name = attr(nodesList[[nodeIndex[i]]]$label,"text"),
                            container = compartment$name[attr(nodesList[[nodeIndex[i]]],
                                                              "compartmentRef") == compartment$id],
-                           inputs = data.frame(Node = nodeInfo$name[nodeInfo$id %in% arcInfo$source[id == arcInfo$target]],
+                           inputs = data.frame(Node = inNames,
+                                               Coregulator = if (length(inNames) == 0) {NULL} else {NA},
                                                Influence = arcInfo$influence[id == arcInfo$target]),
-                           outputs = data.frame(Node = nodeInfo$name[nodeInfo$id %in% arcInfo$target[id == arcInfo$source]],
+                           outputs = data.frame(Node = outNames,
+                                                Coregulator = if (length(outNames) == 0) {NULL} else {NA},
                                                 Influence = arcInfo$influence[id == arcInfo$source]),
                            travel = 1,
                            degradation = 1)
-
-                           #travel = as.numeric(length(unique(nodeInfo$compartment[nodeInfo$name %in% c(nodeInfo$name[i], nodeInfo$name[nodeInfo$id == arcInfo$target[id == arcInfo$source]])])) > 1))
     } else {
       # if one of the inputs are logical
       if (any(which(ids %in% arcInfo$source[id == arcInfo$target]) %in% logicIndex)) {
@@ -82,8 +85,10 @@ convertSBGNdiagram <- function(file, networkName) {
                              container = compartment$name[attr(nodesList[[nodeIndex[i]]],
                                                                "compartmentRef") == compartment$id],
                              inputs = data.frame(Node = N,
+                                                 Coregulator = NA,
                                                  Influence = arcInfo$influence[id == arcInfo$target]),
                              outputs = data.frame(Node = nodeInfo$name[nodeInfo$id %in% arcInfo$target[id == arcInfo$source]],
+                                                  Coregulator = NA,
                                                   Influence = arcInfo$influence[id == arcInfo$source]),
                              travel = 1,
                              degradation = 1)
@@ -112,8 +117,10 @@ convertSBGNdiagram <- function(file, networkName) {
                              container = compartment$name[attr(nodesList[[nodeIndex[i]]],
                                                                "compartmentRef") == compartment$id],
                              inputs = data.frame(Node = nodeInfo$name[nodeInfo$id %in% arcInfo$source[id == arcInfo$target]],
+                                                 Coregulator = NA,
                                                  Influence = arcInfo$influence[id == arcInfo$target]),
                              outputs = data.frame(Node = N,
+                                                  Coregulator = NA,
                                                   Influence = I),
                              travel = 1,
                              degradation = 1)
@@ -127,13 +134,16 @@ convertSBGNdiagram <- function(file, networkName) {
     if ("glyph" %in% names(nodesList[[nodeIndex[i]]])) {
       hormones[[i]]@genotypes <- strsplit(attr(nodesList[[nodeIndex[i]]]$glyph$label,"text"), ", ")[[1]]
 
+      expression = c("Scion" = NA, "Rootstock" = NA)
+
       for (g in 1:length(hormones[[i]]@genotypes)) {
+        expression[names(expression) == hormones[[i]]@container] = 1
+
         if (!hormones[[i]]@genotypes[g] %in% genTracker) {
           genTracker[genCount] <- hormones[[i]]@genotypes[g]
           genotypes[[genCount]] <- new("Genotype",
                                        name = hormones[[i]]@genotypes[g],
-                                       expression = data.frame(Container = hormones[[i]]@container,
-                                                               Expression = 1),
+                                       expression = expression,
                                        influence = data.frame(Node = hormones[[i]]@name,
                                                               Influence = "production"))
           if (length(hormones[[i]]@genotypes)>1){
@@ -142,9 +152,7 @@ convertSBGNdiagram <- function(file, networkName) {
           genCount = genCount + 1
         } else {
           whichGen <- which(genTracker %in% hormones[[i]]@genotypes[g])
-          genotypes[[whichGen]]@expression[nrow(genotypes[[whichGen]]@expression) + 1,] <- c(hormones[[i]]@container, 1)
-
-          genotypes[[whichGen]]@influence[nrow(genotypes[[whichGen]]@influence) + 1,] <- c(hormones[[i]]@name, "production")
+          genotypes[[whichGen]]@expression[names(expression) == hormones[[i]]@container] <- 1
         }
       }
     }
@@ -160,7 +168,6 @@ convertSBGNdiagram <- function(file, networkName) {
   network <- buildNetwork(hormones = hormones, genotypes = genotypes, name = networkName)
 
   return(network)
-
 }
 
 #' A function to convert SBGN language to peaSoup language

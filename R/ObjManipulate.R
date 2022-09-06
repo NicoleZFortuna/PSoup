@@ -145,11 +145,11 @@ print.Network <- setMethod(f = "show",
   writeLines("This is an object of class Newtork. It contains:")
   writeLines(paste(length(object@objects$Hormones), "hormones"))
 
-  writeLines(paste0("\t", names(object@objects$Hormones)))
+  writeLines(paste0("\t", names(object@objects$Hormones)[order(names(object@objects$Hormones))]))
 
   writeLines(paste(length(object@objects$Genotypes), "genotypes"))
 
-  writeLines(paste0("\t", names(object@objects$Genotypes)))
+  writeLines(paste0("\t", names(object@objects$Genotypes)[order(names(object@objects$Genotypes))]))
   # list out what the relevant hormones and genotypes are?
 })
 
