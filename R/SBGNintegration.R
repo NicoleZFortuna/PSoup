@@ -60,10 +60,12 @@ convertSBGNdiagram <- function(file, networkName) {
                                                              "compartmentRef") == compartment$id],
                            inputs = data.frame(Node = inNames,
                                                Coregulator = if (length(inNames) == 0) {NULL} else {NA},
-                                               Influence = arcInfo$influence[id == arcInfo$target]),
+                                               Influence = arcInfo$influence[id == arcInfo$target],
+                                               Delay = if (length(inNames) == 0) {NULL} else {NA}),
                            outputs = data.frame(Node = outNames,
                                                 Coregulator = if (length(outNames) == 0) {NULL} else {NA},
-                                                Influence = arcInfo$influence[id == arcInfo$source]),
+                                                Influence = arcInfo$influence[id == arcInfo$source],
+                                                Delay = if (length(inNames) == 0) {NULL} else {NA}),
                            travel = 1,
                            degradation = 1)
     } else {
@@ -85,11 +87,13 @@ convertSBGNdiagram <- function(file, networkName) {
                              container = compartment$name[attr(nodesList[[nodeIndex[i]]],
                                                                "compartmentRef") == compartment$id],
                              inputs = data.frame(Node = N,
-                                                 Coregulator = NA,
-                                                 Influence = arcInfo$influence[id == arcInfo$target]),
+                                                 Coregulator = if (length(N) == 2),
+                                                 Influence = arcInfo$influence[id == arcInfo$target],
+                                                 Delay = NA),
                              outputs = data.frame(Node = nodeInfo$name[nodeInfo$id %in% arcInfo$target[id == arcInfo$source]],
                                                   Coregulator = NA,
-                                                  Influence = arcInfo$influence[id == arcInfo$source]),
+                                                  Influence = arcInfo$influence[id == arcInfo$source],
+                                                  Delay = NA),
                              travel = 1,
                              degradation = 1)
 
@@ -118,10 +122,12 @@ convertSBGNdiagram <- function(file, networkName) {
                                                                "compartmentRef") == compartment$id],
                              inputs = data.frame(Node = nodeInfo$name[nodeInfo$id %in% arcInfo$source[id == arcInfo$target]],
                                                  Coregulator = NA,
-                                                 Influence = arcInfo$influence[id == arcInfo$target]),
+                                                 Influence = arcInfo$influence[id == arcInfo$target],
+                                                 Delay = NA),
                              outputs = data.frame(Node = N,
                                                   Coregulator = NA,
-                                                  Influence = I),
+                                                  Influence = I,
+                                                  Delay = NA),
                              travel = 1,
                              degradation = 1)
 
