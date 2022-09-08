@@ -10,14 +10,10 @@
 #' time step in the simulation. This file can be edited by the user as required.
 #' The file will need to be provided to the simulateNetwork function as an input.
 #' @param network an object of class network
-#' @param upPenalty a penalty applied to hormones traveling upwards. Behaves as
-#'                a multiplier.
-#' @param containerPenalty a penalty applied to hormones traveling upwards.
-#'                Behaves as a multiplier.
 #' @param file the name of the file that you want the equations to be saved to.
 #'                The default is to create an R script called equations.R in the
 #'                current working directory.
-buildModel <- function(network, upPenalty = NA, containerPenalty = NA, file = "./equations.R") {
+buildModel <- function(network, file = "./equations.R") {
   # a place to save the equations
   if (file.exists(file)) {
     warning("This file already exists and will be overwritten.")
@@ -128,7 +124,7 @@ buildModel <- function(network, upPenalty = NA, containerPenalty = NA, file = ".
       genoString <- rep(NA, length(genes))
       for (g in 1:length(genes)) {
         if (class(genotypes[[genes[g]]]@coregulator) == "character") {
-          cogenes <- c(genes[g], genotypes[[genes[g]]]@coregulator)
+          cogenes <- paste0("gen$", c(genes[g], genotypes[[genes[g]]]@coregulator), substr(nodes[[i]]@container, 1, 1))
 
           genoString[g] <- paste0(cogenes[order(cogenes)], collapse = "*")
         }
@@ -147,7 +143,7 @@ buildModel <- function(network, upPenalty = NA, containerPenalty = NA, file = ".
 
       allModulations <- sprintf("%s + %s", paste0("dat$", altString, "[t-1]", collapse = " + "), allModulations)
     }
-    cat(paste0("\tdat$",nodes[[i]]@name, "[t-1] = ", allModulations, "\n"), file = file, append = T)
+    cat(paste0("\tdat$",nodes[[i]]@name, "[t] = ", allModulations, "\n"), file = file, append = T)
   }
   cat("\tdat[t, ]\n", file = file, append = T)
   cat("}", file = file, append = T)

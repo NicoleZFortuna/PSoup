@@ -7,11 +7,11 @@
 coregulators(coreg, returnNum = FALSE)
 }
 \arguments{
+\item{coreg}{a subsed of a the inputs of a hormone object. This subset
+must all have the same modulating effect, and have coregulators}
+
 \item{returnNum}{return the number of unique coregulator sets. Default is
 set to FLASE.}
-
-\item{coregulators}{a subsed of a the inputs of a hormone object. This subset
-must all have the same modulating effect, and have coregulators}
 }
 \description{
 Coregulators are sorted so that their multiplications are only represented

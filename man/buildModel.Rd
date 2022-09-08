@@ -4,21 +4,10 @@
 \alias{buildModel}
 \title{A function to generate equations from a network object}
 \usage{
-buildModel(
-  network,
-  upPenalty = NA,
-  containerPenalty = NA,
-  file = "./equations.R"
-)
+buildModel(network, file = "./equations.R")
 }
 \arguments{
 \item{network}{an object of class network}
-
-\item{upPenalty}{a penalty applied to hormones traveling upwards. Behaves as
-a multiplier.}
-
-\item{containerPenalty}{a penalty applied to hormones traveling upwards.
-Behaves as a multiplier.}
 
 \item{file}{the name of the file that you want the equations to be saved to.
 The default is to create an R script called equations.R in the
