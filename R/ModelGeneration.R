@@ -31,8 +31,13 @@ buildModel <- function(network, upPenalty = NA, containerPenalty = NA, file = ".
   cat("# defining genotype values\n", file = file)
   cat("gen = data.frame(\n", file = file, append = T)
   for (i in 1:length(genotypes)) {
-    cat(paste0("\tgen$", genotypes[[i]]@name, substr(names(genotypes[[i]]@expression), 1, 1),
-               " = ", genotypes[[i]]@expression,","), sep = "\n", append = T, file = file)
+    if (i < length(genotypes)) {
+      cat(paste0("\t", genotypes[[i]]@name, substr(names(genotypes[[i]]@expression), 1, 1),
+                " = ", genotypes[[i]]@expression,","), sep = "\n", append = T, file = file)
+    } else {
+      cat(paste0("\t", genotypes[[i]]@name, substr(names(genotypes[[i]]@expression), 1, 1),
+                 " = ", genotypes[[i]]@expression, collapse = ",\n"), sep = "\n", append = T, file = file)
+    }
   }
   cat(")\n", file = file, append = T)
 
@@ -46,13 +51,19 @@ buildModel <- function(network, upPenalty = NA, containerPenalty = NA, file = ".
   cat("\n# defining node equations", file = file, append = T)
   cat("\nnextStep <- function(dat, gen, delay = NA) {\n", file = file, append = T)
   cat("\tdat[nrow(dat) + 1, ] = NA\n", file = file, append = T)
-  cat("\tt = nrow(dat)\n\n", file = file, append = T)
+  cat("\tt = nrow(dat)\n", file = file, append = T)
+  cat("\tif (is.na(delay)) {delay == 2}\n\n", file = file, append = T)
 
   for (i in 1:length(nodes)) {
     # collating all the stimulatory action
     if (any(nodes[[i]]@inputs$Influence == "stimulation")) {
       stimString <- nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% "stimulation" & is.na(nodes[[i]]@inputs$Coregulator)]
-      if (length(stimString) > 0) {stimString <- paste0("dat$", stimString, "[t-1]", collapse = " + ")}
+      if (length(stimString) > 0) {
+        delays = nodes[[i]]@inputs$Delay[nodes[[i]]@inputs$Influence=="stimulation"]
+        delays[delays==T] ="delay"
+        delays[is.na(delays)] = 1
+        stimString <- paste0("dat$", stimString, "[t-",delays,"]", collapse = " + ")
+      }
 
       # are there any stimulants that are coregulators
       if (any(!is.na(nodes[[i]]@inputs$Coregulator) & nodes[[i]]@inputs$Influence == "stimulation")) {
@@ -68,7 +79,12 @@ buildModel <- function(network, upPenalty = NA, containerPenalty = NA, file = ".
     if (any(nodes[[i]]@inputs$Influence == "inhibition")) {
       inhibString <- nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% "inhibition" & is.na(nodes[[i]]@inputs$Coregulator)]
       numInhib <- length(inhibString)
-      if (length(inhibString) > 0) {inhibString <- paste0("dat$", inhibString, "[t-1]", collapse = " + ")}
+      if (length(inhibString) > 0) {
+        delays = nodes[[i]]@inputs$Delay[nodes[[i]]@inputs$Influence=="inhibition"]
+        delays[delays==T] ="delay"
+        delays[is.na(delays)] = 1
+        inhibString <- paste0("dat$", inhibString, "[t-",delays,"]", collapse = " + ")
+      }
 
       # are there any inhibitors that are coregulators
       if (any(!is.na(nodes[[i]]@inputs$Coregulator) & nodes[[i]]@inputs$Influence == "inhibition")) {
@@ -98,7 +114,12 @@ buildModel <- function(network, upPenalty = NA, containerPenalty = NA, file = ".
     # multiplying modulations by necessary stimulants and genotypes
     if (any(nodes[[i]]@inputs$Influence == "necessary stimulation")) {
       necstimString <- nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% "necessary stimulation" & is.na(nodes[[i]]@inputs$Coregulator)]
-      if (length(necstimString) > 0) {necstimString <- paste0("dat$", necstimString, "[t-1]", collapse = " + ")}
+      if (length(necstimString) > 0) {
+        delays = nodes[[i]]@inputs$Delay[nodes[[i]]@inputs$Influence=="necessary stimulation"]
+        delays[delays==T] ="delay"
+        delays[is.na(delays)] = 1
+        necstimString <- paste0("dat$", necstimString, "[t-",delays,"]", collapse = " + ")
+      }
 
       # are there any necessary stimulants that are coregulators
       if (any(!is.na(nodes[[i]]@inputs$Coregulator) & nodes[[i]]@inputs$Influence == "stimulation")) {
@@ -129,6 +150,13 @@ buildModel <- function(network, upPenalty = NA, containerPenalty = NA, file = ".
     # add if there is a source from another node (will not be influenced by dynamics of current node)
     if (any(nodes[[i]]@inputs$Influence == "altSource")) {
       altString <- nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% "altSource"]
+      if (length(altString) > 0) {
+        delays = nodes[[i]]@inputs$Delay[nodes[[i]]@inputs$Influence=="altSource"]
+        delays[delays==T] ="delay"
+        delays[is.na(delays)] = 1
+        necstimString <- paste0("dat$", altString, "[t-",delays,"]", collapse = " + ")
+      }
+
       allModulations <- sprintf("%s + %s", paste0("dat$", altString, "[t-1]", collapse = " + "), allModulations)
     }
     cat(paste0("\tdat$",nodes[[i]]@name, "[t-1] = ", allModulations, "\n"), file = file, append = T)

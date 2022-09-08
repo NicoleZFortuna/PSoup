@@ -65,7 +65,7 @@ convertSBGNdiagram <- function(file, networkName) {
                            outputs = data.frame(Node = outNames,
                                                 Coregulator = if (length(outNames) == 0) {NULL} else {NA},
                                                 Influence = arcInfo$influence[id == arcInfo$source],
-                                                Delay = if (length(inNames) == 0) {NULL} else {NA}),
+                                                Delay = if (length(outNames) == 0) {NULL} else {NA}),
                            travel = 1,
                            degradation = 1)
     } else {
@@ -73,23 +73,40 @@ convertSBGNdiagram <- function(file, networkName) {
       if (any(which(ids %in% arcInfo$source[id == arcInfo$target]) %in% logicIndex)) {
         rowNodes <- which(ids %in% arcInfo$source[id == arcInfo$target])
 
-        N = vector(length = length(rowNodes))
+        # collecting input node information including operator info
+        N = data.frame(Node = length(rowNodes), Coregulator = NA, Operator = NA)
+        o=1
         for (r in 1:length(rowNodes)) {
           if (rowNodes[r] %in% logicIndex) {
-            N[r] <- nodeInfo$name[nodeInfo$id %in% arcInfo$source[ids[rowNodes[r]] == arcInfo$target]]
+            operatorOrigin <- nodeInfo$name[nodeInfo$id %in% arcInfo$source[ids[rowNodes[r]] == arcInfo$target]]
+            if (length(operatorOrigin) == 1) {
+              N[o, ] <- c(operatorOrigin, NA, attr(nodesList[[rowNodes[r]]],".class"))
+            } else if (length(operatorOrigin) == 2){
+              N[o:(o + 1), "Node"] <- operatorOrigin
+              N[o:(o + 1), "Coregulator"] <- rev(operatorOrigin)
+              N[o:(o + 1), "Operator"] <- attr(nodesList[[rowNodes[r]]],".class")
+            } else {
+              stop("Nicole was too lazy to allow for more than two dependent inputs. Go bug her if you would like this feature.")
+            }
+            o = o + length(operatorOrigin)
           } else {
-            N[r] <- attr(nodesList[[rowNodes[r]]]$label,"text")
+            N[o, ] <- c(attr(nodesList[[rowNodes[r]]]$label,"text"), NA, NA)
+            o = o + 1
           }
+        }
+
+        if (!any(N$Operator %in% c("delay", "and"))) {
+          stop("peaSoup only accepts the 'delay' and 'and' operators.")
         }
 
         hormones[[i]] <- new("Hormone",
                              name = attr(nodesList[[nodeIndex[i]]]$label,"text"),
                              container = compartment$name[attr(nodesList[[nodeIndex[i]]],
                                                                "compartmentRef") == compartment$id],
-                             inputs = data.frame(Node = N,
-                                                 Coregulator = if (length(N) == 2),
+                             inputs = data.frame(Node = N$Node,
+                                                 Coregulator = N$Coregulator,
                                                  Influence = arcInfo$influence[id == arcInfo$target],
-                                                 Delay = NA),
+                                                 Delay = N$Operator=="delay"),
                              outputs = data.frame(Node = nodeInfo$name[nodeInfo$id %in% arcInfo$target[id == arcInfo$source]],
                                                   Coregulator = NA,
                                                   Influence = arcInfo$influence[id == arcInfo$source],
@@ -104,15 +121,28 @@ convertSBGNdiagram <- function(file, networkName) {
       if (any(which(ids %in% arcInfo$target[id == arcInfo$source]) %in% logicIndex)) {
         rowNodes <- which(ids %in% arcInfo$target[id == arcInfo$source])
 
-        N = vector(length = length(rowNodes))
-        I = vector(length = length(rowNodes))
+        # collecting input node information including operator info
+        N = data.frame(Node = length(rowNodes), Coregulator = NA, Influence = NA, Operator = NA)
+        o=1
         for (r in 1:length(rowNodes)) {
           if (rowNodes[r] %in% logicIndex) {
-            N[r] <- nodeInfo$name[nodeInfo$id %in% arcInfo$target[ids[rowNodes[r]] == arcInfo$source]]
-            I[r] <- arcInfo$influence[ids[rowNodes[r]] == arcInfo$source]
+            operatorDestination <- nodeInfo$name[nodeInfo$id %in% arcInfo$target[ids[rowNodes[r]] == arcInfo$source]]
+            if (length(operatorDestination) == 1) {
+              N[o, ] <- c(operatorDestination, NA, arcInfo$influence[ids[rowNodes[r]] == arcInfo$source],
+                          attr(nodesList[[rowNodes[r]]],".class"))
+            } else if (length(operatorDestination) == 2){
+              N[o:(o + 1), "Node"] <- operatorDestination
+              N[o:(o + 1), "Coregulator"] <- rev(operatorDestination)
+              N[o:(o + 1), "Influence"] <- arcInfo$influence[ids[rowNodes[r]] == arcInfo$source]
+              N[o:(o + 1), "Operator"] <- attr(nodesList[[rowNodes[r]]],".class")
+            } else {
+              stop("Nicole was too lazy to allow for more than two dependent inputs. Go bug her if you would like this feature.")
+            }
+            o = o + length(operatorDestination)
           } else {
-            N[r] <- attr(nodesList[[rowNodes[r]]]$label,"text")
-            I[r] <- arcInfo$influence[id == arcInfo$source]
+            N[o, ] <- c(attr(nodesList[[rowNodes[r]]]$label,"text"), NA,
+                        arcInfo$influence[id == arcInfo$source], NA)
+            o = o + 1
           }
         }
 
@@ -124,10 +154,7 @@ convertSBGNdiagram <- function(file, networkName) {
                                                  Coregulator = NA,
                                                  Influence = arcInfo$influence[id == arcInfo$target],
                                                  Delay = NA),
-                             outputs = data.frame(Node = N,
-                                                  Coregulator = NA,
-                                                  Influence = I,
-                                                  Delay = NA),
+                             outputs = N,
                              travel = 1,
                              degradation = 1)
 
