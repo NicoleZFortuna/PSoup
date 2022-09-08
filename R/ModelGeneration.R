@@ -59,10 +59,7 @@ buildModel <- function(network, upPenalty = NA, containerPenalty = NA, file = ".
     if (any(nodes[[i]]@inputs$Influence == "stimulation")) {
       stimString <- nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% "stimulation" & is.na(nodes[[i]]@inputs$Coregulator)]
       if (length(stimString) > 0) {
-        delays = nodes[[i]]@inputs$Delay[nodes[[i]]@inputs$Influence=="stimulation"]
-        delays[delays==T] ="delay"
-        delays[is.na(delays)] = 1
-        stimString <- paste0("dat$", stimString, "[t-",delays,"]", collapse = " + ")
+        stimString <- differenceString(stimString, nodes[[i]]@inputs$Delay[nodes[[i]]@inputs$Influence=="stimulation"])
       }
 
       # are there any stimulants that are coregulators
@@ -80,10 +77,7 @@ buildModel <- function(network, upPenalty = NA, containerPenalty = NA, file = ".
       inhibString <- nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% "inhibition" & is.na(nodes[[i]]@inputs$Coregulator)]
       numInhib <- length(inhibString)
       if (length(inhibString) > 0) {
-        delays = nodes[[i]]@inputs$Delay[nodes[[i]]@inputs$Influence=="inhibition"]
-        delays[delays==T] ="delay"
-        delays[is.na(delays)] = 1
-        inhibString <- paste0("dat$", inhibString, "[t-",delays,"]", collapse = " + ")
+        inhibString <- differenceString(inhibString, nodes[[i]]@inputs$Delay[nodes[[i]]@inputs$Influence=="inhibition"])
       }
 
       # are there any inhibitors that are coregulators
@@ -115,10 +109,7 @@ buildModel <- function(network, upPenalty = NA, containerPenalty = NA, file = ".
     if (any(nodes[[i]]@inputs$Influence == "necessary stimulation")) {
       necstimString <- nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% "necessary stimulation" & is.na(nodes[[i]]@inputs$Coregulator)]
       if (length(necstimString) > 0) {
-        delays = nodes[[i]]@inputs$Delay[nodes[[i]]@inputs$Influence=="necessary stimulation"]
-        delays[delays==T] ="delay"
-        delays[is.na(delays)] = 1
-        necstimString <- paste0("dat$", necstimString, "[t-",delays,"]", collapse = " + ")
+        necstimString <- differenceString(necstimString, nodes[[i]]@inputs$Delay[nodes[[i]]@inputs$Influence=="necessary stimulation"])
       }
 
       # are there any necessary stimulants that are coregulators
@@ -151,10 +142,7 @@ buildModel <- function(network, upPenalty = NA, containerPenalty = NA, file = ".
     if (any(nodes[[i]]@inputs$Influence == "altSource")) {
       altString <- nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% "altSource"]
       if (length(altString) > 0) {
-        delays = nodes[[i]]@inputs$Delay[nodes[[i]]@inputs$Influence=="altSource"]
-        delays[delays==T] ="delay"
-        delays[is.na(delays)] = 1
-        necstimString <- paste0("dat$", altString, "[t-",delays,"]", collapse = " + ")
+        necstimString <- differenceString(necstimString, nodes[[i]]@inputs$Delay[nodes[[i]]@inputs$Influence=="altSource"])
       }
 
       allModulations <- sprintf("%s + %s", paste0("dat$", altString, "[t-1]", collapse = " + "), allModulations)
@@ -172,7 +160,7 @@ buildModel <- function(network, upPenalty = NA, containerPenalty = NA, file = ".
 #' once. Each modulator is given a temporal modifier. Sets of coregulators are
 #' summed.
 #'
-#' @param coregulators a subsed of a the inputs of a hormone object. This subset
+#' @param coreg a subsed of a the inputs of a hormone object. This subset
 #'        must all have the same modulating effect, and have coregulators
 #' @param returnNum return the number of unique coregulator sets. Default is
 #'        set to FLASE.
@@ -190,3 +178,18 @@ coregulators <- function(coreg, returnNum = FALSE) {
   if (returnNum == FALSE) return(coreg)
   else return(list(coreg = coreg, num = num))
 }
+
+#' A function to build the difference equation including delays
+#'
+#' @param string whatever string is being constructed.
+#' @param delays a vector specifying if there are any delays associated with
+#'        a particular input.
+differenceString <- function(string, delays) {
+  delays[delays==T] ="delay"
+  delays[is.na(delays)] = 1
+  fullString <- paste0("dat$", string, "[t-",delays,"]", collapse = " + ")
+  fullString
+}
+
+
+

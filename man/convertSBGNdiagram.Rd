@@ -11,8 +11,6 @@ convertSBGNdiagram(file, networkName)
 of an sbgn diagram.}
 
 \item{networkName}{a string. The name that you wish to give the network.}
-
-\item{path}{a string. The path directory for where to store the network.}
 }
 \description{
 A function that converts an SBGN-ML text file into a network object
