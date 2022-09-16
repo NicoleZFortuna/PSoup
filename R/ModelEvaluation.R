@@ -190,3 +190,5 @@ consistencyCheck <- function(network) {
 
 # validityCheck
 
+
+

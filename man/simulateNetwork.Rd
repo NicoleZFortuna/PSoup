@@ -4,7 +4,7 @@
 \alias{simulateNetwork}
 \title{A function to simulate a network}
 \usage{
-simulateNetwork(file, delay = 2, tmax = NA)
+simulateNetwork(file, delay = 2, tmax = NA, genotype = NA, startingValues = NA)
 }
 \arguments{
 \item{file}{a file of the type produced by the buildModel function. Contains
@@ -17,6 +17,12 @@ default is set to 2.}
 
 \item{tmax}{the maximum number of steps that you want to simulate for. If
 set to NA (the default), will simulate until stability is reached.}
+
+\item{genotype}{default set to NA. Allows the user to provide a different gen
+data.frame from the one specified in the provided file.}
+
+\item{startingValues}{default set to NA. Allows the user to provide a different
+dat data.frame from the one specified in the provided file.}
 }
 \description{
 Takes the output file of the buildNetwork function and uses it to run a
