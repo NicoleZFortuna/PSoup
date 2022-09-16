@@ -12,6 +12,27 @@ quickPlot <- function(simulationData) {
   }
 }
 
+#' A function to pull the final states from a set of simulations and normalise
+#' against the wildtype (baseline).
+#'
+#' @param simulations a list containing the output of the setupSims function
+#' @param nodes a vector containing all the nodes that the user wants to plot
+
+finalStates <- function(simulations, nodes = NA) {
+  final <- tail(simulations[[1]]$simulation,1)
+  final[2:length(simulations), ] <- NA
+
+  for (i in 2:length(simulations)) {
+    final[i, ] <- tail(simulations[[i]]$simulation,1)
+    final[i, ] <- final[i, ]/final[1, ]
+  }
+  final[1, ] <- final[1, ]/final[1, ]
+
+  final
+}
+
+barplot(as.matrix(final), beside = T, ylab = "Expression")
+
 
 
 ##' A function to comparatively plot the outcomes of different simulations
