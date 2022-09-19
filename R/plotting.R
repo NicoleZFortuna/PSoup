@@ -31,8 +31,38 @@ finalStates <- function(simulations, nodes = NA) {
   final
 }
 
-barplot(as.matrix(final), beside = T, ylab = "Expression")
+#' A function that generates colours for a vector with numeric values.
+#'
+#' Generates hex colours for relative expression data. WT (1) values are white,
+#' complete lack of expression is black.
+#'
+#'
+generateColours <- function(x, mincol = "blue", maxcol = "red", maxvalue = NA) {
+  if (is.na(maxvalue)) {
+    maxvalue = max(x)
+  }
 
+  cols = rep(NA, length(x))
+
+  cols[which(x == 1)] <- rgb(1,1,1)
+  cols[which(x == 0)] <- rgb(0,0,0)
+
+  over <- which(x > 1)
+  under <- which(x < 1 & x > 0)
+  for (i in under) {
+    cols[i] <- rgb(x[i], x[i], 1)
+  }
+
+  for (i in over) {
+    val = 1 - (1/(maxvalue)*x[i] - 1/(maxvalue))
+    cols[i] <- rgb(1, val, val)
+  }
+
+  cols
+}
+
+barplot(as.matrix(final), beside = T, ylab = "Expression", las=2)
+legend("topright", legend = c("WT", "RMS3S = 0", "RMS3S = 0.5"), pch = 15, col = viridis(3))
 
 
 ##' A function to comparatively plot the outcomes of different simulations
@@ -49,4 +79,24 @@ barplot(as.matrix(final), beside = T, ylab = "Expression")
 ##'        of the same length as the nodes that you wish to plot. If no
 ##'        value is provided will use the viridis palette as default.
 
-#plot.simData <- function(simData, toPlot = NA)
+# #plot.simData <- function(simData, toPlot = NA)
+#
+#
+# file <- "/Users/uqnfortu/Desktop/equations.R"
+#
+# simulations <- setupSims(file, randomStart = NA, delay = 2, tmax = 50)
+#
+# final = finalStates(simulations)
+# barplot(as.matrix(final$BranchOutgrowth), beside = T, ylab = "Expression", las=2,
+#         names.arg = c("WT/WT", "RMS1/WT", "WT/RMS1", "RMS2/WT", "WT/RMS2", "RMS3/WT", "WT/RMS3", "RMS4/WT", "WT/RMS4", "RMS5/WT", "WT/RMS5"))
+#
+# plot(NA, ylim=c(0,6), xlim=c(0,6), xaxt = "n", yaxt = "n", xlab = "Rootstock", ylab = "Scion")
+# axis(1, seq(0.5, 5.5, 1), c("WT", paste0("RMS", 1:5)))
+# axis(2, seq(0.5, 5.5, 1), c("WT", paste0("RMS", 1:5)))
+# x=c(1,1,2,1,3,1,4,1,5,1,6,1)-0.5
+# y=c(1,2,1,3,1,4,1,5,1,5,1,6)-0.5
+#
+# points(x=x,y=y,
+#        col = generateColours(final$BranchOutgrowth),
+#        pch = 15, cex=3)
+
