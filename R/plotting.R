@@ -61,7 +61,8 @@ generateColours <- function(x, mincol = "blue", maxcol = "red", maxvalue = NA) {
   cols
 }
 
-barplot(as.matrix(final), beside = T, ylab = "Expression", las=2)
+barplot(as.matrix(final$BranchOutgrowth), beside = T, ylab = "Expression",
+        cex.names = 0.75, names.arg = c(expression(frac("WT","WT")), expression(frac("RMS1","WT")), expression(frac("RMS1","RMS1")), expression(frac("RMS1","RMS2")), expression(frac("RMS1","RMS3")), expression(frac("RMS1","RMS4")), expression(frac("RMS1","RMS5"))))
 legend("topright", legend = c("WT", "RMS3S = 0", "RMS3S = 0.5"), pch = 15, col = viridis(3))
 
 
