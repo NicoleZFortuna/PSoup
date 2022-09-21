@@ -4,14 +4,15 @@
 \alias{simulateNetwork}
 \title{A function to simulate a network}
 \usage{
-simulateNetwork(file, delay = 2, tmax = NA, genotype = NA, startingValues = NA)
+simulateNetwork(
+  folder,
+  delay = 2,
+  tmax = NA,
+  genotype = NA,
+  startingValues = NA
+)
 }
 \arguments{
-\item{file}{a file of the type produced by the buildModel function. Contains
-the starting values for nodes, defines the genotypes of the
-model, and defines the nextStep function for simulating the
-change at each timestep.}
-
 \item{delay}{the amount of delay to apply for delayed action of nodes. The
 default is set to 2.}
 
@@ -23,6 +24,11 @@ data.frame from the one specified in the provided file.}
 
 \item{startingValues}{default set to NA. Allows the user to provide a different
 dat data.frame from the one specified in the provided file.}
+
+\item{file}{a folder of the type produced by the buildModel function. Contains
+the starting values for nodes, defines the genotypes of the
+model, and defines the nextStep function for simulating the
+change at each timestep.}
 }
 \description{
 Takes the output file of the buildNetwork function and uses it to run a

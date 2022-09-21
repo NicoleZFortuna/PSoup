@@ -4,14 +4,24 @@
 \alias{buildModel}
 \title{A function to generate equations from a network object}
 \usage{
-buildModel(network, file = "./equations.R")
+buildModel(network, folder = "./Model", forceOverwrite = FALSE)
 }
 \arguments{
 \item{network}{an object of class network}
 
-\item{file}{the name of the file that you want the equations to be saved to.
-The default is to create an R script called equations.R in the
-current working directory.}
+\item{folder}{the name of the folder that you want the components of the
+model to be saved to. The default is to create a directory
+called Model in the current working directory. The user can
+provide their own directory and folder name. In this folder
+will be generated three R scripts: one to define genotypes
+(genotypeDefinition.R), one to define the starting node values
+(nodestartDefinition.R), and one to define the function that
+gives the difference equations that are used to simulate the
+network (nextStep.R).}
+
+\item{forceOverwrite}{default set to FALSE. Will stop the function if the
+folder already exits. Can set to true if you want to replace
+the existing folder}
 }
 \description{
 This function is used to define the script that is needed to simulate the

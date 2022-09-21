@@ -2,6 +2,7 @@
 #'
 #' @param simulationData the data.frame output of a simulation.
 #' @importFrom viridis viridis
+#' @importFrom graphics lines
 
 quickPlot <- function(simulationData) {
   plot(NA, ylim = c(0, max(simulationData)+0.5), xlim = c(0, nrow(simulationData)),
@@ -17,6 +18,8 @@ quickPlot <- function(simulationData) {
 #'
 #' @param simulations a list containing the output of the setupSims function
 #' @param nodes a vector containing all the nodes that the user wants to plot
+#' @importFrom utils tail
+#' @export
 
 finalStates <- function(simulations, nodes = NA) {
   final <- tail(simulations[[1]]$simulation,1)
@@ -34,10 +37,17 @@ finalStates <- function(simulations, nodes = NA) {
 #' A function that generates colours for a vector with numeric values.
 #'
 #' Generates hex colours for relative expression data. WT (1) values are white,
-#' complete lack of expression is black.
+#' complete lack of expression is black. Overexpressed nodes will be given a
+#' gradient from white to red. Underexpressed nodes will be given a gradient from white to blue.
 #'
-#'
-generateColours <- function(x, mincol = "blue", maxcol = "red", maxvalue = NA) {
+#' @param x a vector of numerical values containing node expression levels as
+#'        normalised by the wild type (1 is the baseline expression).
+#' @param maxvalue the value that the user wants to be treated as the maximum
+#'        over
+#' @importFrom grDevices rgb
+#' @export
+
+generateColours <- function(x, maxvalue = NA) {
   if (is.na(maxvalue)) {
     maxvalue = max(x)
   }
@@ -61,9 +71,9 @@ generateColours <- function(x, mincol = "blue", maxcol = "red", maxvalue = NA) {
   cols
 }
 
-barplot(as.matrix(final$BranchOutgrowth), beside = T, ylab = "Expression",
-        cex.names = 0.75, names.arg = c(expression(frac("WT","WT")), expression(frac("RMS1","WT")), expression(frac("RMS1","RMS1")), expression(frac("RMS1","RMS2")), expression(frac("RMS1","RMS3")), expression(frac("RMS1","RMS4")), expression(frac("RMS1","RMS5"))))
-legend("topright", legend = c("WT", "RMS3S = 0", "RMS3S = 0.5"), pch = 15, col = viridis(3))
+#barplot(as.matrix(final$BranchOutgrowth), beside = T, ylab = "Expression",
+#        cex.names = 0.75, names.arg = c(expression(frac("WT","WT")), expression(frac("RMS1","WT")), expression(frac("RMS1","RMS1")), expression(frac("RMS1","RMS2")), expression(frac("RMS1","RMS3")), expression(frac("RMS1","RMS4")), expression(frac("RMS1","RMS5"))))
+#legend("topright", legend = c("WT", "RMS3S = 0", "RMS3S = 0.5"), pch = 15, col = viridis(3))
 
 
 ##' A function to comparatively plot the outcomes of different simulations

@@ -10,45 +10,64 @@
 #' time step in the simulation. This file can be edited by the user as required.
 #' The file will need to be provided to the simulateNetwork function as an input.
 #' @param network an object of class network
-#' @param file the name of the file that you want the equations to be saved to.
-#'                The default is to create an R script called equations.R in the
-#'                current working directory.
-buildModel <- function(network, file = "./equations.R") {
+#' @param folder the name of the folder that you want the components of the
+#'               model to be saved to. The default is to create a directory
+#'               called Model in the current working directory. The user can
+#'               provide their own directory and folder name. In this folder
+#'               will be generated three R scripts: one to define genotypes
+#'               (genotypeDefinition.R), one to define the starting node values
+#'               (nodestartDefinition.R), and one to define the function that
+#'               gives the difference equations that are used to simulate the
+#'               network (nextStep.R).
+#' @param forceOverwrite default set to FALSE. Will stop the function if the
+#'               folder already exits. Can set to true if you want to replace
+#'               the existing folder
+#' @export
+
+buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE) {
   # a place to save the equations
-  if (file.exists(file)) {
-    warning("This file already exists and will be overwritten.")
+  if (dir.exists(folder) & forceOverwrite == FALSE) {
+    stop("This folder already exists. If you want to overwrite this folder,
+         set forceOverwrite to TRUE.")
   } else {
-    file.create(file)
+    dir.create(folder)
+    genfile = paste0(folder, "/genotypeDefinition.R")
+    nodefile = paste0(folder, "/nodestartDefinition.R")
+    funcfile = paste0(folder, "/nextStep.R")
+
+    file.create(genfile)
+    file.create(nodefile)
+    file.create(funcfile)
   }
 
   nodes = network@objects$Hormones
   genotypes = network@objects$Genotypes
 
-  cat("# defining genotype values\n", file = file)
-  cat("gen = data.frame(\n", file = file, append = T)
+  cat("# defining genotype values\n", file = genfile)
+  cat("gen = data.frame(\n", file = genfile, append = T)
   for (i in 1:length(genotypes)) {
     if (i < length(genotypes)) {
       cat(paste0("\t", genotypes[[i]]@name, substr(names(genotypes[[i]]@expression), 1, 1),
-                " = ", genotypes[[i]]@expression,","), sep = "\n", append = T, file = file)
+                " = ", genotypes[[i]]@expression,","), sep = "\n", append = T, file = genfile)
     } else {
       cat(paste0("\t", genotypes[[i]]@name, substr(names(genotypes[[i]]@expression), 1, 1),
-                 " = ", genotypes[[i]]@expression, collapse = ",\n"), sep = "\n", append = T, file = file)
+                 " = ", genotypes[[i]]@expression, collapse = ",\n"), sep = "\n", append = T, file = genfile)
     }
   }
-  cat(")\n", file = file, append = T)
+  cat(")\n", file = genfile, append = T)
 
-  cat("\n# defining storage data.frame and node initial values\n", file = file, append = T)
+  cat("# defining storage data.frame and node initial values\n", file = nodefile)
   cat("dat <- data.frame(\n\t'", paste(names(nodes), collapse = "' = 1, \n\t'"), "' = 1\n)\n",
-      sep="", file = file, append = T)
+      sep="", file = nodefile, append = T)
 
   inhibition = c("inhibition", "sufficient inhibition", "necessary inhibition")
   stimulation = c("stimulation", "sufficient stimulation", "necessary stimulation")
 
-  cat("\n# defining node equations", file = file, append = T)
-  cat("\nnextStep <- function(dat, gen, delay = NA) {\n", file = file, append = T)
-  cat("\tdat[nrow(dat) + 1, ] = NA\n", file = file, append = T)
-  cat("\tt = nrow(dat)\n", file = file, append = T)
-  cat("\tif (is.na(delay)) {delay == 2}\n\n", file = file, append = T)
+  cat("# defining node equations", file = funcfile)
+  cat("\nnextStep <- function(dat, gen, delay = NA) {\n", file = funcfile, append = T)
+  cat("\tdat[nrow(dat) + 1, ] = NA\n", file = funcfile, append = T)
+  cat("\tt = nrow(dat)\n", file = funcfile, append = T)
+  cat("\tif (is.na(delay)) {delay == 2}\n\n", file = funcfile, append = T)
 
   for (i in 1:length(nodes)) {
     # collating all the stimulatory action
@@ -138,15 +157,15 @@ buildModel <- function(network, file = "./equations.R") {
     if (any(nodes[[i]]@inputs$Influence == "altSource")) {
       altString <- nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% "altSource"]
       if (length(altString) > 0) {
-        necstimString <- differenceString(necstimString, nodes[[i]]@inputs$Delay[nodes[[i]]@inputs$Influence=="altSource"])
+        altString <- differenceString(altString, nodes[[i]]@inputs$Delay[nodes[[i]]@inputs$Influence=="altSource"])
       }
 
-      allModulations <- sprintf("%s + %s", paste0("dat$", altString, "[t-1]", collapse = " + "), allModulations)
+      allModulations <- sprintf("%s + %s", paste0("dat$", altString, collapse = " + "), allModulations)
     }
-    cat(paste0("\tdat$",nodes[[i]]@name, "[t] = ", allModulations, "\n"), file = file, append = T)
+    cat(paste0("\tdat$",nodes[[i]]@name, "[t] = ", allModulations, "\n"), file = funcfile, append = T)
   }
-  cat("\tdat[t, ]\n", file = file, append = T)
-  cat("}", file = file, append = T)
+  cat("\tdat[t, ]\n", file = funcfile, append = T)
+  cat("}", file = funcfile, append = T)
 }
 
 
