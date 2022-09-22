@@ -119,6 +119,7 @@ setupSims <- function(file, randomStart = NA, delay = 2, tmax = NA) {
 #'        the genes take on? Default is set to 0 (knockout). Can provide a
 #'        vector for the variety of values that are wanted. Only one mutation
 #'        value will be considered at a time.
+#' @importFrom utils combn
 #' @export
 
 genotypeScreen <- function(folder, maxMutations = 1, mutationVals = 0) {
@@ -143,12 +144,34 @@ genotypeScreen <- function(folder, maxMutations = 1, mutationVals = 0) {
     }
   }
 
-  dims <- compartments
-  dims$mutationVals = mutationVals
+  getGens <- unname(droplevels(expand.grid(compartments$S, compartments$R), F))
+  getGens <- apply(getGens, c(1,2), as.character)
 
-  array(NA, dim = c(as.numeric(unname(summary(compartments)[,1])),
-                    length(mutationVals)),
-        dimnames = dims)
+  genotypes <- apply(getGens, 1, strsplit, ".", T)
+
+  gen[2:(length(genotypes)*length(mutationVals) + 1), ] <- 1
+
+  r = 1
+  for (m in 1:length(mutationVals)) {
+    for (g in 1:length(genotypes)) {
+      r = r + 1
+      gen[r, unlist(genotypes[[r - 1]])] <- mutationVals[m]
+    }
+  }
+
+  # sheets = vector("list", length = length(mutationVals))
+  # for (i in 1:length(mutationVals)) {
+  #   sheets[[i]] <- matrix(rep(NA, ))
+  # }
+  #
+  # dims <- compartments
+  # dims$mutationVals = mutationVals
+  #
+  # mutants <- array(NA, dim = c(as.numeric(unname(summary(compartments)[,1])),
+  #                   length(mutationVals)),
+  #                  dimnames = dims)
+
+
 
 }
 
