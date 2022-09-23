@@ -119,10 +119,19 @@ setupSims <- function(file, randomStart = NA, delay = 2, tmax = NA) {
 #'        the genes take on? Default is set to 0 (knockout). Can provide a
 #'        vector for the variety of values that are wanted. Only one mutation
 #'        value will be considered at a time.
+#' @param returnExcel default set to FALSE. If TRUE, will create an excel file
+#'        and save it in the model folder. This file will contain a matrix
+#'        showing all of the genotype combinations that have been screened. This
+#'        can be used to record any existing experimental outcomes, to be
+#'        compared against simulated outcomes later on.
+#' @param static default set to FALSE. Determines if the final data.frame is
+#'        saved as a .Rdata file. The default condition overwrites the
+#'        genotypeDefinition.R file to define the new gen data.frame.
 #' @importFrom utils combn
 #' @export
 
-genotypeScreen <- function(folder, maxMutations = 1, mutationVals = 0) {
+genotypeScreen <- function(folder, maxMutations = 1, mutationVals = 0,
+                           returnExcel = FALSE, static = FALSE) {
   source(paste0(folder, "/genotypeDefinition.R"))
 
   comp = stringr::str_sub(colnames(gen), -1, -1)
@@ -159,20 +168,40 @@ genotypeScreen <- function(folder, maxMutations = 1, mutationVals = 0) {
     }
   }
 
-  # sheets = vector("list", length = length(mutationVals))
-  # for (i in 1:length(mutationVals)) {
-  #   sheets[[i]] <- matrix(rep(NA, ))
-  # }
-  #
-  # dims <- compartments
-  # dims$mutationVals = mutationVals
-  #
-  # mutants <- array(NA, dim = c(as.numeric(unname(summary(compartments)[,1])),
-  #                   length(mutationVals)),
-  #                  dimnames = dims)
+  if (static == T) {
+    save(gen, file = paste0(folder, "/genotypeDefinition.Rdata"))
+  } else {
+    file = paste0(folder, "/genotypeDefinition.R")
 
+    cat("# defining genotype values\n", file = file)
+    cat("gen <- data.frame(\n", file = file, append = T)
 
+    for (i in 1:ncol(dat)) {
+      cat("\t'", colnames(gen)[i], "' = c(", paste(gen[,i], collapse = ", "),
+          "),\n", sep="", file = file, append = T)
+    }
+  }
+  cat(")", file = file, append = T)
 
+  if (returnExcel == TRUE) {
+    sheets = vector("list", length = length(mutationVals))
+    names(sheets) <- paste0("MutationVal=", mutationVals)
+
+    for (i in 1:length(sheets)) {
+      sheets[[i]] <- as.data.frame(array(NA, dim = sapply(compartments, length),
+                           dimnames = compartments))
+
+      if (i == 1) {
+        cat(paste("Mutation Value", mutationVals[i]),
+            file = paste0(folder, "/experimentalData.csv"))
+      } else {
+        cat(paste("\nMutation Value", mutationVals[i]),
+            file = paste0(folder, "/experimentalData.csv"), append = T)
+      }
+      write.table(sheets[[1]], file = paste0(folder, "/experimentalData.csv"),
+                  sep = ",", row.names = T, col.names = NA, append = T)
+    }
+  }
 }
 
 #' A function to generate a number of random starting point reassignments.
@@ -186,7 +215,7 @@ genotypeScreen <- function(folder, maxMutations = 1, mutationVals = 0) {
 #' @param minVal default set to 0. The minimum value for a node to be.
 #' @param maxVal default set to 2. The maximum value for a node to be.
 #' @param static default set to FALSE. Determines if the final data.frame is
-#'        saved as a .Rdata file. The default condition overwritest the
+#'        saved as a .Rdata file. The default condition overwrites the
 #'        nodestartDefinition.R file to define the new dat data.frame.
 #' @export
 

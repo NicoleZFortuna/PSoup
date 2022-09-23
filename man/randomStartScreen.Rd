@@ -17,7 +17,7 @@ want to test.}
 \item{maxVal}{default set to 2. The maximum value for a node to be.}
 
 \item{static}{default set to FALSE. Determines if the final data.frame is
-saved as a .Rdata file. The default condition overwritest the
+saved as a .Rdata file. The default condition overwrites the
 nodestartDefinition.R file to define the new dat data.frame.}
 }
 \description{
