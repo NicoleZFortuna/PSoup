@@ -160,7 +160,7 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE) {
         altString <- differenceString(altString, nodes[[i]]@inputs$Delay[nodes[[i]]@inputs$Influence=="altSource"])
       }
 
-      allModulations <- sprintf("%s + %s", paste0("dat$", altString, collapse = " + "), allModulations)
+      allModulations <- sprintf("%s + %s", paste0(altString, collapse = " + "), allModulations)
     }
     cat(paste0("\tdat$",nodes[[i]]@name, "[t] = ", allModulations, "\n"), file = funcfile, append = T)
   }
