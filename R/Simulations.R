@@ -135,7 +135,7 @@ genotypeScreen <- function(folder, maxMutations = 1, mutationVals = 0,
   if (maxMutations > 1) {
     for (i in 1:length(compartments)) {
       for (j in 2:maxMutations) {
-        compartments[[i]] <- c(compartments[[i]],
+        compartments[[i]] <- c("WT", compartments[[i]],
                                apply(combn(compartments[[i]], j), 2, paste,
                                      collapse = "."))
       }
@@ -153,7 +153,11 @@ genotypeScreen <- function(folder, maxMutations = 1, mutationVals = 0,
   for (m in 1:length(mutationVals)) {
     for (g in 1:length(genotypes)) {
       r = r + 1
-      gen[r, unlist(genotypes[[r - 1]])] <- mutationVals[m]
+      genes <- unlist(genotypes[[r - 1]])
+      if (any(genes != "WT")) {
+        genes <- genes[genes != "WT"]
+        gen[r, genes] <- mutationVals[m]
+      }
     }
   }
 
