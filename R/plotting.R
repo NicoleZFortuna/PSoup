@@ -4,13 +4,13 @@
 #' @importFrom viridis viridis
 #' @importFrom graphics lines
 
-quickPlot <- function(simulationData) {
-  plot(NA, ylim = c(0, max(simulationData)+0.5), xlim = c(0, nrow(simulationData)),
-       xlab = "Time", ylab = "Expression")
-  cols = viridis(ncol(simulationData))
-  for (i in 1:ncol(simulationData)) {
-    lines(simulationData[, i], col = cols[i])
-  }
+quickPlot <- function(simulationData, ...) {
+ plot(NA, ylim = c(0, max(simulationData) + 0.5), xlim = c(0, nrow(simulationData)),
+      xlab = "Time", ylab = "Expression", ...)
+ cols = viridis(ncol(simulationData))
+ for (i in 1:ncol(simulationData)) {
+   lines(simulationData[, i], col = cols[i])
+ }
 }
 
 #' A function to pull the final states from a set of simulations and normalise
@@ -32,43 +32,6 @@ finalStates <- function(simulations, nodes = NA) {
   final[1, ] <- final[1, ]/final[1, ]
 
   final
-}
-
-#' A function that generates colours for a vector with numeric values.
-#'
-#' Generates hex colours for relative expression data. WT (1) values are white,
-#' complete lack of expression is black. Overexpressed nodes will be given a
-#' gradient from white to red. Underexpressed nodes will be given a gradient from white to blue.
-#'
-#' @param x a vector of numerical values containing node expression levels as
-#'        normalised by the wild type (1 is the baseline expression).
-#' @param maxvalue the value that the user wants to be treated as the maximum
-#'        over
-#' @importFrom grDevices rgb
-#' @export
-
-generateColours <- function(x, maxvalue = NA) {
-  if (is.na(maxvalue)) {
-    maxvalue = max(x)
-  }
-
-  cols = rep(NA, length(x))
-
-  cols[which(x == 1)] <- rgb(1,1,1)
-  cols[which(x == 0)] <- rgb(0,0,0)
-
-  over <- which(x > 1)
-  under <- which(x < 1 & x > 0)
-  for (i in under) {
-    cols[i] <- rgb(x[i], x[i], 1)
-  }
-
-  for (i in over) {
-    val = 1 - (1/(maxvalue)*x[i] - 1/(maxvalue))
-    cols[i] <- rgb(1, val, val)
-  }
-
-  cols
 }
 
 #barplot(as.matrix(final$BranchOutgrowth), beside = T, ylab = "Expression",

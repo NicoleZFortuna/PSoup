@@ -7,6 +7,7 @@
 #' @importFrom xml2 xml_children
 #' @importFrom xml2 as_list
 #' @importFrom xml2 xml_name
+#' @export
 
 convertSBGNdiagram <- function(file, networkName) {
   text <- read_xml(file)
