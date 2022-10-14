@@ -6,11 +6,13 @@
 
 quickPlot <- function(simulationData) {
   plot(NA, ylim = c(0, max(simulationData)+0.5), xlim = c(0, nrow(simulationData)),
-       xlab = "Time", ylab = "Expression")
+       ylab="", xlab="")
   cols = viridis(ncol(simulationData))
   for (i in 1:ncol(simulationData)) {
     lines(simulationData[, i], col = cols[i])
   }
+  title(ylab="Expression", line=2, cex.lab=1.2)
+  title(xlab="Time", line=2, cex.lab=1.2)
 }
 
 #' A function to pull the final states from a set of simulations and normalise
