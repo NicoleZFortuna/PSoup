@@ -4,7 +4,12 @@
 \alias{buildModel}
 \title{A function to generate equations from a network object}
 \usage{
-buildModel(network, folder = "./Model", forceOverwrite = FALSE)
+buildModel(
+  network,
+  folder = "./Model",
+  forceOverwrite = FALSE,
+  dataFrame = TRUE
+)
 }
 \arguments{
 \item{network}{an object of class network}
@@ -22,6 +27,10 @@ network (nextStep.R).}
 \item{forceOverwrite}{default set to FALSE. Will stop the function if the
 folder already exits. Can set to true if you want to replace
 the existing folder}
+
+\item{dataFrame}{default set to TRUE. This parameter allows you to choose if
+you would like for node starting values, and genotype values
+to be stored as a data.frame, or as an Rscript.}
 }
 \description{
 This function is used to define the script that is needed to simulate the

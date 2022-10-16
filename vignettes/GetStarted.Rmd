@@ -43,21 +43,26 @@ the information that is required to run a simulation of your network. You will n
 
 ```{r, eval=FALSE}
 folder = "~/Desktop/Model"
-buildModel(PeaNetwork, folder)
+buildModel(PeaNetwork, folder, dataFrame = TRUE)
 ```
 
 To access the information, all you need to do is source the folder into the local environment:
+```{r, echo=FALSE}
+folder = "~/Desktop/Model"
+```
 
-```{r, eval=FALSE}
-source(folder)
+
+```{r}
+load(paste0(folder, "/genotypeDefinition.RData"))
+load(paste0(folder, "/nodestartDefinition.RData"))
 ```
 
 Within the folder that you have built, there will be three objects. Two of these objects will be data.frames specifying values to be fed to the model: one will give the genotypes and their wild type values, the second will give the starting node values for the simulation.
 
-```{r, eval = F}
-genotypeDefinition
+```{r}
+gen
 
-nodestartDefinition
+dat
 ```
 
 For these data.frames, each row can be considered as experimental condition that will need to be simulated. The data.frames are initially only a single row long, but the user can add any number of rows containing conditions that they wish to test (more on this later). These rows can be added manually, or they can be automatically generated using the purpose built functions: `genotypeScreen` and `randomStartScreen`.

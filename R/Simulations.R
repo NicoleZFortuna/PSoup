@@ -22,9 +22,14 @@ simulateNetwork <- function(folder, delay = 2, tmax = NA, genotype = NA, startin
     delay = 2
   }
 
-  source(paste0(folder, "/genotypeDefinition.R"), local = T)
-  source(paste0(folder, "/nodestartDefinition.R"), local = T)
   source(paste0(folder, "/nextStep.R"), local = T)
+  if (file.exists(paste0(folder, "/genotypeDefinition.R"))) {
+    source(paste0(folder, "/genotypeDefinition.R"), local = T)
+    source(paste0(folder, "/nodestartDefinition.R"), local = T)
+  } else {
+    load(paste0(folder, "/genotypeDefinition.RData"))
+    load(paste0(folder, "/nodestartDefinition.RData"))
+  }
 
   if (!any(is.na(genotype))) {
     gen <- genotype
@@ -62,9 +67,15 @@ simulateNetwork <- function(folder, delay = 2, tmax = NA, genotype = NA, startin
 #' @export
 
 setupSims <- function(folder, delay = 2, tmax = NA) {
-  source(paste0(folder, "/genotypeDefinition.R"), local = T)
-  source(paste0(folder, "/nodestartDefinition.R"), local = T)
   source(paste0(folder, "/nextStep.R"), local = T)
+  if (file.exists(paste0(folder, "/genotypeDefinition.R"))) {
+    source(paste0(folder, "/genotypeDefinition.R"), local = T)
+    source(paste0(folder, "/nodestartDefinition.R"), local = T)
+  } else {
+    load(paste0(folder, "/genotypeDefinition.RData"))
+    load(paste0(folder, "/nodestartDefinition.RData"))
+  }
+
 
   if (any(!apply(gen, 1, function(x) any(x != rep(1, ncol(gen)))))) {
     # if there are any rows in gen that contain a WT condition

@@ -4,7 +4,7 @@
 \alias{quickPlot}
 \title{A function to quickly plot the through time outcome of a simulation}
 \usage{
-quickPlot(simulationData, ...)
+quickPlot(simulationData)
 }
 \arguments{
 \item{simulationData}{the data.frame output of a simulation.}
