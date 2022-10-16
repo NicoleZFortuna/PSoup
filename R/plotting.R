@@ -36,43 +36,6 @@ finalStates <- function(simulations, nodes = NA) {
   final
 }
 
-#' A function that generates colours for a vector with numeric values.
-#'
-#' Generates hex colours for relative expression data. WT (1) values are white,
-#' complete lack of expression is black. Overexpressed nodes will be given a
-#' gradient from white to red. Underexpressed nodes will be given a gradient from white to blue.
-#'
-#' @param x a vector of numerical values containing node expression levels as
-#'        normalised by the wild type (1 is the baseline expression).
-#' @param maxvalue the value that the user wants to be treated as the maximum
-#'        over
-#' @importFrom grDevices rgb
-#' @export
-
-generateColours <- function(x, maxvalue = NA) {
-  if (is.na(maxvalue)) {
-    maxvalue = max(x)
-  }
-
-  cols = rep(NA, length(x))
-
-  cols[which(x == 1)] <- rgb(1,1,1)
-  cols[which(x == 0)] <- rgb(0,0,0)
-
-  over <- which(x > 1)
-  under <- which(x < 1 & x > 0)
-  for (i in under) {
-    cols[i] <- rgb(x[i], x[i], 1)
-  }
-
-  for (i in over) {
-    val = 1 - (1/(maxvalue)*x[i] - 1/(maxvalue))
-    cols[i] <- rgb(1, val, val)
-  }
-
-  cols
-}
-
 #barplot(as.matrix(final$BranchOutgrowth), beside = T, ylab = "Expression",
 #        cex.names = 0.75, names.arg = c(expression(frac("WT","WT")), expression(frac("RMS1","WT")), expression(frac("RMS1","RMS1")), expression(frac("RMS1","RMS2")), expression(frac("RMS1","RMS3")), expression(frac("RMS1","RMS4")), expression(frac("RMS1","RMS5"))))
 #legend("topright", legend = c("WT", "RMS3S = 0", "RMS3S = 0.5"), pch = 15, col = viridis(3))
