@@ -93,6 +93,8 @@ If there are a few specific conditions that you want to test, you can simply add
 
 In the case that you want to do an exhaustive search, the `genotypeScreen` and `randomStartScreen` are useful for automating the construction of the appropriate data.frames.
 
+The `genotypeScreen` function will generate a data.frame with up combinations of up to however  many mutations that you would like to explore. You can also specify the genotype values that you would like to be used for your mutations. You can specify if you would like for the function to output an excel file in addition to the data. The excel file will be empty, but will have row and column names that correspond to the generated data.frame. This file can be filed with values that have been derived from the literature for the purpose of validating your model. You do not need to fill every value, as only the provided info will be used to validate.
+
 
 ### Algebraic Rules 
 
