@@ -19,8 +19,8 @@ model to be saved to. The default is to create a directory
 called Model in the current working directory. The user can
 provide their own directory and folder name. In this folder
 will be generated three R scripts: one to define genotypes
-(genotypeDefinition.R), one to define the starting node values
-(nodestartDefinition.R), and one to define the function that
+(genotypeDef.R), one to define the starting node values
+(nodestartDef.R), and one to define the function that
 gives the difference equations that are used to simulate the
 network (nextStep.R).}
 

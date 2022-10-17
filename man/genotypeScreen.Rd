@@ -31,9 +31,9 @@ compared against simulated outcomes later on.}
 
 \item{static}{default set to FALSE. Determines if the final data.frame is
 saved as a .Rdata file. The default condition overwrites the
-genotypeDefinition.R file to define the new gen data.frame.}
+genotypeDef.R file to define the new genotypeDef data.frame.}
 }
 \description{
-Will generate genetype screens which considers compartmental information,
+Will generate genotype screens which considers compartmental information,
 allows for the possibility of multiple mutations.
 }

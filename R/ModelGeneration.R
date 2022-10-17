@@ -15,8 +15,8 @@
 #'               called Model in the current working directory. The user can
 #'               provide their own directory and folder name. In this folder
 #'               will be generated three R scripts: one to define genotypes
-#'               (genotypeDefinition.R), one to define the starting node values
-#'               (nodestartDefinition.R), and one to define the function that
+#'               (genotypeDef.R), one to define the starting node values
+#'               (nodestartDef.R), and one to define the function that
 #'               gives the difference equations that are used to simulate the
 #'               network (nextStep.R).
 #' @param forceOverwrite default set to FALSE. Will stop the function if the
@@ -35,8 +35,8 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
          set forceOverwrite to TRUE.")
   } else {
     dir.create(folder)
-    genfile = paste0(folder, "/genotypeDefinition")
-    nodefile = paste0(folder, "/nodestartDefinition")
+    genfile = paste0(folder, "/genotypeDef")
+    nodefile = paste0(folder, "/nodestartDef")
     funcfile = paste0(folder, "/nextStep.R")
 
     file.create(funcfile)
@@ -46,23 +46,27 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
   genotypes = network@objects$Genotypes
 
   if (dataFrame == TRUE) {
-    gen = rep(1, length(genotypes))
-    names(gen) = names(genotypes)
-    gen = as.data.frame(t(gen))
+    genHolder = as.vector(sapply(genotypes,
+                                 FUN = function(x) paste0(x@name,
+                                                         substr(names(x@expression),
+                                                                1, 1))))
+    genotypeDef = rep(1, length(genHolder))
+    names(genotypeDef) = genHolder
+    genotypeDef = as.data.frame(t(genotypeDef))
 
-    save(gen, file = paste0(genfile, ".RData"))
+    save(genotypeDef, file = paste0(genfile, ".RData"))
 
-    dat = rep(1, length(nodes))
-    names(dat) = names(nodes)
-    dat = as.data.frame(t(dat))
+    nodestartDef = rep(1, length(nodes))
+    names(nodestartDef) = names(nodes)
+    nodestartDef = as.data.frame(t(nodestartDef))
 
-    save(dat, file = paste0(nodefile, ".RData"))
+    save(nodestartDef, file = paste0(nodefile, ".RData"))
   } else {
     file.create(genfile)
     file.create(nodefile)
 
     cat("# defining genotype values\n", file = paste0(genfile, ".R"))
-    cat("gen = data.frame(\n", file = paste0(genfile, ".R"), append = T)
+    cat("genotypeDef = data.frame(\n", file = paste0(genfile, ".R"), append = T)
     for (i in 1:length(genotypes)) {
       if (i < length(genotypes)) {
         cat(paste0("\t", genotypes[[i]]@name, substr(names(genotypes[[i]]@expression), 1, 1),
@@ -75,7 +79,7 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
     cat(")\n", file = paste0(genfile, ".R"), append = T)
 
     cat("# defining storage data.frame and node initial values\n", file = paste0(nodefile, ".R"))
-    cat("dat <- data.frame(\n\t'", paste(names(nodes), collapse = "' = 1, \n\t'"), "' = 1\n)\n",
+    cat("nodestartDef <- data.frame(\n\t'", paste(names(nodes), collapse = "' = 1, \n\t'"), "' = 1\n)\n",
         sep="", file = paste0(nodefile, ".R"), append = T)
   }
 

@@ -21,11 +21,11 @@ default is set to 2.}
 \item{tmax}{the maximum number of steps that you want to simulate for. If
 set to NA (the default), will simulate until stability is reached.}
 
-\item{genotype}{default set to NA. Allows the user to provide a different gen
+\item{genotype}{default set to NA. Allows the user to provide a different genotypeDef
 data.frame from the one specified in the provided file.}
 
 \item{startingValues}{default set to NA. Allows the user to provide a different
-dat data.frame from the one specified in the provided file.}
+nodestartDef data.frame from the one specified in the provided file.}
 }
 \description{
 Takes the output file of the buildNetwork function and uses it to run a

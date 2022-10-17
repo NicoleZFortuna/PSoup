@@ -7,13 +7,14 @@
 #'             default is set to 2.
 #' @param tmax the maximum number of steps that you want to simulate for. If
 #'             set to NA (the default), will simulate until stability is reached.
-#' @param genotype default set to NA. Allows the user to provide a different gen
+#' @param genotype default set to NA. Allows the user to provide a different genotypeDef
 #'             data.frame from the one specified in the provided file.
 #' @param startingValues default set to NA. Allows the user to provide a different
-#'             dat data.frame from the one specified in the provided file.
+#'             nodestartDef data.frame from the one specified in the provided file.
 #' @export
 
 simulateNetwork <- function(folder, delay = 2, tmax = NA, genotype = NA, startingValues = NA) {
+  # Checking if a meaningful delay has been provided
   if (delay == 1) {
     warning("You have selected a delay of 1 which is functionaly equivalent to
             no delay at all.")
@@ -22,30 +23,38 @@ simulateNetwork <- function(folder, delay = 2, tmax = NA, genotype = NA, startin
     delay = 2
   }
 
+  # sourcing data for simulation
   source(paste0(folder, "/nextStep.R"), local = T)
-  if (file.exists(paste0(folder, "/genotypeDefinition.R"))) {
-    source(paste0(folder, "/genotypeDefinition.R"), local = T)
-    source(paste0(folder, "/nodestartDefinition.R"), local = T)
+
+  if (any(is.na(genotype))) { # if a genotype has not been explicitly provided
+    if (file.exists(paste0(folder, "/genotypeDef.R"))) {
+      source(paste0(folder, "/genotypeDef.R"), local = T)
+    } else {
+      load(paste0(folder, "/genotypeDef.RData"))
+    }
   } else {
-    load(paste0(folder, "/genotypeDefinition.RData"))
-    load(paste0(folder, "/nodestartDefinition.RData"))
+    genotypeDef <- genotype
   }
 
-  if (!any(is.na(genotype))) {
-    gen <- genotype
-  }
-  if (!any(is.na(startingValues))) {
-    dat <- startingValues
+  if (any(is.na(startingValues))) { # if starting vals have not been explicitly provided
+    if (file.exists(paste0(folder, "/nodestartDef.R"))) {
+      source(paste0(folder, "/nodestartDef.R"), local = T)
+    } else {
+      load(paste0(folder, "/nodestartDef.RData"))
+    }
+  } else {
+    nodestartDef <- startingValues
   }
 
-  simDat <- dat
+  # Run simulations
+  simDat <- nodestartDef
   simDat[1:(tmax + delay - 1), ] <- NA
-  simDat[1:delay, ] <- dat
+  simDat[1:delay, ] <- nodestartDef
 
   for (t in 2:tmax) {
     row = t + delay - 1
-    simDat[row, ] <- nextStep(dat = simDat[c((row-delay),(row-1)), ],
-                              gen = gen, delay = delay)
+    simDat[row, ] <- nextStep(dat = simDat[c((row-delay), (row-1)), ],
+                              gen = genotypeDef, delay = delay)
   }
 
   simDat = simDat[-c(1:(delay-1)), ]
@@ -67,39 +76,40 @@ simulateNetwork <- function(folder, delay = 2, tmax = NA, genotype = NA, startin
 #' @export
 
 setupSims <- function(folder, delay = 2, tmax = NA) {
-  source(paste0(folder, "/nextStep.R"), local = T)
-  if (file.exists(paste0(folder, "/genotypeDefinition.R"))) {
-    source(paste0(folder, "/genotypeDefinition.R"), local = T)
-    source(paste0(folder, "/nodestartDefinition.R"), local = T)
+  # loading paramater values
+  if (file.exists(paste0(folder, "/genotypeDef.R"))) {
+    source(paste0(folder, "/genotypeDef.R"), local = T)
+    source(paste0(folder, "/nodestartDef.R"), local = T)
   } else {
-    load(paste0(folder, "/genotypeDefinition.RData"))
-    load(paste0(folder, "/nodestartDefinition.RData"))
+    load(paste0(folder, "/genotypeDef.RData"))
+    load(paste0(folder, "/nodestartDef.RData"))
   }
 
-
-  if (any(!apply(gen, 1, function(x) any(x != rep(1, ncol(gen)))))) {
-    # if there are any rows in gen that contain a WT condition
-    WT = which(!apply(gen, 1, function(x) any(x != rep(1, ncol(dat)))))
+  # Ensuring that the first row of genotypes contain a wildtype condition
+  if (any(!apply(genotypeDef, 1, function(x) any(x != rep(1, ncol(genotypeDef)))))) {
+    # if there are any rows in genotypeDef that contain a WT condition
+    WT = which(!apply(genotypeDef, 1, function(x) any(x != rep(1, ncol(nodestartDef)))))
     if (WT != 1)
       # make sure that the first row is the WT condition
-      gen <- gen[c(WT, c(1:nrow(gen))[-WT]), ]
+      genotypeDef <- genotypeDef[c(WT, c(1:nrow(genotypeDef))[-WT]), ]
   } else {
     # adding a row at the top with WT conditions
-    gen[1:nrow(gen)+1, ] <- gen
-    gen[1, ] <- 1
+    genotypeDef[1:nrow(genotypeDef)+1, ] <- genotypeDef
+    genotypeDef[1, ] <- 1
   }
 
+  # Run simulations
   sims <- list()
   i = 1
-  for (d in 1:nrow(dat)) {
-    for (g in 1:nrow(gen)) {
-      sims[[i]] <- list(scenario = list(genotype = gen[g, ],
-                                        startingValues = dat[d, ]),
+  for (d in 1:nrow(nodestartDef)) {
+    for (g in 1:nrow(genotypeDef)) {
+      sims[[i]] <- list(scenario = list(genotype = genotypeDef[g, ],
+                                        startingValues = nodestartDef[d, ]),
                         simulation = simulateNetwork(folder = folder,
                                                      delay = delay,
                                                      tmax = tmax,
-                                                     genotype = gen[g, ],
-                                                     startingValues = dat[d, ]))
+                                                     genotype = genotypeDef[g, ],
+                                                     startingValues = nodestartDef[d, ]))
       i = i + 1
     }
   }
@@ -109,7 +119,7 @@ setupSims <- function(folder, delay = 2, tmax = NA) {
 
 #' A function to generate genotype screenings.
 #'
-#' Will generate genetype screens which considers compartmental information,
+#' Will generate genotype screens which considers compartmental information,
 #' allows for the possibility of multiple mutations.
 #' @param folder the model folder generated by the buildModel function.
 #' @param maxMutations the maximum number of concurrent mutations in a given
@@ -125,22 +135,22 @@ setupSims <- function(folder, delay = 2, tmax = NA) {
 #'        compared against simulated outcomes later on.
 #' @param static default set to FALSE. Determines if the final data.frame is
 #'        saved as a .Rdata file. The default condition overwrites the
-#'        genotypeDefinition.R file to define the new gen data.frame.
+#'        genotypeDef.R file to define the new genotypeDef data.frame.
 #' @importFrom utils combn
 #' @importFrom utils write.table
 #' @export
 
 genotypeScreen <- function(folder, maxMutations = 1, mutationVals = 0,
                            returnExcel = FALSE, static = FALSE) {
-  source(paste0(folder, "/genotypeDefinition.R"))
+  source(paste0(folder, "/genotypeDef.R"))
 
-  comp = stringr::str_sub(colnames(gen), -1, -1)
+  comp = stringr::str_sub(colnames(genotypeDef), -1, -1)
 
   compartments <- vector("list", length = length(unique(comp)))
   names(compartments) <- unique(comp)
 
   for (i in 1:length(compartments)) {
-    compartments[[i]] <- colnames(gen)[which(comp == unique(comp)[i])]
+    compartments[[i]] <- colnames(genotypeDef)[which(comp == unique(comp)[i])]
   }
 
   if (maxMutations > 1) {
@@ -158,7 +168,7 @@ genotypeScreen <- function(folder, maxMutations = 1, mutationVals = 0,
 
   genotypes <- apply(getGens, 1, strsplit, ".", T)
 
-  gen[2:(length(genotypes)*length(mutationVals) + 1), ] <- 1
+  genotypeDef[2:(length(genotypes)*length(mutationVals) + 1), ] <- 1
 
   r = 1
   for (m in 1:length(mutationVals)) {
@@ -167,23 +177,23 @@ genotypeScreen <- function(folder, maxMutations = 1, mutationVals = 0,
       genes <- unlist(genotypes[[r - 1]])
       if (any(genes != "WT")) {
         genes <- genes[genes != "WT"]
-        gen[r, genes] <- mutationVals[m]
+        genotypeDef[r, genes] <- mutationVals[m]
       }
     }
   }
 
   if (static == T) {
-    save(gen, file = paste0(folder, "/genotypeDefinition.Rdata"))
+    save(genotypeDef, file = paste0(folder, "/genotypeDef.Rdata"))
   } else {
-    file = paste0(folder, "/genotypeDefinition.R")
+    file = paste0(folder, "/genotypeDef.R")
 
     cat("# defining genotype values\n", file = file)
-    cat("gen <- data.frame(\n", file = file, append = T)
+    cat("genotypeDef <- data.frame(\n", file = file, append = T)
 
-    for (i in 1:ncol(gen)) {
-      cat("\t'", colnames(gen)[i], "' = c(", paste(gen[,i], collapse = ", "),
+    for (i in 1:ncol(genotypeDef)) {
+      cat("\t'", colnames(genotypeDef)[i], "' = c(", paste(genotypeDef[,i], collapse = ", "),
           ")", sep="", file = file, append = T)
-      if (i < ncol(gen)) {cat(",\n", file = file, append = T)}
+      if (i < ncol(genotypeDef)) {cat(",\n", file = file, append = T)}
     }
   }
   cat("\n)", file = file, append = T)
@@ -221,7 +231,7 @@ genotypeScreen <- function(folder, maxMutations = 1, mutationVals = 0,
 #' @param maxVal default set to 2. The maximum value for a node to be.
 #' @param static default set to FALSE. Determines if the final data.frame is
 #'        saved as a .Rdata file. The default condition overwrites the
-#'        nodestartDefinition.R file to define the new dat data.frame.
+#'        nodestartDef.R file to define the new nodestartDef data.frame.
 #' @export
 
 randomStartScreen <- function(folder, restarts, minVal = 0, maxVal = 2, static = FALSE) {
@@ -231,21 +241,21 @@ randomStartScreen <- function(folder, restarts, minVal = 0, maxVal = 2, static =
             value to 0.")
   }
 
-  file = paste0(folder, "/nodestartDefinition.R")
+  file = paste0(folder, "/nodestartDef.R")
 
   source(file)
 
-  dat[(nrow(dat) + 1):(nrow(dat) + restarts), ] <- round(runif(restarts*ncol(dat),
+  nodestartDef[(nrow(nodestartDef) + 1):(nrow(nodestartDef) + restarts), ] <- round(runif(restarts*ncol(nodestartDef),
                                                             minVal, maxVal), 4)
 
   if (static == T) {
-    save(dat, file = paste0(folder, "/nodestartDefinition.Rdata"))
+    save(nodestartDef, file = paste0(folder, "/nodestartDef.Rdata"))
   } else {
     cat("# defining storage data.frame and node initial values\n", file = file)
-    cat("dat <- data.frame(\n", file = file, append = T)
+    cat("nodestartDef <- data.frame(\n", file = file, append = T)
 
-    for (i in 1:ncol(dat)) {
-      cat("\t'", colnames(dat)[i], "' = c(", paste(dat[,i], collapse = ", "),
+    for (i in 1:ncol(nodestartDef)) {
+      cat("\t'", colnames(nodestartDef)[i], "' = c(", paste(nodestartDef[,i], collapse = ", "),
           "),\n", sep="", file = file, append = T)
     }
   }

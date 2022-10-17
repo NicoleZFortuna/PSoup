@@ -53,16 +53,16 @@ folder = "~/Desktop/Model"
 
 
 ```{r}
-load(paste0(folder, "/genotypeDefinition.RData"))
-load(paste0(folder, "/nodestartDefinition.RData"))
+load(paste0(folder, "/genotypeDef.RData"))
+load(paste0(folder, "/nodestartDef.RData"))
 ```
 
 Within the folder that you have built, there will be three objects. Two of these objects will be data.frames specifying values to be fed to the model: one will give the genotypes and their wild type values, the second will give the starting node values for the simulation.
 
 ```{r}
-gen
+genotypeDef
 
-dat
+nodestartDef
 ```
 
 For these data.frames, each row can be considered as experimental condition that will need to be simulated. The data.frames are initially only a single row long, but the user can add any number of rows containing conditions that they wish to test (more on this later). These rows can be added manually, or they can be automatically generated using the purpose built functions: `genotypeScreen` and `randomStartScreen`.
@@ -79,8 +79,9 @@ This function has been provided as script viewable to the user in order to make 
 
 Once these three data objects have been created in our Model folder, the path directory of this folder can be provided as input to run our simulation. If we want to run a single simulation, we can call the `simulateNetwork` function.
 
-```{r, eval = FALSE}
-simulateNetwork(folder, tmax = 100) 
+```{r}
+simulation <- simulateNetwork(folder, tmax = 100) 
+head(simulation)
 ```
 
 As the folder contains all of our genotype information, node starting values, as well as the script for the `nextStep` function, all the information to run the simulation is already there. The only thing left to specify is the length that we wish to simulate the network. Functionality will be provided so that the user can simulate until the system finds a stable state.
