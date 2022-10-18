@@ -133,7 +133,7 @@ setupSims <- function(folder, delay = 2, tmax = NA) {
 #'        showing all of the genotype combinations that have been screened. This
 #'        can be used to record any existing experimental outcomes, to be
 #'        compared against simulated outcomes later on.
-#' @param static default set to FALSE. Determines if the final data.frame is
+#' @param static default set to TRUE. Determines if the final data.frame is
 #'        saved as a .Rdata file. The default condition overwrites the
 #'        genotypeDef.R file to define the new genotypeDef data.frame.
 #' @importFrom utils combn
@@ -141,8 +141,12 @@ setupSims <- function(folder, delay = 2, tmax = NA) {
 #' @export
 
 genotypeScreen <- function(folder, maxMutations = 1, mutationVals = 0,
-                           returnExcel = FALSE, static = FALSE) {
-  source(paste0(folder, "/genotypeDef.R"))
+                           returnExcel = FALSE, static = TRUE) {
+  if (file.exists(paste0(folder, "/genotypeDef.RData"))) {
+    load(paste0(folder, "/genotypeDef.RData"))
+  } else {
+    source(paste0(folder, "/genotypeDef.R"))
+  }
 
   comp = stringr::str_sub(colnames(genotypeDef), -1, -1)
 
@@ -182,7 +186,7 @@ genotypeScreen <- function(folder, maxMutations = 1, mutationVals = 0,
     }
   }
 
-  if (static == T) {
+  if   (static == T) {
     save(genotypeDef, file = paste0(folder, "/genotypeDef.Rdata"))
   } else {
     file = paste0(folder, "/genotypeDef.R")
@@ -195,8 +199,8 @@ genotypeScreen <- function(folder, maxMutations = 1, mutationVals = 0,
           ")", sep="", file = file, append = T)
       if (i < ncol(genotypeDef)) {cat(",\n", file = file, append = T)}
     }
+    cat("\n)", file = file, append = T)
   }
-  cat("\n)", file = file, append = T)
 
   if (returnExcel == TRUE) {
     sheets = vector("list", length = length(mutationVals))
@@ -241,9 +245,11 @@ randomStartScreen <- function(folder, restarts, minVal = 0, maxVal = 2, static =
             value to 0.")
   }
 
-  file = paste0(folder, "/nodestartDef.R")
-
-  source(file)
+  if (file.exists(paste0(folder, "/nodestartDef.RData"))) {
+    load(paste0(folder, "/nodestartDef.RData"))
+  } else {
+    source(paste0(folder, "/nodestartDef.R"))
+  }
 
   nodestartDef[(nrow(nodestartDef) + 1):(nrow(nodestartDef) + restarts), ] <- round(runif(restarts*ncol(nodestartDef),
                                                             minVal, maxVal), 4)

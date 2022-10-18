@@ -59,6 +59,11 @@ load(paste0(folder, "/nodestartDef.RData"))
 
 Within the folder that you have built, there will be three objects. Two of these objects will be data.frames specifying values to be fed to the model: one will give the genotypes and their wild type values, the second will give the starting node values for the simulation.
 
+```{r, echo=FALSE}
+holder = genotypeDef
+genotypeDef = genotypeDef[1,]
+```
+
 ```{r}
 genotypeDef
 
@@ -91,9 +96,29 @@ It will often be the case that you do not wish to test a network only under a si
 
 If there are a few specific conditions that you want to test, you can simply add rows to the respective data.frames. These rows will each be considered a unique starting condition for a simulation.
 
-In the case that you want to do an exhaustive search, the `genotypeScreen` and `randomStartScreen` are useful for automating the construction of the appropriate data.frames.
+```{r}
+genotypeDef[2:3, ] <- 1
+genotypeDef[2, 3] <- 0
+genotypeDef[3, 1:2] <- 0.5
 
-The `genotypeScreen` function will generate a data.frame with up combinations of up to however  many mutations that you would like to explore. You can also specify the genotype values that you would like to be used for your mutations. You can specify if you would like for the function to output an excel file in addition to the data. The excel file will be empty, but will have row and column names that correspond to the generated data.frame. This file can be filed with values that have been derived from the literature for the purpose of validating your model. You do not need to fill every value, as only the provided info will be used to validate.
+genotypeDef
+```
+In the example above, the second row represents an 'experimental' condition where the function of RMS2 in the scion (shoot) has been knocked out. The third row represents a condition where the function of RMS1 has been reduced to half of its capacity in both the root, and the scion.
+
+In the case that you want to do an exhaustive search, the `genotypeScreen` is useful for automating the construction of the appropriate data.frames.
+
+```{r, echo=FALSE}
+genotypeDef = holder
+```
+
+```{r}
+genotypeScreen(folder)
+
+load(paste0(folder, "/genotypeDef.RData"))
+genotypeDef
+```
+
+As you can see, the `genotypeScreen` function will generate a data.frame with combinations of up to however many mutations that you would like to explore. You can also specify the genotype expression values that you would like to use for your mutations. You can specify if you would like for the function to output an excel file in addition to the data. The excel file will be empty, but will have row and column names that correspond to the generated data.frame. This file can be filed with values that have been derived from the literature for the purpose of validating your model. You do not need to fill every value, as only the provided information will be used to validate the simulated data.
 
 
 ### Algebraic Rules 
