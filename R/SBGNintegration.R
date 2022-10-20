@@ -168,7 +168,8 @@ convertSBGNdiagram <- function(file, networkName) {
     if ("glyph" %in% names(nodesList[[nodeIndex[i]]])) {
       hormones[[i]]@genotypes <- strsplit(attr(nodesList[[nodeIndex[i]]]$glyph$label,"text"), ", ")[[1]]
 
-      expression = c("Scion" = NA, "Rootstock" = NA)
+      expression <- rep(NA, nrow(compartment))
+      names(expression) <- compartment$name
 
       for (g in 1:length(hormones[[i]]@genotypes)) {
         expression[names(expression) == hormones[[i]]@container] = 1
