@@ -55,15 +55,13 @@ finalStates <- function(simulations, nodes = NA) {
 #' @param bioData a matrix containing the biological data corresponding to the
 #'        simulated data.
 
-plot.simData <- function(data, node, bioData = NA) {
+plot.simData <- function(data, node, bioData = NA, ...) {
   vals = finalStates(data)[, node]
   conds = sapply(data, FUN = function(x) paste(colnames(x$scenario$genotype),
                                                x$scenario$genotype, sep = "."))
   conds[[1]] = "WT"
 
-  barplot(vals, names.arg = conds, ylab = node)
-
-
+  barplot(vals, names.arg = conds, ylab = node, ...)
 }
 
 # #plot.simData <- function(simData, toPlot = NA)
