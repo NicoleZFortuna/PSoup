@@ -103,12 +103,20 @@ setupSims <- function(folder, delay = 2, tmax = NA) {
   i = 1
   for (d in 1:nrow(nodestartDef)) {
     for (g in 1:nrow(genotypeDef)) {
-      sims[[i]] <- list(scenario = list(genotype = genotypeDef[g, ],
+      if (ncol(genotypeDef) > 1) {
+        gen = genotypeDef[g, ]
+      } else {
+        gen = as.data.frame(genotypeDef[g,])
+        colnames(gen) = colnames(genotypeDef)
+        gen
+      }
+
+      sims[[i]] <- list(scenario = list(genotype = gen,
                                         startingValues = nodestartDef[d, ]),
                         simulation = simulateNetwork(folder = folder,
                                                      delay = delay,
                                                      tmax = tmax,
-                                                     genotype = genotypeDef[g, ],
+                                                     genotype = gen,
                                                      startingValues = nodestartDef[d, ]))
       i = i + 1
     }
