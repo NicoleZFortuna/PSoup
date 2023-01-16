@@ -16,9 +16,19 @@ knitr::opts_chunk$set(
 )
 ```
 
-### Purpose and design philosophy for peaSoup
+### Purpose and design philosophy of peaSoup
 
-#### Commentary on the collection of prior knowledge
+The peaSoup package was built as a tool to support the generation of network descriptions of biological systems. It is embedded in a larger workflow designed to ultimately assist in predicting the direction of change in a system in response to perturbations.
+
+This workflow consists of several critical aspects: 
+
+1. Describe the prior knowledge of the system as a series of statements.
+2. Record the starting conditions and outcomes of experiments.
+3. Translate statements into a diagram.
+4. Convert the diagram into a computational model.
+5. Test if the computational model recapitulates the statements. 
+
+peaSoup has been designed to automate aspects 3, 4, and 5. Therefore, when generating models of a biological system, the user only needs to be actively involved with collating the existing knowledge of the system, and describing said system in a systematic way. Once a diagram has been produced, peaSoup will take over all operations. However, peaSoup 
 
 ### Walkthrough of how to use peaSoup
 
@@ -120,6 +130,7 @@ genotypeDef
 
 As you can see, the `genotypeScreen` function will generate a data.frame with combinations of up to however many mutations that you would like to explore. You can also specify the genotype expression values that you would like to use for your mutations. You can specify if you would like for the function to output an excel file in addition to the data. The excel file will be empty, but will have row and column names that correspond to the generated data.frame. This file can be filed with values that have been derived from the literature for the purpose of validating your model. You do not need to fill every value, as only the provided information will be used to validate the simulated data.
 
+### Commentary on the collection of prior knowledge
 
 ### Algebraic Rules 
 
