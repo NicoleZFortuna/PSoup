@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotting.R
 \name{quickPlot}
 \alias{quickPlot}
-\title{A function to quickly plot the through time outcome of a simulation}
+\title{A function to quickly inspect the through time outcome of a simulation}
 \usage{
 quickPlot(simulationData)
 }
@@ -10,5 +10,5 @@ quickPlot(simulationData)
 \item{simulationData}{the data.frame output of a simulation.}
 }
 \description{
-A function to quickly plot the through time outcome of a simulation
+A function to quickly inspect the through time outcome of a simulation
 }

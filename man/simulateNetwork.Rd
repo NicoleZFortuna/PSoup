@@ -9,7 +9,8 @@ simulateNetwork(
   delay = 2,
   tmax = NA,
   genotype = NA,
-  startingValues = NA
+  startingValues = NA,
+  steadyThreshold = 4
 )
 }
 \arguments{
@@ -18,16 +19,25 @@ simulateNetwork(
 \item{delay}{the amount of delay to apply for delayed action of nodes. The
 default is set to 2.}
 
-\item{tmax}{the maximum number of steps that you want to simulate for. If
-set to NA (the default), will simulate until stability is reached.}
+\item{tmax}{the maximum number of steps that you want to simulate for. Will
+terminate simulation when steady state is reached, unless tmax is
+reached first. If set to NA (the default), will simulate until
+stability is reached.}
 
 \item{genotype}{default set to NA. Allows the user to provide a different genotypeDef
 data.frame from the one specified in the provided file.}
 
 \item{startingValues}{default set to NA. Allows the user to provide a different
 nodestartDef data.frame from the one specified in the provided file.}
+
+\item{steadyThreshold}{the number of decimal places to which node values must
+be equivalent to be considered a steady state. This threshold must
+be passed for all nodes.}
 }
 \description{
 Takes the output file of the buildNetwork function and uses it to run a
-network simulation.
+network simulation. The simulation will run until a steady state has been
+achieved unless otherwise specified. A steady state is considered to be
+reached when all node values are considered to be equivelant to the previous
+timestep for up to a threshold of decimal places.
 }

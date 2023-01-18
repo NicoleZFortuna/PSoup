@@ -9,7 +9,7 @@ genotypeScreen(
   maxMutations = 1,
   mutationVals = 0,
   returnExcel = FALSE,
-  static = FALSE
+  static = TRUE
 )
 }
 \arguments{
@@ -29,7 +29,7 @@ showing all of the genotype combinations that have been screened. This
 can be used to record any existing experimental outcomes, to be
 compared against simulated outcomes later on.}
 
-\item{static}{default set to FALSE. Determines if the final data.frame is
+\item{static}{default set to TRUE. Determines if the final data.frame is
 saved as a .Rdata file. The default condition overwrites the
 genotypeDef.R file to define the new genotypeDef data.frame.}
 }

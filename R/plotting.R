@@ -1,18 +1,21 @@
-#' A function to quickly plot the through time outcome of a simulation
+#' A function to quickly inspect the through time outcome of a simulation
 #'
 #' @param simulationData the data.frame output of a simulation.
 #' @importFrom viridis viridis
-#' @importFrom graphics lines
+#' @importFrom stats plot.ts
+#' @importFrom graphics plot.new
+#' @importFrom graphics plot.window
+#' @importFrom graphics legend
+#'
+#' @export
 
 quickPlot <- function(simulationData) {
-  plot(NA, ylim = c(0, max(simulationData)+0.5), xlim = c(0, nrow(simulationData)),
-       ylab="", xlab="")
-  cols = viridis(ncol(simulationData))
-  for (i in 1:ncol(simulationData)) {
-    lines(simulationData[, i], col = cols[i])
-  }
-  title(ylab="Expression", line=2, cex.lab=1)
-  title(xlab="Time", line=2, cex.lab=1)
+  par(mfrow = c(1, 2), mar = c(4,4,1,0), xpd = T)
+  plot.ts(simulationData, plot.type = "single", col = viridis(ncol(simulationData)),
+          ylab = "Expression")
+  plot.new( )
+  plot.window(ylim = c(0, 10), xlim = c(0, 10))
+  legend(-3, 10, legend = colnames(simulationData), fill = viridis(ncol(simulationData)))
 }
 
 #' A function to pull the final states from a set of simulations and normalise
