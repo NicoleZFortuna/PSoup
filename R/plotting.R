@@ -15,7 +15,9 @@ quickPlot <- function(simulationData) {
           ylab = "Expression")
   plot.new( )
   plot.window(ylim = c(0, 10), xlim = c(0, 10))
-  legend(-3, 10, legend = colnames(simulationData), fill = viridis(ncol(simulationData)))
+  legend(-3, 10, legend = colnames(simulationData),
+         fill = viridis(ncol(simulationData)), cex = 0.5,
+         bty = "n")
 }
 
 #' A function to pull the final states from a set of simulations and normalise
