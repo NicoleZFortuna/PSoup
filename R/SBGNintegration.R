@@ -56,7 +56,7 @@ convertSBGNdiagram <- function(file, networkName) {
       inNames <- nodeInfo$name[nodeInfo$id %in% arcInfo$source[id == arcInfo$target]]
       outNames <- nodeInfo$name[nodeInfo$id %in% arcInfo$target[id == arcInfo$source]]
       hormones[[i]] <- new("Hormone",
-                           name = attr(nodesList[[nodeIndex[i]]]$label,"text"),
+                           name = nodeInfo$name[i],
                            container = compartment$name[attr(nodesList[[nodeIndex[i]]],
                                                              "compartmentRef") == compartment$id],
                            inputs = data.frame(Node = inNames,
@@ -69,6 +69,14 @@ convertSBGNdiagram <- function(file, networkName) {
                                                 Delay = if (length(outNames) == 0) {NULL} else {NA}),
                            travel = 1,
                            degradation = 1)
+      # Correcting for alternative sources
+      if (any(strsplit(inNames, split = "\\.")[[1]] == strsplit(nodeInfo$name[i], split = "\\.")[[1]])) {
+        # need to check over the list
+      }
+
+      if (any(strsplit(outNames, split = "\\.")[[1]] == strsplit(nodeInfo$name[i], split = "\\.")[[1]])) {
+        # need to check over the list
+      }
     } else {
       # if one of the inputs are logical
       if (any(which(ids %in% arcInfo$source[id == arcInfo$target]) %in% logicIndex)) {
@@ -101,7 +109,7 @@ convertSBGNdiagram <- function(file, networkName) {
         }
 
         hormones[[i]] <- new("Hormone",
-                             name = attr(nodesList[[nodeIndex[i]]]$label,"text"),
+                             name = nodeInfo$name[i],
                              container = compartment$name[attr(nodesList[[nodeIndex[i]]],
                                                                "compartmentRef") == compartment$id],
                              inputs = data.frame(Node = N$Node,
@@ -148,7 +156,7 @@ convertSBGNdiagram <- function(file, networkName) {
         }
 
         hormones[[i]] <- new("Hormone",
-                             name = attr(nodesList[[nodeIndex[i]]]$label,"text"),
+                             name = nodeInfo$name[i],
                              container = compartment$name[attr(nodesList[[nodeIndex[i]]],
                                                                "compartmentRef") == compartment$id],
                              inputs = data.frame(Node = nodeInfo$name[nodeInfo$id %in% arcInfo$source[id == arcInfo$target]],
