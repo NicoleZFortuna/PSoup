@@ -35,6 +35,22 @@ convertSBGNdiagram <- function(file, networkName) {
                                                      "compartmentRef") == compartment$id]
   }
 
+  # distinguishing alternative production sites by compartment
+  if (length(unique(nodeInfo$name)) < nrow(nodeInfo)) {
+    # finding the number of letters necessary to distinguish btw different compartments
+    letterNo <- 1
+    while(length(unique(substr(compartment$name, 1, letterNo))) < nrow(compartment)) {
+      letterNo <- letterNo + 1
+    }
+
+    # updating nodeInfo names
+    repeats <- names(which(table(nodeInfo$name) > 1))
+    nodeInfo$name[nodeInfo$name %in% repeats] <- paste(nodeInfo$name[which(nodeInfo$name %in% repeats)],
+                                                       substr(nodeInfo$compartment[which(nodeInfo$name %in% repeats)],
+                                                              1, letterNo),
+                                                       sep = ".")
+  }
+
   arcInfo <- data.frame(influence = rep(NA, length(arcIndex)), source = NA, target = NA)
   for (i in 1:nrow(arcInfo)) {
     arcInfo[i, ] <- c(attributes(nodesList[[arcIndex[i]]])$.class,
@@ -69,13 +85,20 @@ convertSBGNdiagram <- function(file, networkName) {
                                                 Delay = if (length(outNames) == 0) {NULL} else {NA}),
                            travel = 1,
                            degradation = 1)
+
       # Correcting for alternative sources
-      if (any(strsplit(inNames, split = "\\.")[[1]] == strsplit(nodeInfo$name[i], split = "\\.")[[1]])) {
-        # need to check over the list
+      if (nrow(hormones[[i]]@inputs) > 0) {
+        if (any(strsplit(inNames, split = "\\.")[[1]][1] == strsplit(nodeInfo$name[i], split = "\\.")[[1]][1])) {
+          overWrite <- which(strsplit(inNames, split = "\\.")[[1]][1] == strsplit(nodeInfo$name[i], split = "\\.")[[1]][1])
+          hormones[[i]]@inputs$Influence[overWrite] <- "altSource"
+        }
       }
 
-      if (any(strsplit(outNames, split = "\\.")[[1]] == strsplit(nodeInfo$name[i], split = "\\.")[[1]])) {
-        # need to check over the list
+      if (nrow(hormones[[i]]@outputs) > 0) {
+        if (any(strsplit(outNames, split = "\\.")[[1]][1] == strsplit(nodeInfo$name[i], split = "\\.")[[1]][1])) {
+          overWrite <- which(strsplit(outNames, split = "\\.")[[1]][1] == strsplit(nodeInfo$name[i], split = "\\.")[[1]][1])
+          hormones[[i]]@outputs$Influence[overWrite] <- "altSource"
+        }
       }
     } else {
       # if one of the inputs are logical

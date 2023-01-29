@@ -225,24 +225,27 @@ peaNetwork <- buildNetwork(hormones = list(StrigolactoneR,
 save(peaNetwork, file = "./Data/peaNetwork.RData")
 
 langConversion <- data.frame(peaSoup = c("stimulation",
-                                           "inhibition",
-                                           "necessary stimulation",
-                                           "necessary inhibition",
-                                           "sufficient stimulation",
-                                           "sufficient inhibition",
-                                           "unknown"),
+                                          "inhibition",
+                                          "necessary stimulation",
+                                          "necessary inhibition",
+                                          "sufficient stimulation",
+                                          "sufficient inhibition",
+                                          "unknown",
+                                          "altSource"),
                              AF = c("positive influence",
-                                      "negative influence",
-                                      "necessary stimulation",
-                                      NA, NA, NA,
-                                      "unknown influence"),
+                                    "negative influence",
+                                    "necessary stimulation",
+                                    NA, NA, NA,
+                                    "unknown influence",
+                                    "altSource"),
                              ER = c("stimulation",
                                     "inhibition",
                                     "necessary stimulation",
                                     NA,
                                     "absolute stimulation",
                                     "absolute inhibition",
-                                    "modulation"))
+                                    "modulation",
+                                    "altSource"))
 save(langConversion, file = "./Data/langConversion.RData")
 
 
