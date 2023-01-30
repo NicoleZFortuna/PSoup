@@ -47,9 +47,9 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
 
   if (dataFrame == TRUE) {
     genHolder = as.vector(sapply(genotypes,
-                                 FUN = function(x) paste0(x@name,
+                                 FUN = function(x) paste(x@name,
                                                          substr(names(x@expression),
-                                                                1, 1))))
+                                                                1, 1), sep = ".")))
     genotypeDef = rep(1, length(genHolder))
     names(genotypeDef) = genHolder
     genotypeDef = as.data.frame(t(genotypeDef))
@@ -166,7 +166,7 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
       genoString <- rep(NA, length(genes))
       for (g in 1:length(genes)) {
         if (class(genotypes[[genes[g]]]@coregulator) == "character") {
-          cogenes <- paste0("gen$", c(genes[g], genotypes[[genes[g]]]@coregulator), substr(nodes[[i]]@container, 1, 1))
+          cogenes <- paste0("gen$", c(genes[g], genotypes[[genes[g]]]@coregulator), ".", substr(nodes[[i]]@container, 1, 1))
 
           genoString[g] <- paste0(cogenes[order(cogenes)], collapse = "*")
         }
