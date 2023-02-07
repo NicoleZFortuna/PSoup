@@ -36,8 +36,8 @@ convertSBGNdiagram <- function(file, networkName) {
     whichCompartments <- rep(NA, length(whichSubNodes))
     jump <- which(diff(whichSubNodes) > 1) + 1
     if (length(jump) == 1) {
-      whichCompartments <- (1:length(whichCompartments) > 7) + 1
-      whichCompartments
+      whichCompartments <- (1:length(whichCompartments) > 6) + 1
+      whichCompartments <- submapIndex[whichCompartments]
     } else {
       stop("Nicole needs to allow for a variety of submap numbers.")
     }
@@ -60,8 +60,10 @@ convertSBGNdiagram <- function(file, networkName) {
     nodeInfo[row:(nrow(nodeInfo) + length(whichSubNodes)), ] <- NA
     for (i in 1:length(whichSubNodes)) {
       nodeInfo$name[row] <- attr(subNodeList[[whichSubNodes[i]]]$label,"text")
-      nodeInfo$id <- attr(subNodeList[[whichSubNodes[i]]],"id")
-      nodeInfo$compartment <-
+      nodeInfo$id[row] <- attr(subNodeList[[whichSubNodes[i]]],"id")
+      nodeInfo$compartment[row] <- compartment$name[attr(nodesList[[whichCompartments[i]]],
+                              "compartmentRef") == compartment$id]
+      row = row + 1
     }
   }
 
