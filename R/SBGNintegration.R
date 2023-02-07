@@ -12,6 +12,7 @@
 convertSBGNdiagram <- function(file, networkName) {
   text <- read_xml(file)
   lang <- attr(as_list(xml_children(text))[[1]],"language")
+  if (lang != "activity flow") {stop("Your diagram is of type SBGN-AF!")}
   nodes <- xml_children(xml_children(text))
   nodesList <- as_list(nodes)
 
@@ -22,6 +23,25 @@ convertSBGNdiagram <- function(file, networkName) {
   nodeIndex <- which(classes == "biological activity")
   arcIndex <- which(nodeTypes == "arc")
   logicIndex <- which(classes %in% c("delay", "and", "or", "not"))
+  submapIndex <- which(classes == "submap")
+
+  # Collecting information in the case that submaps have been used
+  if (length(submapIndex) > 0) {
+    subNodes <- xml_children(nodes[submapIndex])
+    subNodeList <- as_list(subNodes)
+    subNodeTypes <- xml_name(subNodes)
+    whichSubNodes <- which(subNodeTypes == "glyph")
+    subClasses <- unlist(lapply(subNodeList, attr, which = ".class"))
+
+    whichCompartments <- rep(NA, length(whichSubNodes))
+    jump <- which(diff(whichSubNodes) > 1) + 1
+    if (length(jump) == 1) {
+      whichCompartments <- (1:length(whichCompartments) > 7) + 1
+      whichCompartments
+    } else {
+      stop("Nicole needs to allow for a variety of submap numbers.")
+    }
+  }
 
   compartment <- data.frame(name = rep(NA, length(compIndex)), id = NA)
   for (i in 1:length(compIndex)) {
@@ -33,6 +53,16 @@ convertSBGNdiagram <- function(file, networkName) {
     nodeInfo$name[i] <- attr(nodesList[[nodeIndex[i]]]$label,"text")
     nodeInfo$compartment[i] <- compartment$name[attr(nodesList[[nodeIndex[i]]],
                                                      "compartmentRef") == compartment$id]
+  }
+
+  if (length(submapIndex) > 0) {
+    row = nrow(nodeInfo) + 1
+    nodeInfo[row:(nrow(nodeInfo) + length(whichSubNodes)), ] <- NA
+    for (i in 1:length(whichSubNodes)) {
+      nodeInfo$name[row] <- attr(subNodeList[[whichSubNodes[i]]]$label,"text")
+      nodeInfo$id <- attr(subNodeList[[whichSubNodes[i]]],"id")
+      nodeInfo$compartment <-
+    }
   }
 
   # distinguishing alternative production sites by compartment
