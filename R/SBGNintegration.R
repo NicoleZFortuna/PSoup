@@ -25,24 +25,6 @@ convertSBGNdiagram <- function(file, networkName) {
   logicIndex <- which(classes %in% c("delay", "and", "or", "not"))
   submapIndex <- which(classes == "submap")
 
-  # Collecting information in the case that submaps have been used
-  if (length(submapIndex) > 0) {
-    subNodes <- xml_children(nodes[submapIndex])
-    subNodeList <- as_list(subNodes)
-    subNodeTypes <- xml_name(subNodes)
-    whichSubNodes <- which(subNodeTypes == "glyph")
-    subClasses <- unlist(lapply(subNodeList, attr, which = ".class"))
-
-    whichCompartments <- rep(NA, length(whichSubNodes))
-    jump <- which(diff(whichSubNodes) > 1) + 1
-    if (length(jump) == 1) {
-      whichCompartments <- (1:length(whichCompartments) > 6) + 1
-      whichCompartments <- submapIndex[whichCompartments]
-    } else {
-      stop("Nicole needs to allow for a variety of submap numbers.")
-    }
-  }
-
   compartment <- data.frame(name = rep(NA, length(compIndex)), id = NA)
   for (i in 1:length(compIndex)) {
     compartment[i , ] <- c(attr(nodesList[[compIndex[i]]]$label,"text"), ids[compIndex[i]])
@@ -56,15 +38,24 @@ convertSBGNdiagram <- function(file, networkName) {
   }
 
   if (length(submapIndex) > 0) {
-    row = nrow(nodeInfo) + 1
-    nodeInfo[row:(nrow(nodeInfo) + length(whichSubNodes)), ] <- NA
-    for (i in 1:length(whichSubNodes)) {
-      nodeInfo$name[row] <- attr(subNodeList[[whichSubNodes[i]]]$label,"text")
-      nodeInfo$id[row] <- attr(subNodeList[[whichSubNodes[i]]],"id")
-      nodeInfo$compartment[row] <- compartment$name[attr(nodesList[[whichCompartments[i]]],
-                              "compartmentRef") == compartment$id]
-      row = row + 1
+    for (i in submapIndex) {
+      subMapInfo <- getSubmapNodes(node = nodes[i],
+                                   comp = compartment$name[attr(nodesList[[i]],
+                                                                "compartmentRef") == compartment$id])
+      nodeInfo <- rbind(nodeInfo,
+                        subMapInfo$nodeInfo)
+      nodesList <- append(nodesList,
+                          subMapInfo$newNodes,
+                          after = length(nodesList))
     }
+    # redefining indexes now that have collected submap nodes
+    classes <- unlist(lapply(nodesList, attr, which = ".class"))
+    ids <- unlist(lapply(nodesList, attr, which = "id"))
+    compIndex <- which(classes == "compartment")
+    nodeIndex <- which(classes == "biological activity")
+    arcIndex <- which(classes %in% c(langConversion$AF, "logic arc"))
+    logicIndex <- which(classes %in% c("delay", "and", "or", "not"))
+    #submapIndex <- which(classes == "submap")
   }
 
   # distinguishing alternative production sites by compartment
@@ -90,6 +81,16 @@ convertSBGNdiagram <- function(file, networkName) {
                       attributes(nodesList[[arcIndex[i]]])$target)
   }
 
+  # a function to remove the decimal places added to the ids of arcs
+  # pointing to and from a submap
+  removeIDdots <- function(x) {
+    id <- unlist(strsplit(x, "\\."))[rep(c(T,F), length(x))]
+    id
+  }
+
+  arcInfo$source[grepl("\\.", arcInfo$source)] <- removeIDdots(arcInfo$source[grepl("\\.", arcInfo$source)])
+  arcInfo$target[grepl("\\.", arcInfo$target)] <- removeIDdots(arcInfo$target[grepl("\\.", arcInfo$target)])
+
   hormones <- vector("list",length=length(nodeIndex))
 
   genotypes <- list()
@@ -100,7 +101,8 @@ convertSBGNdiagram <- function(file, networkName) {
     id = attr(nodesList[[nodeIndex[i]]],"id")
 
     #checking that we are not dealing with a hormone that is associated with a logical operator
-    if (!any(which(ids %in% c(arcInfo$source[id == arcInfo$target], arcInfo$target[id == arcInfo$source])) %in% logicIndex)) {
+    if (!any(which(ids %in% c(arcInfo$source[id == arcInfo$target],
+                              arcInfo$target[id == arcInfo$source])) %in% logicIndex)) {
       inNames <- nodeInfo$name[nodeInfo$id %in% arcInfo$source[id == arcInfo$target]]
       outNames <- nodeInfo$name[nodeInfo$id %in% arcInfo$target[id == arcInfo$source]]
       hormones[[i]] <- new("Hormone",
@@ -138,8 +140,8 @@ convertSBGNdiagram <- function(file, networkName) {
         rowNodes <- which(ids %in% arcInfo$source[id == arcInfo$target])
 
         # collecting input node information including operator info
-        N = data.frame(Node = length(rowNodes), Coregulator = NA, Operator = NA)
-        o=1
+        N = data.frame(Node = rowNodes, Coregulator = NA, Operator = NA)
+        o = 1
         for (r in 1:length(rowNodes)) {
           if (rowNodes[r] %in% logicIndex) {
             operatorOrigin <- nodeInfo$name[nodeInfo$id %in% arcInfo$source[ids[rowNodes[r]] == arcInfo$target]]
@@ -163,13 +165,22 @@ convertSBGNdiagram <- function(file, networkName) {
           stop("peaSoup only accepts the 'delay' and 'and' operators.")
         }
 
+        if ("and" %in% N$Operator) {
+          Influence <- rep(NA, nrow(N))
+          for (j in 1:nrow(N)) {
+            Influence[j] <- arcInfo$influence[id == arcInfo$target][which(unique(N$Operator) %in% N$Operator[j])]
+          }
+        } else {
+          Influence <- arcInfo$influence[id == arcInfo$target]
+        }
+
         hormones[[i]] <- new("Hormone",
                              name = nodeInfo$name[i],
                              container = compartment$name[attr(nodesList[[nodeIndex[i]]],
                                                                "compartmentRef") == compartment$id],
                              inputs = data.frame(Node = N$Node,
                                                  Coregulator = N$Coregulator,
-                                                 Influence = arcInfo$influence[id == arcInfo$target],
+                                                 Influence = Influence,
                                                  Delay = N$Operator=="delay"),
                              outputs = data.frame(Node = nodeInfo$name[nodeInfo$id %in% arcInfo$target[id == arcInfo$source]],
                                                   Coregulator = NA,
@@ -266,6 +277,55 @@ convertSBGNdiagram <- function(file, networkName) {
   network <- buildNetwork(hormones = hormones, genotypes = genotypes, name = networkName)
 
   return(network)
+}
+
+#' A function to pull out information from with in submaps
+#'
+#' This function pulls out the nodes existing within a submap,
+#' as well as collects the node information for processing.
+#' @param node the parent node containing a submap
+#' @param comp the compartment within which the submap sits
+#' @param newNodes any carryover nodes in the case that the
+#'        the function is being used recursively (if there
+#'        are submaps within submaps)
+getSubmapNodes <- function(node, comp, newNodes = NA) {
+  subNodes <- xml_children(node)
+  subNodeList <- as_list(subNodes)
+  subNodeTypes <- xml_name(subNodes)
+  whichSubNodes <- which(subNodeTypes == "glyph")
+  subClasses <- unlist(lapply(subNodeList, attr, which = ".class"))
+  subIds <- unlist(lapply(subNodeList, attr, which = "id"))
+
+  nodeIndex <- which(subClasses == "biological activity")
+  submapIndex <- which(subClasses == "submap")
+  logicIndex <- which(subClasses %in% c("delay", "and", "or", "not")) + 2
+
+  nodeInfo <- data.frame(name = NA, id = subIds[nodeIndex], compartment = comp)
+  for (i in 1:nrow(nodeInfo)) {
+    nodeInfo$name[i] <- attr(subNodeList[[nodeIndex[i] + 2]]$label,"text")
+  }
+
+  if (is.na(newNodes)) {
+    newNodes = list()
+    count = 0
+  } else {
+    count = length(newNodes)
+  }
+
+  for (i in 1:length(whichSubNodes)) {
+    newNodes[[i + count]] <- subNodeList[[whichSubNodes[i]]]
+  }
+
+  if (length(submapIndex) > 0) {
+    for (i in submapIndex) {
+      nodeInfo <- rbind(nodeInfo,
+                        getSubmapNodes(node = subNodes[i],
+                                       comp = comp,
+                                       newNodes = newNodes))
+    }
+  }
+
+  return(list(nodeInfo = nodeInfo, newNodes = newNodes))
 }
 
 #' A function to convert SBGN language to peaSoup language
