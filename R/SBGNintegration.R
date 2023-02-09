@@ -103,8 +103,8 @@ convertSBGNdiagram <- function(file, networkName) {
     #checking that we are not dealing with a hormone that is associated with a logical operator
     if (!any(which(ids %in% c(arcInfo$source[id == arcInfo$target],
                               arcInfo$target[id == arcInfo$source])) %in% logicIndex)) {
-      inNames <- nodeInfo$name[nodeInfo$id %in% arcInfo$source[id == arcInfo$target]]
-      outNames <- nodeInfo$name[nodeInfo$id %in% arcInfo$target[id == arcInfo$source]]
+      inNames <- nodeInfo$name[match(arcInfo$source[id == arcInfo$target], nodeInfo$id)]
+      outNames <- nodeInfo$name[match(arcInfo$target[id == arcInfo$source], nodeInfo$id)]
       hormones[[i]] <- new("Hormone",
                            name = nodeInfo$name[i],
                            container = compartment$name[attr(nodesList[[nodeIndex[i]]],
@@ -182,7 +182,7 @@ convertSBGNdiagram <- function(file, networkName) {
                                                  Coregulator = N$Coregulator,
                                                  Influence = Influence,
                                                  Delay = N$Operator=="delay"),
-                             outputs = data.frame(Node = nodeInfo$name[nodeInfo$id %in% arcInfo$target[id == arcInfo$source]],
+                             outputs = data.frame(Node = nodeInfo$name[match(arcInfo$target[id == arcInfo$source], nodeInfo$id)],
                                                   Coregulator = NA,
                                                   Influence = arcInfo$influence[id == arcInfo$source],
                                                   Delay = NA),
@@ -225,7 +225,7 @@ convertSBGNdiagram <- function(file, networkName) {
                              name = nodeInfo$name[i],
                              container = compartment$name[attr(nodesList[[nodeIndex[i]]],
                                                                "compartmentRef") == compartment$id],
-                             inputs = data.frame(Node = nodeInfo$name[nodeInfo$id %in% arcInfo$source[id == arcInfo$target]],
+                             inputs = data.frame(Node = nodeInfo$name[match(arcInfo$source[id == arcInfo$target], nodeInfo$id)],
                                                  Coregulator = NA,
                                                  Influence = arcInfo$influence[id == arcInfo$target],
                                                  Delay = NA),
