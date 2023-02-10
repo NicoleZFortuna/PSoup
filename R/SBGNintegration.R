@@ -107,8 +107,7 @@ convertSBGNdiagram <- function(file, networkName) {
       outNames <- nodeInfo$name[match(arcInfo$target[id == arcInfo$source], nodeInfo$id)]
       hormones[[i]] <- new("Hormone",
                            name = nodeInfo$name[i],
-                           container = compartment$name[attr(nodesList[[nodeIndex[i]]],
-                                                             "compartmentRef") == compartment$id],
+                           container = nodeInfo$compartment[i],
                            inputs = data.frame(Node = inNames,
                                                Coregulator = if (length(inNames) == 0) {NULL} else {NA},
                                                Influence = arcInfo$influence[id == arcInfo$target],
@@ -176,8 +175,7 @@ convertSBGNdiagram <- function(file, networkName) {
 
         hormones[[i]] <- new("Hormone",
                              name = nodeInfo$name[i],
-                             container = compartment$name[attr(nodesList[[nodeIndex[i]]],
-                                                               "compartmentRef") == compartment$id],
+                             container =  nodeInfo$compartment[i],
                              inputs = data.frame(Node = N$Node,
                                                  Coregulator = N$Coregulator,
                                                  Influence = Influence,
@@ -188,8 +186,6 @@ convertSBGNdiagram <- function(file, networkName) {
                                                   Delay = NA),
                              travel = 1,
                              degradation = 1)
-
-                             #travel = as.numeric(length(unique(nodeInfo$compartment[nodeInfo$name %in% c(nodeInfo$name[i], nodeInfo$name[nodeInfo$id == arcInfo$target[id == arcInfo$source]])])) > 1))
       }
 
       # if one of the outputs are logical
@@ -223,8 +219,7 @@ convertSBGNdiagram <- function(file, networkName) {
 
         hormones[[i]] <- new("Hormone",
                              name = nodeInfo$name[i],
-                             container = compartment$name[attr(nodesList[[nodeIndex[i]]],
-                                                               "compartmentRef") == compartment$id],
+                             container = nodeInfo$compartment[i],
                              inputs = data.frame(Node = nodeInfo$name[match(arcInfo$source[id == arcInfo$target], nodeInfo$id)],
                                                  Coregulator = NA,
                                                  Influence = arcInfo$influence[id == arcInfo$target],
@@ -326,6 +321,111 @@ getSubmapNodes <- function(node, comp, newNodes = NA) {
   }
 
   return(list(nodeInfo = nodeInfo, newNodes = newNodes))
+}
+
+#' A function to build a hormone object
+#'
+#' Organises information into the correct format to describe a hormone
+#' @param nodeInfo a data.frame containing summary information for nodes
+#' @param arcInfo a data.frame containing arc information, including
+#'        origins and destinations
+#' @param i external index
+#' @param logicIndex a vector consisting of the indexes of logical
+#'        operators
+#' @param ids a vector of all the ids
+
+buildHormone <- function(nodeInfo, arcInfo, i, logicIndex, ids) {
+  id <- nodeInfo$id[i]
+
+  # if there are no operators involved with a node
+  if (!any(which(ids %in% c(arcInfo$source[id == arcInfo$target],
+                            arcInfo$target[id == arcInfo$source])) %in% logicIndex)) {
+    inNames <- nodeInfo$name[match(arcInfo$source[id == arcInfo$target], nodeInfo$id)]
+    outNames <- nodeInfo$name[match(arcInfo$target[id == arcInfo$source], nodeInfo$id)]
+
+    inNodes <- inNames
+    inCoreg <- if (length(inNames) == 0) {NULL} else {NA}
+    inInfluence <- arcInfo$influence[id == arcInfo$target]
+    inOperator <- if (length(inNames) == 0) {NULL} else {NA}
+
+    outNodes <- outNames
+    outCoreg <- if (length(outNames) == 0) {NULL} else {NA}
+    outInfluence <- arcInfo$influence[id == arcInfo$source]
+    outOperator <- if (length(outNames) == 0) {NULL} else {NA}
+  }
+
+  # if there are operators coming in
+  if (any(which(ids %in% arcInfo$source[id == arcInfo$target]) %in% logicIndex)) {
+    operatorID <- arcInfo$source[id == arcInfo$target]
+    originID <- arcInfo$source[arcInfo$target == operatorID]
+    originNodes <- nodeInfo$name[match(originID, nodeInfo$id)]
+    #### NEED TO CYCLE THROUGH THE OPERATOR NODES
+    if ("and" %in% N$Operator) {
+      Influence <- rep(NA, nrow(N))
+      for (j in 1:nrow(N)) {
+        Influence[j] <- arcInfo$influence[id == arcInfo$target][which(unique(N$Operator) %in% N$Operator[j])]
+      }
+    } else {
+      Influence <- arcInfo$influence[id == arcInfo$target]
+    }
+
+    inNodes <- originNodes
+    if (length(originNodes) == 1) {
+      inCoreg <- NA
+      inInfluence <- arcInfo$influence[id == arcInfo$target]
+    } else {
+      inCoreg <- rep(NA, length(originNodes))
+      inInfluence <- rep(NA, length(originNodes))
+      for (j in 1:length(originNodes)) {
+        inCoreg[j] <- paste(originNodes[-j], collapse = ", ")
+        inInfluence
+      }
+    }
+    inInfluence <-
+      inOperator <-
+
+      outNodes <-
+      outCoreg <-
+      outInfluence <-
+      outOperator <-
+
+
+
+  }
+
+  # if there are operators going out
+
+  # build hormone object
+  hormone <- new("Hormone",
+                 name = nodeInfo$name[i],
+                 container =  nodeInfo$compartment[i],
+                 inputs = data.frame(Node = inNodes,
+                                     Coregulator = inCoreg,
+                                     Influence = inInfluence,
+                                     Operator = inOperator),
+                 outputs = data.frame(Node = outNodes,
+                                      Coregulator = outCoreg,
+                                      Influence = outInfluence,
+                                      Operator = outOperator),
+                 travel = 1,
+                 degradation = 1)
+
+  # correct for altSources
+  if (nrow(hormones[[i]]@inputs) > 0) {
+    if (any(strsplit(inNames, split = "\\.")[[1]][1] == strsplit(nodeInfo$name[i], split = "\\.")[[1]][1])) {
+      overWrite <- which(strsplit(inNames, split = "\\.")[[1]][1] == strsplit(nodeInfo$name[i], split = "\\.")[[1]][1])
+      hormone@inputs$Influence[overWrite] <- "altSource"
+    }
+  }
+
+  if (nrow(hormones[[i]]@outputs) > 0) {
+    if (any(strsplit(outNames, split = "\\.")[[1]][1] == strsplit(nodeInfo$name[i], split = "\\.")[[1]][1])) {
+      overWrite <- which(strsplit(outNames, split = "\\.")[[1]][1] == strsplit(nodeInfo$name[i], split = "\\.")[[1]][1])
+      hormone@outputs$Influence[overWrite] <- "altSource"
+    }
+  }
+
+  hormone
 }
 
 #' A function to convert SBGN language to peaSoup language
