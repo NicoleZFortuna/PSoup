@@ -333,8 +333,9 @@ getSubmapNodes <- function(node, comp, newNodes = NA) {
 #' @param logicIndex a vector consisting of the indexes of logical
 #'        operators
 #' @param ids a vector of all the ids
+#' @param nodesList a list of all the nodes in the diagram
 
-buildHormone <- function(nodeInfo, arcInfo, i, logicIndex, ids) {
+buildHormone <- function(nodeInfo, arcInfo, i, logicIndex, ids, nodesList) {
   id <- nodeInfo$id[i]
 
   # if there are no operators involved with a node
@@ -356,44 +357,59 @@ buildHormone <- function(nodeInfo, arcInfo, i, logicIndex, ids) {
 
   # if there are operators coming in
   if (any(which(ids %in% arcInfo$source[id == arcInfo$target]) %in% logicIndex)) {
-    operatorID <- arcInfo$source[id == arcInfo$target]
-    originID <- arcInfo$source[arcInfo$target == operatorID]
-    originNodes <- nodeInfo$name[match(originID, nodeInfo$id)]
-    #### NEED TO CYCLE THROUGH THE OPERATOR NODES
-    if ("and" %in% N$Operator) {
-      Influence <- rep(NA, nrow(N))
-      for (j in 1:nrow(N)) {
-        Influence[j] <- arcInfo$influence[id == arcInfo$target][which(unique(N$Operator) %in% N$Operator[j])]
+    originID <- arcInfo$source[id == arcInfo$target]
+    independentInput <- nodeInfo$name[nodeInfo$id == originID[originID %in% nodeInfo$id]]
+    logicInputID <- originID[!originID %in% nodeInfo$id]
+
+    inNodes <- if (length(independentInput) == 0) {NULL} else {independentInput}
+    inInfluence <- arcInfo$influence[match(nodeInfo$id[match(independentInput,
+                                                             nodeInfo$name)],
+                                           arcInfo$source)]
+    inCoreg <- if (length(outNames) == 0) {NULL} else {NA}
+    inOperator <- if (length(outNames) == 0) {NULL} else {NA}
+
+    for (lN in logicInputID) {
+      logicInputNode <- nodeInfo$name[match(arcInfo$source[arcInfo$target == lN],
+                                            nodeInfo$id)]
+      Influence <- rep(arcInfo$influence[arcInfo$source == lN],
+                       length(logicInputNode))
+      Coreg <- rep(NA, length(logicInputNode))
+      if (length(logicInputNode) > 1) {
+        for (j in 1:length(logicInputNode)) {
+          Coreg[j] <- paste(logicInputNode[-j], collapse = ", ")
+        }
       }
-    } else {
-      Influence <- arcInfo$influence[id == arcInfo$target]
+      inNodes <- c(inNodes, logicInputNode)
+      inInfluence <- c(inInfluence, Influence)
+      inCoreg <- c(inCoreg, Coreg)
+      inOperator <- c(inOperator,
+                      rep(attributes(nodesList[[which(ids == lN)]])$.class,
+                          length(logicInputNode)))
     }
 
-    inNodes <- originNodes
-    if (length(originNodes) == 1) {
-      inCoreg <- NA
-      inInfluence <- arcInfo$influence[id == arcInfo$target]
-    } else {
-      inCoreg <- rep(NA, length(originNodes))
-      inInfluence <- rep(NA, length(originNodes))
-      for (j in 1:length(originNodes)) {
-        inCoreg[j] <- paste(originNodes[-j], collapse = ", ")
-        inInfluence
-      }
-    }
-    inInfluence <-
-      inOperator <-
+    outNames <- nodeInfo$name[match(arcInfo$target[id == arcInfo$source], nodeInfo$id)]
 
-      outNodes <-
-      outCoreg <-
-      outInfluence <-
-      outOperator <-
-
-
-
+    outNodes <- outNames
+    outCoreg <- if (length(outNames) == 0) {NULL} else {NA}
+    outInfluence <- arcInfo$influence[id == arcInfo$source]
+    outOperator <- if (length(outNames) == 0) {NULL} else {NA}
   }
 
   # if there are operators going out
+  if (any(which(ids %in% arcInfo$target[id == arcInfo$source]) %in% logicIndex)) {
+    inNames <- nodeInfo$name[match(arcInfo$source[id == arcInfo$target], nodeInfo$id)]
+
+    inNodes <- inNames
+    inCoreg <- if (length(inNames) == 0) {NULL} else {NA}
+    inInfluence <- arcInfo$influence[id == arcInfo$target]
+    inOperator <- if (length(inNames) == 0) {NULL} else {NA}
+
+    targetID <- arcInfo$target[id == arcInfo$source]
+    independentOutput <- nodeInfo$name[match(targetID[targetID %in% nodeInfo$id], nodeInfo$id)]
+    logicOutputID <- targetID[!targetID %in% nodeInfo$id]
+
+    # Add routine for recording outputs
+  }
 
   # build hormone object
   hormone <- new("Hormone",
