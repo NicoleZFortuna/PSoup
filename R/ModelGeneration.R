@@ -97,16 +97,17 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
     if (any(nodes[[i]]@inputs$Influence == "stimulation")) {
       stimString <- nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% "stimulation" & is.na(nodes[[i]]@inputs$Coregulator)]
       if (length(stimString) > 0) {
-        stimString <- differenceString(stimString, nodes[[i]]@inputs$Delay[nodes[[i]]@inputs$Influence=="stimulation"])
+        stimString <- differenceString(stimString,
+                                       nodes[[i]]@inputs$Operator[nodes[[i]]@inputs$Operator == "Delay" & nodes[[i]]@inputs$Influence == "stimulation"])
       }
 
       # are there any stimulants that are coregulators
       if (any(!is.na(nodes[[i]]@inputs$Coregulator) & nodes[[i]]@inputs$Influence == "stimulation")) {
-        coregInput <- nodes[[i]]@inputs[!is.na(nodes[[i]]@inputs$Coregulator) & nodes[[i]]@inputs$Influence == "stimulation", -3]
+        coregInput <- nodes[[i]]@inputs[!is.na(nodes[[i]]@inputs$Coregulator) & nodes[[i]]@inputs$Influence == "stimulation", 1:2]
 
         coreg <- coregulators(coregInput)
 
-        stimString = paste(stimString, coreg, sep = " + ")
+        stimString = paste0(stimString, coreg, collapse = " + ")
       }
     } else {stimString = NA}
 
@@ -115,7 +116,8 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
       inhibString <- nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% "inhibition" & is.na(nodes[[i]]@inputs$Coregulator)]
       numInhib <- length(inhibString)
       if (length(inhibString) > 0) {
-        inhibString <- differenceString(inhibString, nodes[[i]]@inputs$Delay[nodes[[i]]@inputs$Influence=="inhibition"])
+        inhibString <- differenceString(inhibString,
+                                        nodes[[i]]@inputs$Operator[nodes[[i]]@inputs$Operator == "Delay" & nodes[[i]]@inputs$Influence == "inhibition"])
       }
 
       # are there any inhibitors that are coregulators
@@ -147,7 +149,8 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
     if (any(nodes[[i]]@inputs$Influence == "necessary stimulation")) {
       necstimString <- nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% "necessary stimulation" & is.na(nodes[[i]]@inputs$Coregulator)]
       if (length(necstimString) > 0) {
-        necstimString <- differenceString(necstimString, nodes[[i]]@inputs$Delay[nodes[[i]]@inputs$Influence=="necessary stimulation"])
+        necstimString <- differenceString(necstimString,
+                                          nodes[[i]]@inputs$Operator[nodes[[i]]@inputs$Operator == "Delay" & nodes[[i]]@inputs$Influence == "necessary stimulation"])
       }
 
       # are there any necessary stimulants that are coregulators
@@ -180,7 +183,8 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
     if (any(nodes[[i]]@inputs$Influence == "altSource")) {
       altString <- nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% "altSource"]
       if (length(altString) > 0) {
-        altString <- differenceString(altString, nodes[[i]]@inputs$Delay[nodes[[i]]@inputs$Influence=="altSource"])
+        altString <- differenceString(altString,
+                                      nodes[[i]]@inputs$Operator[nodes[[i]]@inputs$Operator == "Delay" & nodes[[i]]@inputs$Influence == "altSource"])
       }
 
       allModulations <- sprintf("%s + %s", paste0(altString, collapse = " + "), allModulations)
@@ -204,6 +208,16 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
 #'        set to FLASE.
 coregulators <- function(coreg, returnNum = FALSE) {
   coreg <- unname(as.matrix(coreg))
+
+  # split up lists of coregulators
+  # test <- data.frame(Node = c("a", "b", "c"), Coregulator = c("b, c", "a, c", "a, b"))
+  # test <- unname(as.matrix(test))
+  # split <- strsplit(test[,2], ", ")
+  #
+  # test[, 2] <- unlist(lapply(split, `[[`, 1))
+  # test <- cbind(test, unlist(lapply(split, `[[`, 2)))
+
+
   for (r in 1:nrow(coreg)) {
     coreg[r, ] <- sort(coreg[r, ])
     coreg[r, ] <- paste0("dat$", coreg[r, ], "[t-1]")
