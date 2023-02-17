@@ -126,6 +126,7 @@ convertSBGNdiagram <- function(file, networkName) {
         } else {
           whichGen <- which(genTracker %in% hormones[[i]]@genotypes[g])
           genotypes[[whichGen]]@expression[names(expression) == hormones[[i]]@container] <- 1
+          genotypes[[whichGen]]@influence[nrow(genotypes[[whichGen]]@influence) + 1, ] <- c(hormones[[i]]@name, "production")
         }
       }
     }
@@ -212,8 +213,8 @@ buildHormone <- function(nodeInfo, arcInfo, i, logicIndex, ids, nodesList, lang)
     inInfluence <- arcInfo$influence[match(nodeInfo$id[match(independentInput,
                                                              nodeInfo$name)],
                                            arcInfo$source)]
-    inCoreg <- if (length(outNames) == 0) {NULL} else {NA}
-    inOperator <- if (length(outNames) == 0) {NULL} else {NA}
+    inCoreg <- if (length(independentInput) == 0) {NULL} else {rep(NA, length(independentInput))}
+    inOperator <- if (length(independentInput) == 0) {NULL} else {rep(NA, length(independentInput))}
 
     for (lN in logicInputID) {
       logicInputNode <- nodeInfo$name[match(arcInfo$source[arcInfo$target == lN],
@@ -249,9 +250,9 @@ buildHormone <- function(nodeInfo, arcInfo, i, logicIndex, ids, nodesList, lang)
     logicOutputID <- targetID[!targetID %in% nodeInfo$id]
 
     outNodes <- independentOutput
-    outCoreg <- if (length(outNodes) == 0) {NULL} else {rep(NA, length(outNodes))}
+    outCoreg <- if (length(independentOutput) == 0) {NULL} else {rep(NA, length(outNodes))}
     outInfluence <- arcInfo$influence[id == arcInfo$source][arcInfo$target[id == arcInfo$source] %in% nodeInfo$id]
-    outOperator <- if (length(outNodes) == 0) {NULL} else {rep(NA, length(outNodes))}
+    outOperator <- if (length(independentOutput) == 0) {NULL} else {rep(NA, length(outNodes))}
 
     for (lN in logicOutputID) {
       logicOutputNode <- nodeInfo$name[match(arcInfo$target[arcInfo$source == lN],
@@ -262,7 +263,7 @@ buildHormone <- function(nodeInfo, arcInfo, i, logicIndex, ids, nodesList, lang)
 
       outNodes <- c(outNodes, logicOutputNode)
       outInfluence <- c(outInfluence, Influence)
-      outCoreg <- c(outCoreg, Coreg)
+      outCoreg <- c(outCoreg, if (length(Coreg) == 0) {NA} else (Coreg))
       outOperator <- c(outOperator, attributes(nodesList[[which(ids == lN)]])$.class)
     }
   } else {
