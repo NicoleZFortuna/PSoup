@@ -209,21 +209,29 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
 coregulators <- function(coreg, returnNum = FALSE) {
   coreg <- unname(as.matrix(coreg))
 
-  # split up lists of coregulators
-  # test <- data.frame(Node = c("a", "b", "c"), Coregulator = c("b, c", "a, c", "a, b"))
-  # test <- unname(as.matrix(test))
-  # split <- strsplit(test[,2], ", ")
-  #
-  # test[, 2] <- unlist(lapply(split, `[[`, 1))
-  # test <- cbind(test, unlist(lapply(split, `[[`, 2)))
+  split <- strsplit(coreg[,2], ", ") # Splitting apart lists of coregulators
+
+  lengths <- sapply(split, length)
+
+  # in the case that there is ever more than one coregulator, increase the size
+  # of the coreg matrix to accomodate
+  if (max(lengths) > 1) {
+    coreg <- cbind(coreg, matrix(NA, nrow = nrow(coreg), ncol = max(lengths) - 1))
+  }
+
+  # separating coregulators into their own cells
+  for (i in 1:max(lengths)) {
+    index <- which(lengths >= i)
+    coreg[index, i + 1] <- sapply(split[index], `[[`, i)
+  }
 
 
   for (r in 1:nrow(coreg)) {
-    coreg[r, ] <- sort(coreg[r, ])
-    coreg[r, ] <- paste0("dat$", coreg[r, ], "[t-1]")
+    coreg[r, !is.na(coreg[r, ])] <- sort(coreg[r, !is.na(coreg[r, ])])
+    coreg[r, !is.na(coreg[r, ])] <- paste0("dat$", coreg[r, !is.na(coreg[r, ])], "[t-1]")
   }
 
-  coreg <- unique(paste(coreg[,1], coreg[,2], sep = "*"))
+  coreg <- unique(apply(coreg, 1, function(x) paste0(x[!is.na(x)], collapse = "*")))
   if (returnNum == T) num = length(coreg)
   coreg <- paste0(coreg, collapse = " + ")
 
@@ -237,8 +245,7 @@ coregulators <- function(coreg, returnNum = FALSE) {
 #' @param delays a vector specifying if there are any delays associated with
 #'        a particular input.
 differenceString <- function(string, delays) {
-  delays[delays==T] ="delay"
-  delays[is.na(delays)] = 1
+  delays[delays != "delay" | is.na(delays)] = 1
   fullString <- paste0("dat$", string, "[t-",delays,"]", collapse = " + ")
   fullString
 }
