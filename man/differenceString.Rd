@@ -4,13 +4,16 @@
 \alias{differenceString}
 \title{A function to build the difference equation including delays}
 \usage{
-differenceString(string, delays)
+differenceString(string, delays, takeProduct = FALSE)
 }
 \arguments{
 \item{string}{whatever string is being constructed.}
 
 \item{delays}{a vector specifying if there are any delays associated with
 a particular input.}
+
+\item{takeProduct}{logical. Should be set to TRUE if this function is being
+to collapse necessary stimulants (* instead of)}
 }
 \description{
 A function to build the difference equation including delays

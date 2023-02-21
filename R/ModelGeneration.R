@@ -150,11 +150,12 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
       necstimString <- nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% "necessary stimulation" & is.na(nodes[[i]]@inputs$Coregulator)]
       if (length(necstimString) > 0) {
         necstimString <- differenceString(necstimString,
-                                          nodes[[i]]@inputs$Operator[nodes[[i]]@inputs$Operator == "Delay" & nodes[[i]]@inputs$Influence == "necessary stimulation"])
+                                          nodes[[i]]@inputs$Operator[nodes[[i]]@inputs$Operator == "Delay" & nodes[[i]]@inputs$Influence == "necessary stimulation"],
+                                          takeProduct = TRUE)
       }
 
       # are there any necessary stimulants that are coregulators
-      if (any(!is.na(nodes[[i]]@inputs$Coregulator) & nodes[[i]]@inputs$Influence == "stimulation")) {
+      if (any(!is.na(nodes[[i]]@inputs$Coregulator) & nodes[[i]]@inputs$Influence == "necessary stimulation")) {
         coregInput <- nodes[[i]]@inputs[!is.na(nodes[[i]]@inputs$Coregulator) & nodes[[i]]@inputs$Influence == "necessary stimulation", -3]
 
         coreg <- coregulators(coregInput)
@@ -244,9 +245,17 @@ coregulators <- function(coreg, returnNum = FALSE) {
 #' @param string whatever string is being constructed.
 #' @param delays a vector specifying if there are any delays associated with
 #'        a particular input.
-differenceString <- function(string, delays) {
+#' @param takeProduct logical. Should be set to TRUE if this function is being
+#'        to collapse necessary stimulants (* instead of)
+differenceString <- function(string, delays, takeProduct = FALSE) {
   delays[delays != "delay" | is.na(delays)] = 1
-  fullString <- paste0("dat$", string, "[t-",delays,"]", collapse = " + ")
+
+  if (takeProduct == FALSE) {
+    fullString <- paste0("dat$", string, "[t-",delays,"]", collapse = " + ")
+  } else {
+    fullString <- paste0("dat$", string, "[t-",delays,"]", collapse = " * ")
+  }
+
   fullString
 }
 
