@@ -96,7 +96,8 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
     # collating all the stimulatory action
     if (any(nodes[[i]]@inputs$Influence == "stimulation")) {
       stimString <- nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% "stimulation" & is.na(nodes[[i]]@inputs$Coregulator)]
-      if (length(stimString) > 0) {
+      numStim <- length(stimString)
+      if (numStim > 0) {
         stimString <- differenceString(stimString,
                                        nodes[[i]]@inputs$Operator[nodes[[i]]@inputs$Operator == "Delay" & nodes[[i]]@inputs$Influence == "stimulation"])
       }
@@ -105,9 +106,15 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
       if (any(!is.na(nodes[[i]]@inputs$Coregulator) & nodes[[i]]@inputs$Influence == "stimulation")) {
         coregInput <- nodes[[i]]@inputs[!is.na(nodes[[i]]@inputs$Coregulator) & nodes[[i]]@inputs$Influence == "stimulation", 1:2]
 
-        coreg <- coregulators(coregInput)
+        coreg <- coregulators(coregInput, returnNum = T)
 
-        stimString = paste0(stimString, coreg, collapse = " + ")
+        numStim <- numStim + coreg$num
+        stimString <- paste0(stimString, coreg$coreg, collapse = " + ")
+      }
+
+      # take the average of the stimulatory effects if there are more than one
+      if (numStim > 1) {
+        stimString <- sprintf("(%s)/%s", stimString, numStim)
       }
     } else {stimString = NA}
 
@@ -115,7 +122,7 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
     if (any(nodes[[i]]@inputs$Influence == "inhibition")) {
       inhibString <- nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% "inhibition" & is.na(nodes[[i]]@inputs$Coregulator)]
       numInhib <- length(inhibString)
-      if (length(inhibString) > 0) {
+      if (numInhib > 0) {
         inhibString <- differenceString(inhibString,
                                         nodes[[i]]@inputs$Operator[nodes[[i]]@inputs$Operator == "Delay" & nodes[[i]]@inputs$Influence == "inhibition"])
       }
@@ -124,10 +131,10 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
       if (any(!is.na(nodes[[i]]@inputs$Coregulator) & nodes[[i]]@inputs$Influence == "inhibition")) {
         coregInput <- nodes[[i]]@inputs[!is.na(nodes[[i]]@inputs$Coregulator) & nodes[[i]]@inputs$Influence == "inhibition", -3]
 
-        coreg <- coregulators(coregInput)
+        coreg <- coregulators(coregInput, returnNum = T)
 
-        numInhib = coreg$num
-        inhibString = paste(inhibString, coreg$coreg, sep = " + ")
+        numInhib <- numInhib + coreg$num
+        inhibString <- paste(inhibString, coreg$coreg, sep = " + ")
       }
     } else {inhibString = NA}
 
@@ -139,6 +146,7 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
       # if there are only inhibitory effects
       allModulations <- sprintf("%s/(1 + %s)", numInhib + 1, inhibString)
     } else if (class(stimString) == "character" & class(inhibString) == "character") {
+      # if there are both stimulatory and inhibitory effects
       allModulations <- sprintf("%s*(%s)/(1 + %s)", numInhib + 1, stimString, inhibString)
     } else if (is.na(stimString) & is.na(inhibString)) {
       # if it is constituent wo influence from other nodes
