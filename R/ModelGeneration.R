@@ -25,10 +25,13 @@
 #' @param dataFrame default set to TRUE. This parameter allows you to choose if
 #'               you would like for node starting values, and genotype values
 #'               to be stored as a data.frame, or as an Rscript.
+#' @param altSource whether alternative sources should be additive to other
+#'               inputs to a node. If FALSE, should be treated as just another
+#'               input.
 #' @export
 
 buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
-                       dataFrame = TRUE) {
+                       dataFrame = TRUE, altSource = TRUE) {
   # a place to save the equations
   if (dir.exists(folder) & forceOverwrite == FALSE) {
     stop("This folder already exists. If you want to overwrite this folder,
@@ -40,6 +43,15 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
     funcfile = paste0(folder, "/nextStep.R")
 
     file.create(funcfile)
+  }
+
+  if (altSource == FALSE) {
+    # changing network influences so all altSources are stimulants
+    for (i in 1:length(network@objects$Hormones)) {
+      if ("altSource" %in% network@objects$Hormones[[i]]@inputs$Influence) {
+        network@objects$Hormones[[i]]@inputs$Influence[network@objects$Hormones[[i]]@inputs$Influence == "altSource"] <- "stimulation"
+      }
+    }
   }
 
   nodes = network@objects$Hormones
@@ -90,7 +102,7 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
   cat("\nnextStep <- function(dat, gen, delay = NA) {\n", file = funcfile, append = T)
   cat("\tdat[nrow(dat) + 1, ] = NA\n", file = funcfile, append = T)
   cat("\tt = nrow(dat)\n", file = funcfile, append = T)
-  cat("\tif (is.na(delay)) {delay == 2}\n\n", file = funcfile, append = T)
+  cat("\tdelay = nrow(dat) - 1\n\n", file = funcfile, append = T)
 
   for (i in 1:length(nodes)) {
     # collating all the stimulatory action
@@ -99,7 +111,7 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
       numStim <- length(stimString)
       if (numStim > 0) {
         stimString <- differenceString(stimString,
-                                       nodes[[i]]@inputs$Operator[nodes[[i]]@inputs$Operator == "Delay" & nodes[[i]]@inputs$Influence == "stimulation"])
+                                       nodes[[i]]@inputs$Operator[nodes[[i]]@inputs$Operator == "delay" & nodes[[i]]@inputs$Influence == "stimulation"])
       }
 
       # are there any stimulants that are coregulators

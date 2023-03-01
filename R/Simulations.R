@@ -94,7 +94,7 @@ simulateNetwork <- function(folder, delay = 2, tmax = NA, genotype = NA,
 }
 
 #' A wrapper function that allows you to run simulations of a network under
-#' many differet conditions.
+#' many different conditions.
 #'
 #' This function allows you to set up a variety of genotype conditions to be
 #' simulated. It also allows you to test the outcome of simulations under

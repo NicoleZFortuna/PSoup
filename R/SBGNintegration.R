@@ -290,13 +290,19 @@ buildHormone <- function(nodeInfo, arcInfo, i, logicIndex, ids, nodesList, lang)
                  travel = 1,
                  degradation = 1)
 
+  # convert language to my standard
+  hormone@inputs$Influence <- languageConversion(hormone@inputs$Influence, lang)
+  hormone@outputs$Influence <- languageConversion(hormone@outputs$Influence, lang)
+
   # correct for altSources
   if (nrow(hormone@inputs) > 0 & any(grepl("\\.", inNodes))) {
     splitNodes <- which(grepl("\\.", inNodes))
     for (j in splitNodes) {
       if (strsplit(inNodes[j], split = "\\.")[[1]][1] == strsplit(nodeInfo$name[i],
                                                                   split = "\\.")[[1]][1]) {
-        hormone@inputs$Influence[j] <- "altSource"
+        if (hormone@inputs$Influence[j] == "stimulation") {
+          hormone@inputs$Influence[j] <- "altSource"
+        }
       }
     }
   }
@@ -306,14 +312,12 @@ buildHormone <- function(nodeInfo, arcInfo, i, logicIndex, ids, nodesList, lang)
     for (j in splitNodes) {
       if (strsplit(outNodes[j], split = "\\.")[[1]][1] == strsplit(nodeInfo$name[i],
                                                                   split = "\\.")[[1]][1]) {
-        hormone@outputs$Influence[j] <- "altSource"
+        if (hormone@outputs$Influence[j] == "stimulation") {
+          hormone@outputs$Influence[j] <- "altSource"
+        }
       }
     }
   }
-
-  # convert language to my standard
-  hormone@inputs$Influence <- languageConversion(hormone@inputs$Influence, lang)
-  hormone@outputs$Influence <- languageConversion(hormone@outputs$Influence, lang)
 
   hormone
 }

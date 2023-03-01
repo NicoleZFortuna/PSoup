@@ -3,7 +3,7 @@
 \name{setupSims}
 \alias{setupSims}
 \title{A wrapper function that allows you to run simulations of a network under
-many differet conditions.}
+many different conditions.}
 \usage{
 setupSims(folder, delay = 2, tmax = NA)
 }

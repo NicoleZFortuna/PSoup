@@ -8,7 +8,8 @@ buildModel(
   network,
   folder = "./Model",
   forceOverwrite = FALSE,
-  dataFrame = TRUE
+  dataFrame = TRUE,
+  altSource = TRUE
 )
 }
 \arguments{
@@ -31,6 +32,10 @@ the existing folder}
 \item{dataFrame}{default set to TRUE. This parameter allows you to choose if
 you would like for node starting values, and genotype values
 to be stored as a data.frame, or as an Rscript.}
+
+\item{altSource}{whether alternative sources should be additive to other
+inputs to a node. If FALSE, should be treated as just another
+input.}
 }
 \description{
 This function is used to define the script that is needed to simulate the

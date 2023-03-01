@@ -190,5 +190,7 @@ consistencyCheck <- function(network) {
 
 # validityCheck
 
+# functions to find initiating and terminating nodes
+
 
 
