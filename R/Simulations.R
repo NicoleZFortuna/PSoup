@@ -55,6 +55,10 @@ simulateNetwork <- function(folder, delay = 2, tmax = NA, genotype = NA,
     nodestartDef <- startingValues
   }
 
+  if (nrow(genotypeDef) > 1 | nrow(nodestartDef) > 1) {
+    stop("You have provided more than one condition. Consider using the setupSims function instead.")
+  }
+
   # Run simulations
   if (is.na(tmax)) {
     rowChunk <- 100
