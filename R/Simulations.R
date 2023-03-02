@@ -84,6 +84,14 @@ simulateNetwork <- function(folder, delay = 2, tmax = NA, genotype = NA,
       return(simDat)
     }
 
+    # If any node has reached infinity
+    if (any(is.infinite(unlist(simDat[row, ])))) {
+      warning(paste0("The simulation was terminated at time ", t, " as the following node/s reached infinity: ",
+                    paste(names(simDat)[is.infinite(unlist(simDat[row, ]))], collapse = ", "), "."))
+      simDat = simDat[delay:row, ]
+      return(simDat)
+    }
+
     # If simDat has been filled without reaching steady state or tmax, add more rows
     if (row == nrow(simDat)) {
       simDat[(row + 1):(row + rowChunk), ] <- NA

@@ -1,6 +1,12 @@
 #' A function to quickly inspect the through time outcome of a simulation
 #'
-#' @param simulationData the data.frame output of a simulation.
+#' @param simulationData the data.frame output of a simulation. A subset of the
+#'        data.frame can be passed if the user does not want to plot all of the
+#'        nodes.
+#' @param col default is set to NA, in which case the viridis colour palette will
+#'        be used. Otherwise, the user can pass a vector of colors the same length
+#'        as the number of nodes to be plotted
+#' @param logTransform whether the simulation values should be log transformed.
 #' @importFrom viridis viridis
 #' @importFrom stats plot.ts
 #' @importFrom graphics plot.new
@@ -9,14 +15,22 @@
 #'
 #' @export
 
-quickPlot <- function(simulationData) {
+quickPlot <- function(simulationData, col = NA, logTransform = FALSE) {
+  if (unique(is.na(col))) {col = viridis(ncol(simulationData))}
+
   par(mfrow = c(1, 2), mar = c(4,4,1,0), xpd = T)
-  plot.ts(simulationData, plot.type = "single", col = viridis(ncol(simulationData)),
-          ylab = "Expression")
+  if (logTransform == FALSE) {
+    plot.ts(simulationData, plot.type = "single",
+            col = col, ylab = "Expression")
+  } else {
+    plot.ts(log(simulationData), plot.type = "single",
+            col = col, ylab = "Expression")
+  }
+
   plot.new( )
   plot.window(ylim = c(0, 10), xlim = c(0, 10))
-  legend(-3, 10, legend = colnames(simulationData),
-         fill = viridis(ncol(simulationData)), cex = 0.5,
+  legend(0, 10, legend = colnames(simulationData),
+         fill = col, cex = 0.5,
          bty = "n")
 }
 

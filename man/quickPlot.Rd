@@ -4,10 +4,18 @@
 \alias{quickPlot}
 \title{A function to quickly inspect the through time outcome of a simulation}
 \usage{
-quickPlot(simulationData)
+quickPlot(simulationData, col = NA, logTransform = FALSE)
 }
 \arguments{
-\item{simulationData}{the data.frame output of a simulation.}
+\item{simulationData}{the data.frame output of a simulation. A subset of the
+data.frame can be passed if the user does not want to plot all of the
+nodes.}
+
+\item{col}{default is set to NA, in which case the viridis colour palette will
+be used. Otherwise, the user can pass a vector of colors the same length
+as the number of nodes to be plotted}
+
+\item{logTransform}{whether the simulation values should be log transformed.}
 }
 \description{
 A function to quickly inspect the through time outcome of a simulation
