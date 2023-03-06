@@ -136,7 +136,7 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
       numInhib <- length(inhibString)
       if (numInhib > 0) {
         inhibString <- differenceString(inhibString,
-                                        nodes[[i]]@inputs$Operator[nodes[[i]]@inputs$Operator == "Delay" & nodes[[i]]@inputs$Influence == "inhibition"])
+                                        nodes[[i]]@inputs$Operator[nodes[[i]]@inputs$Operator == "delay" & nodes[[i]]@inputs$Influence == "inhibition"])
       }
 
       # are there any inhibitors that are coregulators
@@ -170,7 +170,7 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
       necstimString <- nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% "necessary stimulation" & is.na(nodes[[i]]@inputs$Coregulator)]
       if (length(necstimString) > 0) {
         necstimString <- differenceString(necstimString,
-                                          nodes[[i]]@inputs$Operator[nodes[[i]]@inputs$Operator == "Delay" & nodes[[i]]@inputs$Influence == "necessary stimulation"],
+                                          nodes[[i]]@inputs$Operator[nodes[[i]]@inputs$Operator == "delay" & nodes[[i]]@inputs$Influence == "necessary stimulation"],
                                           takeProduct = TRUE)
       }
 
@@ -205,7 +205,7 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
       altString <- nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% "altSource"]
       if (length(altString) > 0) {
         altString <- differenceString(altString,
-                                      nodes[[i]]@inputs$Operator[nodes[[i]]@inputs$Operator == "Delay" & nodes[[i]]@inputs$Influence == "altSource"])
+                                      nodes[[i]]@inputs$Operator[nodes[[i]]@inputs$Operator == "delay" & nodes[[i]]@inputs$Influence == "altSource"])
       }
 
       allModulations <- sprintf("%s + %s", paste0(altString, collapse = " + "), allModulations)
