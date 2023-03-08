@@ -141,12 +141,12 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
 
       # are there any inhibitors that are coregulators
       if (any(!is.na(nodes[[i]]@inputs$Coregulator) & nodes[[i]]@inputs$Influence == "inhibition")) {
-        coregInput <- nodes[[i]]@inputs[!is.na(nodes[[i]]@inputs$Coregulator) & nodes[[i]]@inputs$Influence == "inhibition", -3]
+        coregInput <- nodes[[i]]@inputs[!is.na(nodes[[i]]@inputs$Coregulator) & nodes[[i]]@inputs$Influence == "inhibition", 1:2]
 
         coreg <- coregulators(coregInput, returnNum = T)
 
         numInhib <- numInhib + coreg$num
-        inhibString <- paste(inhibString, coreg$coreg, sep = " + ")
+        inhibString <- paste(inhibString, coreg$coreg, collapse = " + ")
       }
     } else {inhibString = NA}
 

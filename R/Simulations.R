@@ -132,7 +132,7 @@ setupSims <- function(folder, delay = 2, tmax = NA) {
   # Ensuring that the first row of genotypes contain a wildtype condition
   if (any(!apply(genotypeDef, 1, function(x) any(x != rep(1, ncol(genotypeDef)))))) {
     # if there are any rows in genotypeDef that contain a WT condition
-    WT = which(!apply(genotypeDef, 1, function(x) any(x != rep(1, ncol(nodestartDef)))))
+    WT = which(!apply(genotypeDef, 1, function(x) any(x != rep(1, ncol(genotypeDef)))))
     if (WT != 1)
       # make sure that the first row is the WT condition
       genotypeDef <- genotypeDef[c(WT, c(1:nrow(genotypeDef))[-WT]), ]
