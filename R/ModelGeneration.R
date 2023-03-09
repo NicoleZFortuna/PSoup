@@ -28,10 +28,17 @@
 #' @param altSource whether alternative sources should be additive to other
 #'               inputs to a node. If FALSE, should be treated as just another
 #'               input.
+#' @param splitCompartment determines if the network will be split into
+#'               its separate compartments or maintained as a whole.
+#'               Separation of compartments should only be done if you
+#'               intend to use L-Systems to mediate the communication
+#'               nodes of different compartments. As such, the default
+#'               has been set to FALSE.
 #' @export
 
 buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
-                       dataFrame = TRUE, altSource = TRUE) {
+                       dataFrame = TRUE, altSource = TRUE,
+                       splitCompartment = FALSE) {
   # a place to save the equations
   if (dir.exists(folder) & forceOverwrite == FALSE) {
     stop("This folder already exists. If you want to overwrite this folder,

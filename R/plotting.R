@@ -7,6 +7,8 @@
 #'        be used. Otherwise, the user can pass a vector of colors the same length
 #'        as the number of nodes to be plotted
 #' @param logTransform whether the simulation values should be log transformed.
+#' @param addLabels if you want to add labels next to the
+#'        final value of each node.
 #' @importFrom viridis viridis
 #' @importFrom stats plot.ts
 #' @importFrom graphics plot.new
@@ -15,7 +17,10 @@
 #'
 #' @export
 
-quickPlot <- function(simulationData, col = NA, logTransform = FALSE) {
+quickPlot <- function(simulationData, col = NA,
+                      logTransform = FALSE,
+                      addLabels = FALSE,
+                      title = NA) {
   if (unique(is.na(col))) {col = viridis(ncol(simulationData))}
 
   par(mfrow = c(1, 2), mar = c(4,4,1,0), xpd = T)
@@ -25,6 +30,14 @@ quickPlot <- function(simulationData, col = NA, logTransform = FALSE) {
   } else {
     plot.ts(log(simulationData), plot.type = "single",
             col = col, ylab = "Expression")
+    mtext(title)
+  }
+
+  if (addLabels == T) {
+    text(x = rep(nrow(simulationData) + 5, ncol(simulationData)),
+         y = log(tail(simulationData, 1)),
+         labels = colnames(simulationData), xpd = NA,
+         adj = 0, cex = 0.7)
   }
 
   plot.new( )
