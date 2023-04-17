@@ -37,7 +37,7 @@
 #' @export
 
 buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
-                       dataFrame = TRUE, altSource = TRUE,
+                       dataFrame = TRUE, altSource = FALSE,
                        splitCompartment = FALSE) {
   # a place to save the equations
   if (dir.exists(folder) & forceOverwrite == FALSE) {
