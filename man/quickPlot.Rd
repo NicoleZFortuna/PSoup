@@ -4,7 +4,13 @@
 \alias{quickPlot}
 \title{A function to quickly inspect the through time outcome of a simulation}
 \usage{
-quickPlot(simulationData, col = NA, logTransform = FALSE)
+quickPlot(
+  simulationData,
+  col = NA,
+  logTransform = FALSE,
+  addLabels = FALSE,
+  title = NA
+)
 }
 \arguments{
 \item{simulationData}{the data.frame output of a simulation. A subset of the
@@ -16,6 +22,9 @@ be used. Otherwise, the user can pass a vector of colors the same length
 as the number of nodes to be plotted}
 
 \item{logTransform}{whether the simulation values should be log transformed.}
+
+\item{addLabels}{if you want to add labels next to the
+final value of each node.}
 }
 \description{
 A function to quickly inspect the through time outcome of a simulation

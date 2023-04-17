@@ -37,8 +37,7 @@
 #' @export
 
 buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
-                       dataFrame = TRUE, altSource = FALSE,
-                       splitCompartment = FALSE) {
+                       altSource = FALSE, splitCompartment = FALSE) {
   # a place to save the equations
   if (dir.exists(folder) & forceOverwrite == FALSE) {
     stop("This folder already exists. If you want to overwrite this folder,
@@ -64,43 +63,23 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
   nodes = network@objects$Hormones
   genotypes = network@objects$Genotypes
 
-  if (dataFrame == TRUE) {
-    genHolder = as.vector(sapply(genotypes,
-                                 FUN = function(x) paste(x@name,
-                                                         substr(names(x@expression),
-                                                                1, 1), sep = ".")))
-    genotypeDef = rep(1, length(genHolder))
-    names(genotypeDef) = genHolder
-    genotypeDef = as.data.frame(t(genotypeDef))
+  # Creating the genotype and node data.frames
+  genHolder = unlist(sapply(genotypes,
+                               FUN = function(x) paste(x@name,
+                                                       substr(names(x@expression[which(x@expression == 1)]),
+                                                              1, 1), sep = ".")), use.names = F)
 
-    save(genotypeDef, file = paste0(genfile, ".RData"))
+  genotypeDef = rep(1, length(genHolder))
+  names(genotypeDef) = genHolder
+  genotypeDef = as.data.frame(t(genotypeDef))
 
-    nodestartDef = rep(1, length(nodes))
-    names(nodestartDef) = names(nodes)
-    nodestartDef = as.data.frame(t(nodestartDef))
+  save(genotypeDef, file = paste0(genfile, ".RData"))
 
-    save(nodestartDef, file = paste0(nodefile, ".RData"))
-  } else {
-    file.create(genfile)
-    file.create(nodefile)
+  nodestartDef = rep(1, length(nodes))
+  names(nodestartDef) = names(nodes)
+  nodestartDef = as.data.frame(t(nodestartDef))
 
-    cat("# defining genotype values\n", file = paste0(genfile, ".R"))
-    cat("genotypeDef = data.frame(\n", file = paste0(genfile, ".R"), append = T)
-    for (i in 1:length(genotypes)) {
-      if (i < length(genotypes)) {
-        cat(paste0("\t", genotypes[[i]]@name, substr(names(genotypes[[i]]@expression), 1, 1),
-                   " = ", genotypes[[i]]@expression,","), sep = "\n", append = T, file = paste0(genfile, ".R"))
-      } else {
-        cat(paste0("\t", genotypes[[i]]@name, substr(names(genotypes[[i]]@expression), 1, 1),
-                   " = ", genotypes[[i]]@expression, collapse = ",\n"), sep = "\n", append = T, file = paste0(genfile, ".R"))
-      }
-    }
-    cat(")\n", file = paste0(genfile, ".R"), append = T)
-
-    cat("# defining storage data.frame and node initial values\n", file = paste0(nodefile, ".R"))
-    cat("nodestartDef <- data.frame(\n\t'", paste(names(nodes), collapse = "' = 1, \n\t'"), "' = 1\n)\n",
-        sep="", file = paste0(nodefile, ".R"), append = T)
-  }
+  save(nodestartDef, file = paste0(nodefile, ".RData"))
 
   inhibition = c("inhibition", "sufficient inhibition", "necessary inhibition")
   stimulation = c("stimulation", "sufficient stimulation", "necessary stimulation")
