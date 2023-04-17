@@ -10,7 +10,8 @@ simulateNetwork(
   tmax = NA,
   genotype = NA,
   startingValues = NA,
-  steadyThreshold = 4
+  steadyThreshold = 4,
+  exogenousSupply = NULL
 )
 }
 \arguments{
@@ -33,6 +34,14 @@ nodestartDef data.frame from the one specified in the provided file.}
 \item{steadyThreshold}{the number of decimal places to which node values must
 be equivalent to be considered a steady state. This threshold must
 be passed for all nodes.}
+
+\item{exogenousSupply}{specifies if the value of a node (or nodes) is
+determined by an outside supply. In this case, the value of the
+node is supplied by the user and remains consistant throughout
+the course of the simulation. The default value for this
+argument is NULL. To specify nodes with an exogenous supply,
+provide a named vector containing the values of the nodes, with
+each vector member named after their respective node.}
 }
 \description{
 Takes the output folder of the buildNetwork function and uses it to run a
