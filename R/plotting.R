@@ -37,7 +37,7 @@ quickPlot <- function(simulationData, col = NA,
     text(x = rep(nrow(simulationData) + 5, ncol(simulationData)),
          y = log(tail(simulationData, 1)),
          labels = colnames(simulationData), xpd = NA,
-         adj = 0, cex = 0.7)
+         adj = 0, cex = 0.8)
   }
 
   plot.new( )
