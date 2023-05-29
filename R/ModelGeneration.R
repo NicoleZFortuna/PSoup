@@ -28,6 +28,10 @@
 #' @param altSource whether alternative sources should be additive to other
 #'               inputs to a node. If FALSE, should be treated as just another
 #'               input.
+#' @param returnAs a string which indicates how the user wants the model
+#'               to be returned. The default is to create the model for
+#'               use in R ("R"). Users can also choose "C", in which case
+#'               a C script will be generated.
 #' @param splitCompartment determines if the network will be split into
 #'               its separate compartments or maintained as a whole.
 #'               Separation of compartments should only be done if you
@@ -37,7 +41,8 @@
 #' @export
 
 buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
-                       altSource = FALSE, splitCompartment = FALSE) {
+                       altSource = FALSE, returnAs = "R",
+                       splitCompartment = FALSE) {
   # a place to save the equations
   if (dir.exists(folder) & forceOverwrite == FALSE) {
     stop("This folder already exists. If you want to overwrite this folder,
@@ -263,6 +268,18 @@ differenceString <- function(string, delays, takeProduct = FALSE) {
   }
 
   fullString
+}
+
+generateC <- function() {
+ insertKeywords <- c("insertTMAX",
+                     "insertSTRUCTNODENAMES",
+                     "insertSTRUCTGENENAMES",
+                     "insertDATVALS",
+                     "insertGENEVALS",
+                     "insertEQUATIONS",
+                     "insertTHRESHOLD",
+                     "insertCOMPARISONCHAIN",
+                     "insertFINALPRINT")
 }
 
 
