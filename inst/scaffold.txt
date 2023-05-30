@@ -2,23 +2,22 @@
 #include <math.h>
 
 /* Define the maximum timesteps that you want to run in case of an infinite loop. */
-#define TMAX 10
+#define TMAX insertTMAX
 
 /* Define structures that will be used to hold node and modifier (genetic)
 information. Defines the names that will be used to communicate with an
 L-System. */
 struct nodeVals {
-    float GreenLight;
-    float Go;
+    insertSTRUCTNODENAMES
 };
 
 struct geneVals {
-    float on;
+    insertSTRUCTGENENAMES
 };
 
 /* Giving the starting conditions for a simulation. */
-struct nodeVals dat = {3.1,2.1};
-struct geneVals gen = {1};
+struct nodeVals dat = {insertDATVALS};
+struct geneVals gen = {insertGENEVALS};
 
 /* Declaring support functions. */
 void nextStep(struct nodeVals *old, struct geneVals *gen, struct nodeVals *new);
@@ -29,21 +28,16 @@ void printFinal(struct nodeVals *new, int t);
 /* This function calculates the new element values based on the element values of
 the previous time step */
 void nextStep(struct nodeVals *old, struct geneVals *gen, struct nodeVals *new) {
-    new->GreenLight = 1 * gen->on;
-    new->Go = old->GreenLight;
+    insertEQUATIONS
 }
 
 /* This function checks if the elements contained in the old and new struct objects
 contain the same values after incrementing the simulation by one time step. */
 int noChange(struct nodeVals *old, struct nodeVals *new) {
-    #define THRESHOLD 0.0001 /* Threshold of accuracy for matching values. */
+    #define THRESHOLD insertTHRESHOLD /* Threshold of accuracy for matching values. */
 
     /* If any of the elements contain a significant difference, return 0. */
-    if (fabs(old->Go - new->Go) > THRESHOLD) {
-        return 0;
-    } else if (fabs(old->GreenLight - new->GreenLight) > THRESHOLD) {
-        return 0;
-    }
+    insertCOMPARISONCHAIN
 
     /* Return 1 if no difference was found between node values at */
     return 1;
@@ -52,7 +46,7 @@ int noChange(struct nodeVals *old, struct nodeVals *new) {
 /* This function is used to print the final node values of subsequent
 timesteps. */
 void printFinal(struct nodeVals *new, int t) {
-    printf("The final node values at time %d are...\nGreenLight: %.2f\nGo: %.2f\n", t, new->GreenLight, new->Go);
+    printf(insertFINALPRINT);
 }
 
 /* This function moves values contained in the new struct object
