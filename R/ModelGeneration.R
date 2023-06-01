@@ -214,7 +214,9 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
 #'        must all have the same modulating effect, and have coregulators
 #' @param returnNum return the number of unique coregulator sets. Default is
 #'        set to FLASE.
-coregulators <- function(coreg, returnNum = FALSE) {
+#' @param language which programming language should the equation be generated in?
+#'        Can be either "R", or "C".
+coregulators <- function(coreg, returnNum = FALSE, language) {
   coreg <- unname(as.matrix(coreg))
 
   split <- strsplit(coreg[,2], ", ") # Splitting apart lists of coregulators
@@ -236,7 +238,12 @@ coregulators <- function(coreg, returnNum = FALSE) {
 
   for (r in 1:nrow(coreg)) {
     coreg[r, !is.na(coreg[r, ])] <- sort(coreg[r, !is.na(coreg[r, ])])
-    coreg[r, !is.na(coreg[r, ])] <- paste0("dat$", coreg[r, !is.na(coreg[r, ])], "[t-1]")
+    if (language == "R") {
+      coreg[r, !is.na(coreg[r, ])] <- paste0("dat$", coreg[r, !is.na(coreg[r, ])], "[t-1]")
+    } else if (language == "C") {
+      coreg[r, !is.na(coreg[r, ])] <- paste0("old->", coreg[r, !is.na(coreg[r, ])])
+    }
+
   }
 
   coreg <- unique(apply(coreg, 1, function(x) paste0(x[!is.na(x)], collapse = "*")))
@@ -293,19 +300,40 @@ generateC <- function(network, tmax = 100, steadyThreshold = 4) {
                      "insertCOMPARISONCHAIN",
                      "insertFINALPRINT")
 
+  # defining constants
   insertTMAX = tmax
   insertTHRESHOLD = 10^(-steadyThreshold)
 
+  # change altSources to stimulations
   network@objects$Hormones <- altSourceToStimulant(network@objects$Hormones)
 
+  # define node and gene names
   insertSTRUCTNODENAMES <- paste0("/tfloat ", names(network@objects$Hormones), ";", collapse = "/n")
   insertSTRUCTGENENAMES <- paste0("/tfloat ", names(network@objects$Genotypes), ";", collapse = "/n")
 
+  # create standard values for nodes and genes
   insertDATVALS <- rep(1, length(network@objects$Hormones))
   insertGENEVALS <- rep(1, length(network@objects$Genotypes))
 
+  # define equations for nodes
+  insertEQUATIONS <- rep(NA, length(network@objects$Hormones))
+  for (i in 1:length(insertEQUATIONS)) {
+    insertEQUATIONS[i] <- generateEquation(network@objects$Hormones[[i]],
+                                           network@objects$Genotypes,
+                                           "C")
+  }
 
-  text <- readLines()
+  insertEQUATIONS <- paste(insertEQUATIONS, collapse = "")
+
+  insertCOMPARISONCHAIN <-
+
+  insertFINALPRINT <-
+
+  text <- readLines(file("./inst/scaffold.txt"))
+
+  for (i in 1:length(text)) {
+    if
+  }
 }
 
 #' A function to convert altSource inputs to stimulants.
@@ -323,10 +351,11 @@ altSourceToStimulant <- function(hormones) {
 #' A function to generate an equation for a specific node
 #'
 #' @param node a node from within a network object
+#' @param genes the list of genes frome within a network object
 #' @param language which programming language should the equation be generated in?
 #'        Can be either "R", or "C".
 #'
-generateEquation <- function(node, language) {
+generateEquation <- function(node, genes, language) {
   inhibition = c("inhibition", "sufficient inhibition", "necessary inhibition")
   stimulation = c("stimulation", "sufficient stimulation", "necessary stimulation")
 
@@ -344,7 +373,7 @@ generateEquation <- function(node, language) {
     if (any(!is.na(node@inputs$Coregulator) & node@inputs$Influence == "stimulation")) {
       coregInput <- node@inputs[!is.na(node@inputs$Coregulator) & node@inputs$Influence == "stimulation", 1:2]
 
-      coreg <- coregulators(coregInput, returnNum = T)
+      coreg <- coregulators(coregInput, returnNum = T, language = "C")
 
       numStim <- numStim + coreg$num
       stimString <- paste0(stimString, coreg$coreg, collapse = " + ")
@@ -354,7 +383,10 @@ generateEquation <- function(node, language) {
     if (numStim > 1) {
       stimString <- sprintf("(%s)/%s", stimString, numStim)
     }
-  } else {stimString = NA}
+  } else {
+    stimString = NA
+    numStim = 0
+  }
 
   # collating all the inhibitory action
   if (any(node@inputs$Influence == "inhibition")) {
@@ -370,18 +402,21 @@ generateEquation <- function(node, language) {
     if (any(!is.na(node@inputs$Coregulator) & node@inputs$Influence == "inhibition")) {
       coregInput <- node@inputs[!is.na(node@inputs$Coregulator) & node@inputs$Influence == "inhibition", 1:2]
 
-      coreg <- coregulators(coregInput, returnNum = T)
+      coreg <- coregulators(coregInput, returnNum = T, language = "C")
 
       numInhib <- numInhib + coreg$num
       inhibString <- paste(inhibString, coreg$coreg, collapse = " + ")
     }
-  } else {inhibString = NA}
+  } else {
+    inhibString = NA
+    numInhib = 0
+  }
 
   # combining stimulatory and inhibitory effects
-  if (class(stimString) == "character" & is.na(inhibString)) {
+  if (numStim > 0 & numInhib == 0) {
     # if there are only stimulatory effects
     allModulations <- stimString
-  } else if (class(inhibString) == "character" & is.na(stimString)) {
+  } else if (numInhib > 0 & numStim == 0) {
     # if there are only inhibitory effects
     allModulations <- sprintf("%s/(1 + %s)", numInhib + 1, inhibString)
   } else if (class(stimString) == "character" & class(inhibString) == "character") {
@@ -405,7 +440,7 @@ generateEquation <- function(node, language) {
     if (any(!is.na(node@inputs$Coregulator) & node@inputs$Influence == "necessary stimulation")) {
       coregInput <- node@inputs[!is.na(node@inputs$Coregulator) & node@inputs$Influence == "necessary stimulation", -3]
 
-      coreg <- coregulators(coregInput)
+      coreg <- coregulators(coregInput, language = "C")
 
       necstimString = paste(necstimString, coreg, sep = " + ")
     }
@@ -441,6 +476,10 @@ generateEquation <- function(node, language) {
     }
 
     allModulations <- sprintf("%s + %s", paste0(altString, collapse = " + "), allModulations)
+  }
+
+  if (language == "C") {
+    allModulations <- paste0("/t", allModulations, ";/n")
   }
 
   return(allModulations)
