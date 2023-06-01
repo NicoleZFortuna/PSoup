@@ -21,7 +21,7 @@
 #'               network (nextStep.R).
 #' @param forceOverwrite default set to FALSE. Will stop the function if the
 #'               folder already exits. Can set to true if you want to replace
-#'               the existing folder
+#'               the existing folder.
 #' @param dataFrame default set to TRUE. This parameter allows you to choose if
 #'               you would like for node starting values, and genotype values
 #'               to be stored as a data.frame, or as an Rscript.
@@ -288,8 +288,21 @@ differenceString <- function(string, delays = NA, takeProduct = FALSE,
 #' @param steadyThreshold the number of decimal places to which node values must
 #'             be equivalent to be considered a steady state. This threshold must
 #'             be passed for all nodes.
+#' @param folder the name of the folder that you want the components of the
+#'               model to be saved to. The default is to create a directory
+#'               called Model in the current working directory. The user can
+#'               provide their own directory and folder name. In this folder
+#'               will be generated three R scripts: one to define genotypes
+#'               (genotypeDef.R), one to define the starting node values
+#'               (nodestartDef.R), and one to define the function that
+#'               gives the difference equations that are used to simulate the
+#'               network (nextStep.R).
+#' @param forceOverwrite default set to FALSE. Will stop the function if the
+#'               folder already exits. Can set to true if you want to replace
+#'               the existing folder.
 
-generateC <- function(network, tmax = 100, steadyThreshold = 4) {
+generateC <- function(network, tmax = 100, steadyThreshold = 4,
+                      folder = "./Model", forceOverwrite = FALSE) {
   insertKeywords <- c("insertTMAX",
                      "insertSTRUCTNODENAMES",
                      "insertSTRUCTGENENAMES",
@@ -308,8 +321,8 @@ generateC <- function(network, tmax = 100, steadyThreshold = 4) {
   network@objects$Hormones <- altSourceToStimulant(network@objects$Hormones)
 
   # define node and gene names
-  insertSTRUCTNODENAMES <- paste0("/tfloat ", names(network@objects$Hormones), ";", collapse = "/n")
-  insertSTRUCTGENENAMES <- paste0("/tfloat ", names(network@objects$Genotypes), ";", collapse = "/n")
+  insertSTRUCTNODENAMES <- paste0("\tfloat ", sub("\\.", "_", names(network@objects$Hormones)), ";", collapse = "\n")
+  insertSTRUCTGENENAMES <- paste0("\tfloat ", names(network@objects$Genotypes), ";", collapse = "\n")
 
   # create standard values for nodes and genes
   insertDATVALS <- rep(1, length(network@objects$Hormones))
@@ -325,14 +338,58 @@ generateC <- function(network, tmax = 100, steadyThreshold = 4) {
 
   insertEQUATIONS <- paste(insertEQUATIONS, collapse = "")
 
-  insertCOMPARISONCHAIN <-
+  # create chain to check if nodes have changed in the previous timestep
+  insertCOMPARISONCHAIN <- paste(sprintf("\tif (fabs(old->%s - new->%s) > THRESHOLD) {\n\t\treturn 0;\t\n\t}",
+                                         names(network@objects$Hormones),
+                                         names(network@objects$Hormones)),
+                                 collapse = " else ")
 
-  insertFINALPRINT <-
+  insertFINALPRINT <- paste0('printf("The final node values at time %d are...\\n',
+                             paste(sprintf("%s: %%.2f", names(network@objects$Hormones)),
+                                   collapse = "\\n"),
+                             '\\n", t, ', paste(paste0("new->", names(network@objects$Hormones)),
+                                                collapse = ", "), ');')
 
   text <- readLines(file("./inst/scaffold.txt"))
 
-  for (i in 1:length(text)) {
-    if
+  insertReplacements <- list("insertTMAX" = insertTMAX,
+                             "insertSTRUCTNODENAMES" = insertSTRUCTNODENAMES,
+                             "insertSTRUCTGENENAMES" = insertSTRUCTGENENAMES,
+                             "insertDATVALS" = insertDATVALS,
+                             "insertGENEVALS" = insertGENEVALS,
+                             "insertEQUATIONS" = insertEQUATIONS,
+                             "insertTHRESHOLD" = insertTHRESHOLD,
+                             "insertCOMPARISONCHAIN" = insertCOMPARISONCHAIN,
+                             "insertFINALPRINT" = insertFINALPRINT)
+
+  containsKey <- function(x, key) {
+    test <- grep(key, x)
+    if (length(test) == 0) {
+      test = 0
+    }
+    test
+  }
+
+  for (i in 1:length(insertKeywords)) {
+    whichLine <- as.logical(sapply(text, containsKey, key = insertKeywords[i], USE.NAMES = F))
+    text[whichLine] <- sub(insertKeywords[i], insertReplacements[i], text[whichLine])
+  }
+
+  # a place to save the equations
+  if (dir.exists(folder) & forceOverwrite == FALSE) {
+    stop("This folder already exists. If you want to overwrite this folder,
+         set forceOverwrite to TRUE.")
+  } else {
+    dir.create(folder)
+    file = paste0(folder, "/Cscript.c")
+
+    file.create(file)
+  }
+
+  cat(paste0(text[1], "\n"), file = file)
+
+  for (i in 2:length(text)) {
+    cat(paste0(text[i], "\n"), file = file, append = T)
   }
 }
 
@@ -479,7 +536,7 @@ generateEquation <- function(node, genes, language) {
   }
 
   if (language == "C") {
-    allModulations <- paste0("/t", allModulations, ";/n")
+    allModulations <- paste0("\t", allModulations, ";\n")
   }
 
   return(allModulations)
