@@ -321,12 +321,16 @@ generateC <- function(network, tmax = 100, steadyThreshold = 4,
   network@objects$Hormones <- altSourceToStimulant(network@objects$Hormones)
 
   # define node and gene names
-  insertSTRUCTNODENAMES <- paste0("\tfloat ", sub("\\.", "_", names(network@objects$Hormones)), ";", collapse = "\n")
-  insertSTRUCTGENENAMES <- paste0("\tfloat ", names(network@objects$Genotypes), ";", collapse = "\n")
+  insertSTRUCTNODENAMES <- paste0("float ", sub("\\.", "_", names(network@objects$Hormones)), ";", collapse = "\n\t")
+
+  genHolder = unlist(sapply(network@objects$Genotypes,
+                            FUN = function(x) paste(x@name, substr(names(x@expression[which(x@expression == 1)]), 1, 1), sep = "_")),
+                     use.names = F)
+  insertSTRUCTGENENAMES <- paste0("float ", genHolder, ";", collapse = "\n\t")
 
   # create standard values for nodes and genes
-  insertDATVALS <- rep(1, length(network@objects$Hormones))
-  insertGENEVALS <- rep(1, length(network@objects$Genotypes))
+  insertDATVALS <- paste(rep(1, length(network@objects$Hormones)), collapse = ", ")
+  insertGENEVALS <- paste(rep(1, length(genHolder)), collapse = ", ")
 
   # define equations for nodes
   insertEQUATIONS <- rep(NA, length(network@objects$Hormones))
@@ -336,19 +340,23 @@ generateC <- function(network, tmax = 100, steadyThreshold = 4,
                                            "C")
   }
 
-  insertEQUATIONS <- paste(insertEQUATIONS, collapse = "")
+  insertEQUATIONS <- gsub("\\.", "_",
+                         paste0("new->", names(network@objects$Hormones), " = ",
+                                insertEQUATIONS, collapse = "\n\t"))
 
   # create chain to check if nodes have changed in the previous timestep
-  insertCOMPARISONCHAIN <- paste(sprintf("\tif (fabs(old->%s - new->%s) > THRESHOLD) {\n\t\treturn 0;\t\n\t}",
+  insertCOMPARISONCHAIN <- paste(sprintf("if (fabs(old->%s - new->%s) > THRESHOLD) {\n\t\treturn 0;\n\t}",
                                          names(network@objects$Hormones),
                                          names(network@objects$Hormones)),
                                  collapse = " else ")
+  insertCOMPARISONCHAIN <- gsub("\\.", "_", insertCOMPARISONCHAIN)
 
-  insertFINALPRINT <- paste0('printf("The final node values at time %d are...\\n',
+  insertFINALPRINT <- paste0('"The final node values at time %d are - ',
                              paste(sprintf("%s: %%.2f", names(network@objects$Hormones)),
-                                   collapse = "\\n"),
-                             '\\n", t, ', paste(paste0("new->", names(network@objects$Hormones)),
-                                                collapse = ", "), ');')
+                                   collapse = ", "),
+                             '", t, ', paste(paste0("new->", names(network@objects$Hormones)),
+                                                collapse = ", "))
+  insertFINALPRINT <- gsub("\\.", "_", insertFINALPRINT)
 
   text <- readLines(file("./inst/scaffold.txt"))
 
@@ -536,7 +544,7 @@ generateEquation <- function(node, genes, language) {
   }
 
   if (language == "C") {
-    allModulations <- paste0("\t", allModulations, ";\n")
+    allModulations <- paste0(allModulations, ";")
   }
 
   return(allModulations)
