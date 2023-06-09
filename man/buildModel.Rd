@@ -9,6 +9,7 @@ buildModel(
   folder = "./Model",
   forceOverwrite = FALSE,
   altSource = FALSE,
+  returnAs = "R",
   splitCompartment = FALSE
 )
 }
@@ -27,11 +28,16 @@ network (nextStep.R).}
 
 \item{forceOverwrite}{default set to FALSE. Will stop the function if the
 folder already exits. Can set to true if you want to replace
-the existing folder}
+the existing folder.}
 
 \item{altSource}{whether alternative sources should be additive to other
 inputs to a node. If FALSE, should be treated as just another
 input.}
+
+\item{returnAs}{a string which indicates how the user wants the model
+to be returned. The default is to create the model for
+use in R ("R"). Users can also choose "C", in which case
+a C script will be generated.}
 
 \item{splitCompartment}{determines if the network will be split into
 its separate compartments or maintained as a whole.

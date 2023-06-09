@@ -4,7 +4,7 @@
 \alias{coregulators}
 \title{A function that creates a string with coregulators multiplied together}
 \usage{
-coregulators(coreg, returnNum = FALSE)
+coregulators(coreg, returnNum = FALSE, language)
 }
 \arguments{
 \item{coreg}{a subsed of a the inputs of a hormone object. This subset
@@ -12,6 +12,9 @@ must all have the same modulating effect, and have coregulators}
 
 \item{returnNum}{return the number of unique coregulator sets. Default is
 set to FLASE.}
+
+\item{language}{which programming language should the equation be generated in?
+Can be either "R", or "C".}
 }
 \description{
 Coregulators are sorted so that their multiplications are only represented

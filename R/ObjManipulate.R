@@ -227,17 +227,17 @@ restoreBaseModel <- function() {
   for (i in files) load(i, envir = parent.env(environment()))
 }
 
-#' A function to save network objects created by the user
-#'
-#' Saves network objects to a dedicated 'Networks' file, and tries to prevent
-#' loss of information.
-#' @param network an object of class network.
-#' @param path a string. The path directory for where to store the network.
-#' @param overwrite logical. Specifies if you want to be able to overwrite
-#'                  files if they have the same name. Default set to false.
-#' @param readOnly logical. Specifies if you would like to set the file
-#'                 permissions on the saved object to read only. Default
-#'                 set to true.
+# A function to save network objects created by the user
+#
+# Saves network objects to a dedicated 'Networks' file, and tries to prevent
+# loss of information.
+# @param network an object of class network.
+# @param path a string. The path directory for where to store the network.
+# @param overwrite logical. Specifies if you want to be able to overwrite
+#                  files if they have the same name. Default set to false.
+# @param readOnly logical. Specifies if you would like to set the file
+#                 permissions on the saved object to read only. Default
+#                 set to true.
 # saveNetwork <- function(network, file, overwrite = FALSE, readOnly = TRUE) {
 #
 #   if (dir.exists(paste0(file, "/Networks"))) {
@@ -255,3 +255,50 @@ restoreBaseModel <- function() {
 # }
 
 # loadNetwork
+
+#' A function to generate a data frame which lists all of
+#' the edges of a network.
+#'
+#' @param network an object of class Network.
+#' @param keepAltSource default set to FALSE. Specify if
+#'        you want to recognise if the incoming node
+#'        is an alternate source of the same 'hormone' type.
+#'        If not, these alternative sources will be reported
+#'        as stimulants.
+#' @param keepNecessaryStimulant default set to FALSE.
+#'        Specify if you want to distinguish necessary
+#'        stimulants from stimulants.
+
+generateEdgeList <- function(network, keepAltSource = F,
+                             keepNecessaryStimulant = F) {
+  # function to collect a data.frame of wanted info for
+  # a particular node
+  get <- function(x) {
+    got <- data.frame(From = x@inputs$Node,
+                      To = rep(x@name, nrow(x@inputs)),
+                      Influence = x@inputs$Influence)
+    got
+  }
+
+  # collect wanted info all at once
+  frames <- lapply(network@objects$Hormones,
+                   FUN = function(x) get(x))
+
+  # merge info into single data frame
+  dat <- do.call("rbind", frames)
+
+  # remove unwanted rownames
+  rownames(dat) = NULL
+
+  # change altSource influences to stimulation if needed
+  if (keepAltSource == F) {
+    dat$Influence[dat$Influence == "altSource"] <- "stimulation"
+  }
+
+  # change altSource influences to stimulation if needed
+  if (keepNecessaryStimulant == F) {
+    dat$Influence[dat$Influence == "necessary stimulation"] <- "stimulation"
+  }
+
+  dat
+}

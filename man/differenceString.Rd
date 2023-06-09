@@ -4,7 +4,7 @@
 \alias{differenceString}
 \title{A function to build the difference equation including delays}
 \usage{
-differenceString(string, delays, takeProduct = FALSE)
+differenceString(string, delays = NA, takeProduct = FALSE, language)
 }
 \arguments{
 \item{string}{whatever string is being constructed.}
@@ -14,6 +14,9 @@ a particular input.}
 
 \item{takeProduct}{logical. Should be set to TRUE if this function is being
 to collapse necessary stimulants (* instead of)}
+
+\item{language}{which programming language should the equation be generated in?
+Can be either "R", or "C".}
 }
 \description{
 A function to build the difference equation including delays

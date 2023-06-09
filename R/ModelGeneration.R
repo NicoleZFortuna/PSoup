@@ -420,7 +420,7 @@ altSourceToStimulant <- function(hormones) {
 #' @param language which programming language should the equation be generated in?
 #'        Can be either "R", or "C".
 #'
-generateEquation <- function(node, genes, language) {
+generateEquation <- function(node, genotypes, language) {
   inhibition = c("inhibition", "sufficient inhibition", "necessary inhibition")
   stimulation = c("stimulation", "sufficient stimulation", "necessary stimulation")
 
