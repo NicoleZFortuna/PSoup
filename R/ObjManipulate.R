@@ -227,35 +227,6 @@ restoreBaseModel <- function() {
   for (i in files) load(i, envir = parent.env(environment()))
 }
 
-# A function to save network objects created by the user
-#
-# Saves network objects to a dedicated 'Networks' file, and tries to prevent
-# loss of information.
-# @param network an object of class network.
-# @param path a string. The path directory for where to store the network.
-# @param overwrite logical. Specifies if you want to be able to overwrite
-#                  files if they have the same name. Default set to false.
-# @param readOnly logical. Specifies if you would like to set the file
-#                 permissions on the saved object to read only. Default
-#                 set to true.
-# saveNetwork <- function(network, file, overwrite = FALSE, readOnly = TRUE) {
-#
-#   if (dir.exists(paste0(file, "/Networks"))) {
-#     dir.create(paste0(file, "/Networks"))
-#   }
-#
-#   # overwrite check
-#
-#   save(network, file = paste0(file, "/Networks"))
-#
-#   # readonly check
-#
-#   Sys.chmod
-#
-# }
-
-# loadNetwork
-
 #' A function to generate a data frame which lists all of
 #' the edges of a network.
 #'
