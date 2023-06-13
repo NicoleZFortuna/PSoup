@@ -51,7 +51,6 @@ quickPlot <- function(simulationData, col = NA,
 #' against the wildtype (baseline).
 #'
 #' @param simulations a list containing the output of the setupSims function
-#' @param nodes a vector containing all the nodes that the user wants to plot
 #' @importFrom utils tail
 #' @export
 
