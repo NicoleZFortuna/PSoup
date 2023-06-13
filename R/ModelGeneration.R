@@ -28,7 +28,7 @@
 #' @param altSource whether alternative sources should be additive to other
 #'               inputs to a node. If FALSE, should be treated as just another
 #'               input.
-#' @param returnAs a string which indicates how the user wants the model
+#' @param language a string which indicates how the user wants the model
 #'               to be returned. The default is to create the model for
 #'               use in R ("R"). Users can also choose "C", in which case
 #'               a C script will be generated.
@@ -38,11 +38,29 @@
 #'               intend to use L-Systems to mediate the communication
 #'               nodes of different compartments. As such, the default
 #'               has been set to FALSE.
+#' @param tmax the maximum value that the simulation will be allowed to
+#'               proceed. If the midpoint is reached, a warning will be
+#'               returned. The default value is set to 0. This only needs
+#'               to be specified in the case that language has been set to
+#'               "C".
+#' @param steadyThreshold the number of decimal places to which node values
+#'               must be equivalent to be considered a steady state.
+#'               This threshold must be passed for all nodes. This only needs
+#'               to be specified in the case that language has been set to
+#'               "C".
 #' @export
 
 buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
-                       altSource = FALSE, returnAs = "R",
-                       splitCompartment = FALSE) {
+                       altSource = FALSE, language = "R",
+                       splitCompartment = FALSE,
+                       tmax = 100, steadyThreshold = 4) {
+
+  if (language == "C") {
+    generateC(network, tmax = tmax, steadyThreshold = steadyThreshold,
+                          folder = folder, forceOverwrite = forceOverwrite)
+    return(NULL)
+  }
+
   # a place to save the equations
   if (dir.exists(folder) & forceOverwrite == FALSE) {
     stop("This folder already exists. If you want to overwrite this folder,
@@ -92,112 +110,11 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
   cat("\tdelay = nrow(dat) - 1\n\n", file = funcfile, append = T)
 
   for (i in 1:length(nodes)) {
-    # collating all the stimulatory action
-    if (any(nodes[[i]]@inputs$Influence == "stimulation")) {
-      stimString <- nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% "stimulation" & is.na(nodes[[i]]@inputs$Coregulator)]
-      numStim <- length(stimString)
-      if (numStim > 0) {
-        stimString <- differenceString(stimString,
-                                       nodes[[i]]@inputs$Operator[nodes[[i]]@inputs$Operator == "delay" & nodes[[i]]@inputs$Influence == "stimulation"])
-      }
-
-      # are there any stimulants that are coregulators
-      if (any(!is.na(nodes[[i]]@inputs$Coregulator) & nodes[[i]]@inputs$Influence == "stimulation")) {
-        coregInput <- nodes[[i]]@inputs[!is.na(nodes[[i]]@inputs$Coregulator) & nodes[[i]]@inputs$Influence == "stimulation", 1:2]
-
-        coreg <- coregulators(coregInput, returnNum = T)
-
-        numStim <- numStim + coreg$num
-        stimString <- paste0(stimString, coreg$coreg, collapse = " + ")
-      }
-
-      # take the average of the stimulatory effects if there are more than one
-      if (numStim > 1) {
-        stimString <- sprintf("(%s)/%s", stimString, numStim)
-      }
-    } else {stimString = NA}
-
-    # collating all the inhibitory action
-    if (any(nodes[[i]]@inputs$Influence == "inhibition")) {
-      inhibString <- nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% "inhibition" & is.na(nodes[[i]]@inputs$Coregulator)]
-      numInhib <- length(inhibString)
-      if (numInhib > 0) {
-        inhibString <- differenceString(inhibString,
-                                        nodes[[i]]@inputs$Operator[nodes[[i]]@inputs$Operator == "delay" & nodes[[i]]@inputs$Influence == "inhibition"])
-      }
-
-      # are there any inhibitors that are coregulators
-      if (any(!is.na(nodes[[i]]@inputs$Coregulator) & nodes[[i]]@inputs$Influence == "inhibition")) {
-        coregInput <- nodes[[i]]@inputs[!is.na(nodes[[i]]@inputs$Coregulator) & nodes[[i]]@inputs$Influence == "inhibition", 1:2]
-
-        coreg <- coregulators(coregInput, returnNum = T)
-
-        numInhib <- numInhib + coreg$num
-        inhibString <- paste(inhibString, coreg$coreg, collapse = " + ")
-      }
-    } else {inhibString = NA}
-
-    # combining stimulatory and inhibitory effects
-    if (class(stimString) == "character" & is.na(inhibString)) {
-      # if there are only stimulatory effects
-      allModulations <- stimString
-    } else if (class(inhibString) == "character" & is.na(stimString)) {
-      # if there are only inhibitory effects
-      allModulations <- sprintf("%s/(1 + %s)", numInhib + 1, inhibString)
-    } else if (class(stimString) == "character" & class(inhibString) == "character") {
-      # if there are both stimulatory and inhibitory effects
-      allModulations <- sprintf("%s*(%s)/(1 + %s)", numInhib + 1, stimString, inhibString)
-    } else if (is.na(stimString) & is.na(inhibString)) {
-      # if it is constituent wo influence from other nodes
-      allModulations <- 1
-    }
-
-    # multiplying modulations by necessary stimulants and genotypes
-    if (any(nodes[[i]]@inputs$Influence == "necessary stimulation")) {
-      necstimString <- nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% "necessary stimulation" & is.na(nodes[[i]]@inputs$Coregulator)]
-      if (length(necstimString) > 0) {
-        necstimString <- differenceString(necstimString,
-                                          nodes[[i]]@inputs$Operator[nodes[[i]]@inputs$Operator == "delay" & nodes[[i]]@inputs$Influence == "necessary stimulation"],
-                                          takeProduct = TRUE)
-      }
-
-      # are there any necessary stimulants that are coregulators
-      if (any(!is.na(nodes[[i]]@inputs$Coregulator) & nodes[[i]]@inputs$Influence == "necessary stimulation")) {
-        coregInput <- nodes[[i]]@inputs[!is.na(nodes[[i]]@inputs$Coregulator) & nodes[[i]]@inputs$Influence == "necessary stimulation", -3]
-
-        coreg <- coregulators(coregInput)
-
-        necstimString = paste(necstimString, coreg, sep = " + ")
-      }
-      allModulations <- sprintf("(%s) * (%s)", allModulations, necstimString)
-    }
-
-    if (length(nodes[[i]]@genotypes) > 0) {
-      genes <- nodes[[i]]@genotypes
-      genoString <- rep(NA, length(genes))
-      for (g in 1:length(genes)) {
-        if (class(genotypes[[genes[g]]]@coregulator) == "character") {
-          cogenes <- paste0("gen$", c(genes[g], genotypes[[genes[g]]]@coregulator), ".", substr(nodes[[i]]@container, 1, 1))
-
-          genoString[g] <- paste0(cogenes[order(cogenes)], collapse = "*")
-        }
-      }
-
-      genoString = unique(genoString)
-      allModulations <- sprintf("(%s) * (%s)", allModulations, genoString)
-    }
-
-    # add if there is a source from another node (will not be influenced by dynamics of current node)
-    if (any(nodes[[i]]@inputs$Influence == "altSource")) {
-      altString <- nodes[[i]]@inputs$Node[nodes[[i]]@inputs$Influence %in% "altSource"]
-      if (length(altString) > 0) {
-        altString <- differenceString(altString,
-                                      nodes[[i]]@inputs$Operator[nodes[[i]]@inputs$Operator == "delay" & nodes[[i]]@inputs$Influence == "altSource"])
-      }
-
-      allModulations <- sprintf("%s + %s", paste0(altString, collapse = " + "), allModulations)
-    }
-    cat(paste0("\tdat$",nodes[[i]]@name, "[t] = ", allModulations, "\n"), file = funcfile, append = T)
+    equation <- generateEquation(nodes[[i]],
+                                genotypes,
+                                language = language)
+    cat(paste0("\tdat$",nodes[[i]]@name, "[t] = ", equation, "\n"),
+        file = funcfile, append = T)
   }
   cat("\tdat[t, ]\n", file = funcfile, append = T)
   cat("}", file = funcfile, append = T)
