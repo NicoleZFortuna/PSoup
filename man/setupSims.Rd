@@ -23,9 +23,9 @@ provide a named vector containing the values of the nodes, with
 each vector member named after their respective node.}
 }
 \description{
-This function allows you to set up a variety of genotype conditions to be
-simulated. It also allows you to test the outcome of simulations under
-randomly assigned starting values. The function will make sure to include
-one wild type condition (all genotypes set to 1) regardless of if specified
-by the user.
+This function allows you to set up a variety of genotype and starting node
+conditions to be simulated. It also allows you to test the outcome of
+simulations under randomly assigned starting values. The function will make
+sure to include one wild type condition (all genotypes set to 1) regardless
+of if specified by the user.
 }

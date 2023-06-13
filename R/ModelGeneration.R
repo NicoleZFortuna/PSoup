@@ -2,29 +2,30 @@
 #' A function to generate equations from a network object
 #'
 #' This function is used to define the script that is needed to simulate the
-#' model of interest. It defines the genotypes of the network, and sets them
-#' to a default of 1. It also initiates that data.frame which will record the
-#' changes to the system over time, including initiating the starting values
-#' for the nodes. The default starting values are 1. A nextStep function is
-#' also defined, which provides the information needed to calculate the next
-#' time step in the simulation. This file can be edited by the user as required.
-#' The file will need to be provided to the simulateNetwork function as an input.
+#' model of interest. It defines the genotypes of the network and sets them
+#' to a default of 1. It also initiates default starting node values of 1.
+#' A function is also defined, which provides the routine needed to
+#' calculate the next time step in the simulation. The folder containing the
+#' output of this function can be edited by the user as required. The folder
+#' directory will need to be provided to the simulateNetwork or setupSims
+#' functions as an input.
 #' @param network an object of class network
 #' @param folder the name of the folder that you want the components of the
 #'               model to be saved to. The default is to create a directory
 #'               called Model in the current working directory. The user can
-#'               provide their own directory and folder name. In this folder
-#'               will be generated three R scripts: one to define genotypes
-#'               (genotypeDef.R), one to define the starting node values
-#'               (nodestartDef.R), and one to define the function that
-#'               gives the difference equations that are used to simulate the
-#'               network (nextStep.R).
+#'               provide their own directory and folder name. If the language
+#'               argument is set to "R", two objects: one to define genotypes
+#'               (genotypeDef.RData), one to define the starting node values
+#'               (nodestartDef.RData) will be saved in the folder. In addition,
+#'               a script to define the function that will calculate how the
+#'               nodevalues change with each timestep will be saved (nextStep.R).
+#'               If language is set to "C", a .h and a .c script will be
+#'               generated in the folder. These scripts will need to be
+#'               compiled locally on your computer before you will be able to
+#'               execute the model.
 #' @param forceOverwrite default set to FALSE. Will stop the function if the
 #'               folder already exits. Can set to true if you want to replace
-#'               the existing folder.
-#' @param dataFrame default set to TRUE. This parameter allows you to choose if
-#'               you would like for node starting values, and genotype values
-#'               to be stored as a data.frame, or as an Rscript.
+#'               the existing folder. In which case a warning will still be thrown.
 #' @param altSource whether alternative sources should be additive to other
 #'               inputs to a node. If FALSE, should be treated as just another
 #'               input.
@@ -37,17 +38,16 @@
 #'               Separation of compartments should only be done if you
 #'               intend to use L-Systems to mediate the communication
 #'               nodes of different compartments. As such, the default
-#'               has been set to FALSE.
-#' @param tmax the maximum value that the simulation will be allowed to
-#'               proceed. If the midpoint is reached, a warning will be
-#'               returned. The default value is set to 0. This only needs
-#'               to be specified in the case that language has been set to
-#'               "C".
-#' @param steadyThreshold the number of decimal places to which node values
-#'               must be equivalent to be considered a steady state.
-#'               This threshold must be passed for all nodes. This only needs
-#'               to be specified in the case that language has been set to
-#'               "C".
+#'               has been set to FALSE. NOT YET FINISHED!
+#' @param tmax this only needs to be specified in the case that language
+#'               has been set to "C". The maximum value that the simulation
+#'               will be allowed to proceed. If the midpoint is reached, a
+#'               warning will be returned. The default value is set to 100.
+#' @param steadyThreshold this only needs to be specified in the case that
+#'               language has been set to "C". The number of decimal places
+#'               to which node values must be equivalent to be considered
+#'               a steady state. This threshold must be passed for all nodes.
+#'               The default is set to 4.
 #' @export
 
 buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
@@ -133,6 +133,7 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
 #'        set to FLASE.
 #' @param language which programming language should the equation be generated in?
 #'        Can be either "R", or "C".
+
 coregulators <- function(coreg, returnNum = FALSE, language) {
   coreg <- unname(as.matrix(coreg))
 
@@ -180,6 +181,7 @@ coregulators <- function(coreg, returnNum = FALSE, language) {
 #'        to collapse necessary stimulants (* instead of)
 #' @param language which programming language should the equation be generated in?
 #'        Can be either "R", or "C".
+
 differenceString <- function(string, delays = NA, takeProduct = FALSE,
                              language) {
   delays[delays != "delay" | is.na(delays)] = 1
@@ -220,15 +222,6 @@ differenceString <- function(string, delays = NA, takeProduct = FALSE,
 
 generateC <- function(network, tmax = 100, steadyThreshold = 4,
                       folder = "./Model", forceOverwrite = FALSE) {
-  insertKeywords <- c("insertTMAX",
-                     "insertSTRUCTNODENAMES",
-                     "insertSTRUCTGENENAMES",
-                     "insertDATVALS",
-                     "insertGENEVALS",
-                     "insertEQUATIONS",
-                     "insertTHRESHOLD",
-                     "insertCOMPARISONCHAIN",
-                     "insertFINALPRINT")
 
   # defining constants
   insertTMAX = tmax
@@ -287,6 +280,8 @@ generateC <- function(network, tmax = 100, steadyThreshold = 4,
                              "insertCOMPARISONCHAIN" = insertCOMPARISONCHAIN,
                              "insertFINALPRINT" = insertFINALPRINT)
 
+  # a function that will be supplied to sapply to simultaneously find the location
+  # of all keywords
   containsKey <- function(x, key) {
     test <- grep(key, x)
     if (length(test) == 0) {
@@ -295,9 +290,9 @@ generateC <- function(network, tmax = 100, steadyThreshold = 4,
     test
   }
 
-  for (i in 1:length(insertKeywords)) {
-    whichLine <- as.logical(sapply(text, containsKey, key = insertKeywords[i], USE.NAMES = F))
-    text[whichLine] <- sub(insertKeywords[i], insertReplacements[i], text[whichLine])
+  for (i in 1:length(insertReplacements)) {
+    whichLine <- as.logical(sapply(text, containsKey, key = names(insertReplacements)[i], USE.NAMES = F))
+    text[whichLine] <- sub(names(insertReplacements)[i], insertReplacements[i], text[whichLine])
   }
 
   # a place to save the equations
@@ -321,6 +316,7 @@ generateC <- function(network, tmax = 100, steadyThreshold = 4,
 #' A function to convert altSource inputs to stimulants.
 #'
 #' @param hormones the list of hormones contained in a network object.
+
 altSourceToStimulant <- function(hormones) {
   for (i in 1:length(hormones)) {
     if ("altSource" %in% hormones[[i]]@inputs$Influence) {
@@ -336,7 +332,7 @@ altSourceToStimulant <- function(hormones) {
 #' @param genes the list of genes frome within a network object
 #' @param language which programming language should the equation be generated in?
 #'        Can be either "R", or "C".
-#'
+
 generateEquation <- function(node, genotypes, language) {
   inhibition = c("inhibition", "sufficient inhibition", "necessary inhibition")
   stimulation = c("stimulation", "sufficient stimulation", "necessary stimulation")

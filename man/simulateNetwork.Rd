@@ -50,3 +50,7 @@ achieved unless otherwise specified. A steady state is considered to be
 reached when all node values are considered to be equivelant to the previous
 timestep for up to a threshold of decimal places.
 }
+\note{
+this function can only be used if the output of the buildModel function
+            was generated with the language argument set to "R".
+}

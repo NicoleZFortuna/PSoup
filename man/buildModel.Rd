@@ -9,8 +9,10 @@ buildModel(
   folder = "./Model",
   forceOverwrite = FALSE,
   altSource = FALSE,
-  returnAs = "R",
-  splitCompartment = FALSE
+  language = "R",
+  splitCompartment = FALSE,
+  tmax = 100,
+  steadyThreshold = 4
 )
 }
 \arguments{
@@ -19,22 +21,26 @@ buildModel(
 \item{folder}{the name of the folder that you want the components of the
 model to be saved to. The default is to create a directory
 called Model in the current working directory. The user can
-provide their own directory and folder name. In this folder
-will be generated three R scripts: one to define genotypes
-(genotypeDef.R), one to define the starting node values
-(nodestartDef.R), and one to define the function that
-gives the difference equations that are used to simulate the
-network (nextStep.R).}
+provide their own directory and folder name. If the language
+argument is set to "R", two objects: one to define genotypes
+(genotypeDef.RData), one to define the starting node values
+(nodestartDef.RData) will be saved in the folder. In addition,
+a script to define the function that will calculate how the
+nodevalues change with each timestep will be saved (nextStep.R).
+If language is set to "C", a .h and a .c script will be
+generated in the folder. These scripts will need to be
+compiled locally on your computer before you will be able to
+execute the model.}
 
 \item{forceOverwrite}{default set to FALSE. Will stop the function if the
 folder already exits. Can set to true if you want to replace
-the existing folder.}
+the existing folder. In which case a warning will still be thrown.}
 
 \item{altSource}{whether alternative sources should be additive to other
 inputs to a node. If FALSE, should be treated as just another
 input.}
 
-\item{returnAs}{a string which indicates how the user wants the model
+\item{language}{a string which indicates how the user wants the model
 to be returned. The default is to create the model for
 use in R ("R"). Users can also choose "C", in which case
 a C script will be generated.}
@@ -44,19 +50,26 @@ its separate compartments or maintained as a whole.
 Separation of compartments should only be done if you
 intend to use L-Systems to mediate the communication
 nodes of different compartments. As such, the default
-has been set to FALSE.}
+has been set to FALSE. NOT YET FINISHED!}
 
-\item{dataFrame}{default set to TRUE. This parameter allows you to choose if
-you would like for node starting values, and genotype values
-to be stored as a data.frame, or as an Rscript.}
+\item{tmax}{this only needs to be specified in the case that language
+has been set to "C". The maximum value that the simulation
+will be allowed to proceed. If the midpoint is reached, a
+warning will be returned. The default value is set to 100.}
+
+\item{steadyThreshold}{this only needs to be specified in the case that
+language has been set to "C". The number of decimal places
+to which node values must be equivalent to be considered
+a steady state. This threshold must be passed for all nodes.
+The default is set to 4.}
 }
 \description{
 This function is used to define the script that is needed to simulate the
-model of interest. It defines the genotypes of the network, and sets them
-to a default of 1. It also initiates that data.frame which will record the
-changes to the system over time, including initiating the starting values
-for the nodes. The default starting values are 1. A nextStep function is
-also defined, which provides the information needed to calculate the next
-time step in the simulation. This file can be edited by the user as required.
-The file will need to be provided to the simulateNetwork function as an input.
+model of interest. It defines the genotypes of the network and sets them
+to a default of 1. It also initiates default starting node values of 1.
+A function is also defined, which provides the routine needed to
+calculate the next time step in the simulation. The folder containing the
+output of this function can be edited by the user as required. The folder
+directory will need to be provided to the simulateNetwork or setupSims
+functions as an input.
 }
