@@ -143,13 +143,8 @@ setupSims <- function(folder,
                       tmax = NA,
                       exogenousSupply = NULL) {
   # loading paramater values
-  if (file.exists(paste0(folder, "/genotypeDef.R"))) {
-    source(paste0(folder, "/genotypeDef.R"), local = T)
-    source(paste0(folder, "/nodestartDef.R"), local = T)
-  } else {
-    load(paste0(folder, "/genotypeDef.RData"))
-    load(paste0(folder, "/nodestartDef.RData"))
-  }
+  load(paste0(folder, "/genotypeDef.RData"))
+  load(paste0(folder, "/nodestartDef.RData"))
 
   # Ensuring that the first row of genotypes contain a wildtype condition
   if (any(!apply(genotypeDef, 1, function(x) any(x != rep(1, ncol(genotypeDef)))))) {

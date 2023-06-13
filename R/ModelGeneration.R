@@ -351,7 +351,7 @@ generateEquation <- function(node, genotypes, language) {
     if (any(!is.na(node@inputs$Coregulator) & node@inputs$Influence == "stimulation")) {
       coregInput <- node@inputs[!is.na(node@inputs$Coregulator) & node@inputs$Influence == "stimulation", 1:2]
 
-      coreg <- coregulators(coregInput, returnNum = T, language = "C")
+      coreg <- coregulators(coregInput, returnNum = T, language = language)
 
       numStim <- numStim + coreg$num
       stimString <- paste0(stimString, coreg$coreg, collapse = " + ")
