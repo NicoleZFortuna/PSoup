@@ -380,7 +380,7 @@ generateEquation <- function(node, genotypes, language) {
     if (any(!is.na(node@inputs$Coregulator) & node@inputs$Influence == "inhibition")) {
       coregInput <- node@inputs[!is.na(node@inputs$Coregulator) & node@inputs$Influence == "inhibition", 1:2]
 
-      coreg <- coregulators(coregInput, returnNum = T, language = "C")
+      coreg <- coregulators(coregInput, returnNum = T, language = language)
 
       numInhib <- numInhib + coreg$num
       inhibString <- paste(inhibString, coreg$coreg, collapse = " + ")
@@ -418,7 +418,7 @@ generateEquation <- function(node, genotypes, language) {
     if (any(!is.na(node@inputs$Coregulator) & node@inputs$Influence == "necessary stimulation")) {
       coregInput <- node@inputs[!is.na(node@inputs$Coregulator) & node@inputs$Influence == "necessary stimulation", -3]
 
-      coreg <- coregulators(coregInput, language = "C")
+      coreg <- coregulators(coregInput, language = language)
 
       necstimString = paste(necstimString, coreg, sep = " + ")
     }
