@@ -23,7 +23,7 @@
 #'             be passed for all nodes.
 #' @param exogenousSupply specifies if the value of a node (or nodes) is
 #'               determined by an outside supply. In this case, the value of the
-#'               node is supplied by the user and remains consistant throughout
+#'               node is supplied by the user and remains consistent throughout
 #'               the course of the simulation. The default value for this
 #'               argument is NULL. To specify nodes with an exogenous supply,
 #'               provide a named vector containing the values of the nodes, with
@@ -130,11 +130,12 @@ simulateNetwork <- function(folder,
 #' @param tmax the maximum number of timesteps for which to simulate.
 #' @param exogenousSupply specifies if the value of a node (or nodes) is
 #'               determined by an outside supply. In this case, the value of the
-#'               node is supplied by the user and remains consistant throughout
+#'               node is supplied by the user and remains consistent throughout
 #'               the course of the simulation. The default value for this
 #'               argument is NULL. To specify nodes with an exogenous supply,
-#'               provide a named vector containing the values of the nodes, with
-#'               each vector member named after their respective node.
+#'               provide a data frame with column names corresponding to the
+#'               values of the nodes, with each vector member named after their
+#'               respective node.
 #' @importFrom stats runif
 #' @export
 
@@ -164,23 +165,18 @@ setupSims <- function(folder,
   i = 1
   for (d in 1:nrow(nodestartDef)) {
     for (g in 1:nrow(genotypeDef)) {
-      if (ncol(genotypeDef) > 1) {
-        gen = genotypeDef[g, ]
-      } else {
-        gen = as.data.frame(genotypeDef[g,])
-        colnames(gen) = colnames(genotypeDef)
-        gen
-      }
-
-      sims[[i]] <- list(scenario = list(genotype = gen,
-                                        startingValues = nodestartDef[d, ]),
+      for (ex in 1:nrow(exogenousSupply)) {
+        sims[[i]] <- list(scenario = list(genotype = genotypeDef[g, ],
+                                        startingValues = nodestartDef[d, ],
+                                        exogenousSupply = exogenousSupply[ex, ]),
                         simulation = simulateNetwork(folder = folder,
                                                      delay = delay,
                                                      tmax = tmax,
-                                                     genotype = gen,
+                                                     genotype = genotypeDef[g, ],
                                                      startingValues = nodestartDef[d, ],
-                                                     exogenousSupply = exogenousSupply))
-      i = i + 1
+                                                     exogenousSupply = exogenousSupply[ex, ]))
+        i = i + 1
+      }
     }
   }
 
@@ -338,4 +334,31 @@ numCombn <- function(n, r) {
 
   factorial(n)/(factorial(r)*factorial(n-r))
 }
+
+#' A function to make sure that data.frames containing conditions to screen
+#' are organised correctly. The wild-type condition is made to come first,
+#' and any duplicate rows are removed.
+#'
+#' @param frame a data.frame
+#' @importFrom prodlim row.match
+minScreen <- function(frame) {
+  # remove any row duplication
+  if (any(duplicated(frame))) {
+    frame <- frame[!duplicated(frame), ]
+  }
+
+  # if the first row is not WT
+  if (!all(frame[1, ] == 1)) {
+    WTrow <- row.match(rep(1, ncol(frame)), frame)
+
+    if (is.na(WTrow)) {
+      # add WT row in front
+    } else {
+      # switch WT row w 1st row
+    }
+
+  }
+}
+
+
 
