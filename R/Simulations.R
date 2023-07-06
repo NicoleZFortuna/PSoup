@@ -148,9 +148,9 @@ setupSims <- function(folder,
   load(paste0(folder, "/nodestartDef.RData"))
 
   # Ensuring that the first row of any screening dataframes contain a wildtype condition in the first row
-  nodestartDef    <- tidyScreen(nodestartDef)
-  genotypeDef     <- tidyScreen(genotypeDef)
-  exogenousSupply <- tidyScreen(exogenousSupply)
+  nodestartDef    <- tidyScreen(nodestartDef, "nodestartDef")
+  genotypeDef     <- tidyScreen(genotypeDef, "genotypeDef")
+  exogenousSupply <- tidyScreen(exogenousSupply, "exogenousSupply")
 
   # Run simulations
   sims <- list()
@@ -332,7 +332,7 @@ numCombn <- function(n, r) {
 #' and any duplicate rows are removed.
 #'
 #' @param frame a data.frame
-#' @param name the name of the object being passed (in case a warning is generated) as a string
+#' @param name a string giving the name of the data frame in case a warning is generated.
 #' @importFrom prodlim row.match
 tidyScreen <- function(frame, name) {
   warn <- NULL
