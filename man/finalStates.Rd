@@ -9,8 +9,6 @@ finalStates(simulations, nodes = NA)
 }
 \arguments{
 \item{simulations}{a list containing the output of the setupSims function}
-
-\item{nodes}{a vector containing all the nodes that the user wants to plot}
 }
 \description{
 A function to pull the final states from a set of simulations and normalise

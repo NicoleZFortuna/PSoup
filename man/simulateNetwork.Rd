@@ -37,7 +37,7 @@ be passed for all nodes.}
 
 \item{exogenousSupply}{specifies if the value of a node (or nodes) is
 determined by an outside supply. In this case, the value of the
-node is supplied by the user and remains consistant throughout
+node is supplied by the user and remains consistent throughout
 the course of the simulation. The default value for this
 argument is NULL. To specify nodes with an exogenous supply,
 provide a named vector containing the values of the nodes, with
