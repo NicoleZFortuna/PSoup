@@ -147,18 +147,10 @@ setupSims <- function(folder,
   load(paste0(folder, "/genotypeDef.RData"))
   load(paste0(folder, "/nodestartDef.RData"))
 
-  # Ensuring that the first row of genotypes contain a wildtype condition
-  if (any(!apply(genotypeDef, 1, function(x) any(x != rep(1, ncol(genotypeDef)))))) {
-    # if there are any rows in genotypeDef that contain a WT condition
-    WT = which(!apply(genotypeDef, 1, function(x) any(x != rep(1, ncol(genotypeDef)))))
-    if (WT != 1)
-      # make sure that the first row is the WT condition
-      genotypeDef <- genotypeDef[c(WT, c(1:nrow(genotypeDef))[-WT]), ]
-  } else {
-    # adding a row at the top with WT conditions
-    genotypeDef[1:nrow(genotypeDef)+1, ] <- genotypeDef
-    genotypeDef[1, ] <- 1
-  }
+  # Ensuring that the first row of any screening dataframes contain a wildtype condition in the first row
+  nodestartDef    <- tidyScreen(nodestartDef)
+  genotypeDef     <- tidyScreen(genotypeDef)
+  exogenousSupply <- tidyScreen(exogenousSupply)
 
   # Run simulations
   sims <- list()
@@ -167,8 +159,8 @@ setupSims <- function(folder,
     for (g in 1:nrow(genotypeDef)) {
       for (ex in 1:nrow(exogenousSupply)) {
         sims[[i]] <- list(scenario = list(genotype = genotypeDef[g, ],
-                                        startingValues = nodestartDef[d, ],
-                                        exogenousSupply = exogenousSupply[ex, ]),
+                                          startingValues = nodestartDef[d, ],
+                                          exogenousSupply = exogenousSupply[ex, ]),
                         simulation = simulateNetwork(folder = folder,
                                                      delay = delay,
                                                      tmax = tmax,
@@ -340,24 +332,34 @@ numCombn <- function(n, r) {
 #' and any duplicate rows are removed.
 #'
 #' @param frame a data.frame
+#' @param name the name of the object being passed (in case a warning is generated) as a string
 #' @importFrom prodlim row.match
-minScreen <- function(frame) {
+tidyScreen <- function(frame, name) {
+  warn <- NULL
   # remove any row duplication
   if (any(duplicated(frame))) {
     frame <- frame[!duplicated(frame), ]
+    warn <- c(warn, "Have removed duplicate rows from the %s object.")
   }
 
-  # if the first row is not WT
-  if (!all(frame[1, ] == 1)) {
+  if (!all(frame[1, ] == 1)) { # if the first row is not WT, search for WT rows
     WTrow <- row.match(rep(1, ncol(frame)), frame)
 
-    if (is.na(WTrow)) {
-      # add WT row in front
-    } else {
-      # switch WT row w 1st row
+    if (is.na(WTrow)) { # if there is no WT row, add an initial WT row
+      frame <- rbind(rep(1, ncol(frame)), frame)
+      warn <- c(warn, "Have added a row containing the baseline condition to the %s object.")
+    } else { # if there is a WT row, move it to the first row
+      OTHERrow <- (1:nrow(frame))[-WTrow]
+      frame[1:nrow(frame), ] <- frame[c(WTrow, OTHERrow), ]
+      warn <- c(warn, "Have moved the row containing the baseline condition to the first row in the %s object.")
     }
-
   }
+
+  if (!is.null(warn)) { # provide warning messages in case any changes were made
+    sapply(sprintf(warn, name), warning, call. = F)
+  }
+
+  frame
 }
 
 
