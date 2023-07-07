@@ -84,8 +84,8 @@ simulateNetwork <- function(folder,
 
     # If any node has an exogenous supply
     if (!is.null(exogenousSupply)) {
-      # overwriting the value calculated by nextStep
-      simDat[row, names(exogenousSupply)] <- unname(exogenousSupply)
+      # add the exogenous amount to the value calculated by nextStep
+      simDat[row, names(exogenousSupply)] <- simDat[row, names(exogenousSupply)] + unname(exogenousSupply)
     }
 
     # If reached steady state, return simDat
@@ -150,7 +150,7 @@ setupSims <- function(folder,
   # Ensuring that the first row of any screening dataframes contain a wildtype condition in the first row
   nodestartDef    <- tidyScreen(nodestartDef, "nodestartDef")
   genotypeDef     <- tidyScreen(genotypeDef, "genotypeDef")
-  exogenousSupply <- tidyScreen(exogenousSupply, "exogenousSupply")
+  exogenousSupply <- tidyScreen(exogenousSupply, "exogenousSupply", exogenous = T)
 
   # Run simulations
   sims <- list()
@@ -313,6 +313,25 @@ randomStartScreen <- function(folder,
   cat(")", file = file, append = T)
 }
 
+#' A function to generate all combinations of two vectors containing the values
+#' to be screened for two nodes. This function will also include the possibility
+#' of no exogenous values being provided in the form of NA.
+#'
+#' @param nodes a vector containing the names of two nodes of interest
+#' @param screen1 a vector containing all the values to be tested for the
+#'                first listed node.
+#' @param screen2 a vector containing all the values to be tested for the
+#'                second listed node.
+exogenousScreen <- function(nodes, screen1, screen2) {
+  # making sure that there is a condition where no exogenous hormone is provided
+  if (!0 %in% screen1) {screen1 <- c(0, screen1)}
+  if (!0 %in% screen1) {screen1 <- c(0, screen1)}
+
+  combo <- expand.grid(screen1, screen2)
+  colnames(combo) <- nodes
+  combo
+}
+
 #' A function to calculate the number of unique combinations of a vector
 #' of length n of sample size r.
 #'
@@ -333,20 +352,26 @@ numCombn <- function(n, r) {
 #'
 #' @param frame a data.frame
 #' @param name a string giving the name of the data frame in case a warning is generated.
+#' @param exogenous logical. Indicates if the wild type row should be 1s or 0s.
+#'                  if checking modifier or node screens, should be set to F.
+#'                  If checking exogenous screens, should be T.
 #' @importFrom prodlim row.match
-tidyScreen <- function(frame, name) {
-  warn <- NULL
+tidyScreen <- function(frame, name, exogenous = F) {
+  WT <- as.numeric(!exogenous)
+
+  warn <- NULL # initiate vector to store warning messages.
+
   # remove any row duplication
   if (any(duplicated(frame))) {
     frame <- frame[!duplicated(frame), ]
     warn <- c(warn, "Have removed duplicate rows from the %s object.")
   }
 
-  if (!all(frame[1, ] == 1)) { # if the first row is not WT, search for WT rows
-    WTrow <- row.match(rep(1, ncol(frame)), frame)
+  if (!all(frame[1, ] == WT)) { # if the first row is not WT, search for WT rows
+    WTrow <- row.match(rep(WT, ncol(frame)), frame)
 
     if (is.na(WTrow)) { # if there is no WT row, add an initial WT row
-      frame <- rbind(rep(1, ncol(frame)), frame)
+      frame <- rbind(rep(WT, ncol(frame)), frame)
       warn <- c(warn, "Have added a row containing the baseline condition to the %s object.")
     } else { # if there is a WT row, move it to the first row
       OTHERrow <- (1:nrow(frame))[-WTrow]
