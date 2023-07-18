@@ -157,17 +157,31 @@ setupSims <- function(folder,
   i = 1
   for (d in 1:nrow(nodestartDef)) {
     for (g in 1:nrow(genotypeDef)) {
-      for (ex in 1:nrow(exogenousSupply)) {
+      if (is.null(exogenousSupply)) {
         sims[[i]] <- list(scenario = list(genotype = genotypeDef[g, ],
                                           startingValues = nodestartDef[d, ],
-                                          exogenousSupply = exogenousSupply[ex, ]),
-                        simulation = simulateNetwork(folder = folder,
-                                                     delay = delay,
-                                                     tmax = tmax,
-                                                     genotype = genotypeDef[g, ],
-                                                     startingValues = nodestartDef[d, ],
-                                                     exogenousSupply = exogenousSupply[ex, ]))
+                                          exogenousSupply = NULL),
+                          simulation = simulateNetwork(folder = folder,
+                                                       delay = delay,
+                                                       tmax = tmax,
+                                                       genotype = genotypeDef[g, ],
+                                                       startingValues = nodestartDef[d, ],
+                                                       exogenousSupply = NULL))
         i = i + 1
+      }
+      else {
+        for (ex in 1:nrow(exogenousSupply)) {
+          sims[[i]] <- list(scenario = list(genotype = genotypeDef[g, ],
+                                            startingValues = nodestartDef[d, ],
+                                            exogenousSupply = exogenousSupply[ex, ]),
+                          simulation = simulateNetwork(folder = folder,
+                                                       delay = delay,
+                                                       tmax = tmax,
+                                                       genotype = genotypeDef[g, ],
+                                                       startingValues = nodestartDef[d, ],
+                                                       exogenousSupply = exogenousSupply[ex, ]))
+          i = i + 1
+        }
       }
     }
   }
@@ -322,6 +336,7 @@ randomStartScreen <- function(folder,
 #'                first listed node.
 #' @param screen2 a vector containing all the values to be tested for the
 #'                second listed node.
+#' @export
 exogenousScreen <- function(nodes, screen1, screen2) {
   # making sure that there is a condition where no exogenous hormone is provided
   if (!0 %in% screen1) {screen1 <- c(0, screen1)}

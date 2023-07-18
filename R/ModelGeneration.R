@@ -48,12 +48,14 @@
 #'               to which node values must be equivalent to be considered
 #'               a steady state. This threshold must be passed for all nodes.
 #'               The default is set to 4.
+#' @param style either "Dun", or "Mike"
 #' @export
 
 buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
                        altSource = FALSE, language = "R",
                        splitCompartment = FALSE,
-                       tmax = 100, steadyThreshold = 4) {
+                       tmax = 100, steadyThreshold = 4,
+                       style = "Dun") {
 
   if (language == "C") {
     generateC(network, tmax = tmax, steadyThreshold = steadyThreshold,
@@ -112,7 +114,8 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
   for (i in 1:length(nodes)) {
     equation <- generateEquation(nodes[[i]],
                                 genotypes,
-                                language = language)
+                                language = language,
+                                style = style)
     cat(paste0("\tdat$",nodes[[i]]@name, "[t] = ", equation, "\n"),
         file = funcfile, append = T)
   }
@@ -247,7 +250,8 @@ generateC <- function(network, tmax = 100, steadyThreshold = 4,
   for (i in 1:length(insertEQUATIONS)) {
     insertEQUATIONS[i] <- generateEquation(network@objects$Hormones[[i]],
                                            network@objects$Genotypes,
-                                           "C")
+                                           "C",
+                                           style)
   }
 
   insertEQUATIONS <- gsub("\\.", "_",
@@ -332,8 +336,9 @@ altSourceToStimulant <- function(hormones) {
 #' @param genes the list of genes frome within a network object
 #' @param language which programming language should the equation be generated in?
 #'        Can be either "R", or "C".
+#' @param style either "Dun", or "Mike"
 
-generateEquation <- function(node, genotypes, language) {
+generateEquation <- function(node, genotypes, language, style = "Dun") {
   inhibition = c("inhibition", "sufficient inhibition", "necessary inhibition")
   stimulation = c("stimulation", "sufficient stimulation", "necessary stimulation")
 
@@ -385,24 +390,63 @@ generateEquation <- function(node, genotypes, language) {
       numInhib <- numInhib + coreg$num
       inhibString <- paste(inhibString, coreg$coreg, collapse = " + ")
     }
+
+    # take the average of the inhibitory effects if there are more than one
+    if (numInhib > 1) {
+      inhibString <- sprintf("(%s)/%s", inhibString, numInhib)
+    }
   } else {
     inhibString = NA
     numInhib = 0
   }
 
-  # combining stimulatory and inhibitory effects
-  if (numStim > 0 & numInhib == 0) {
-    # if there are only stimulatory effects
-    allModulations <- stimString
-  } else if (numInhib > 0 & numStim == 0) {
-    # if there are only inhibitory effects
-    allModulations <- sprintf("%s/(1 + %s)", numInhib + 1, inhibString)
-  } else if (class(stimString) == "character" & class(inhibString) == "character") {
-    # if there are both stimulatory and inhibitory effects
-    allModulations <- sprintf("%s * (%s)/(1 + %s)", numInhib + 1, stimString, inhibString)
-  } else if (is.na(stimString) & is.na(inhibString)) {
-    # if it is constituent wo influence from other nodes
-    allModulations <- 1
+  if (style == "Dun") {
+    # combining stimulatory and inhibitory effects
+    if (numStim > 0 & numInhib == 0) {
+      # if there are only stimulatory effects
+      allModulations <- stimString
+    } else if (numInhib > 0 & numStim == 0) {
+      # if there are only inhibitory effects
+      allModulations <- sprintf("%s/(1 + %s)", numInhib + 1, inhibString)
+    } else if (class(stimString) == "character" & class(inhibString) == "character") {
+      # if there are both stimulatory and inhibitory effects
+      allModulations <- sprintf("%s * (%s)/(1 + %s)", numInhib + 1, stimString, inhibString)
+    } else if (is.na(stimString) & is.na(inhibString)) {
+      # if it is constituent wo influence from other nodes
+      allModulations <- 1
+    }
+  } else if (style == "Mike") {
+    # Creating the Mike syntax
+    if (is.na(stimString)) {
+      stimString = NULL
+    } else {
+      alpha <- 1
+      stimString <- paste0("(", alpha, " + ", stimString, ")/(", alpha + 1, ")")
+    }
+
+    if (is.na(inhibString)) {
+      inhibString = NULL
+    } else {
+      inhibString <- paste0("2/(1 + ", inhibString, ")")
+    }
+
+    # combining stimulatory and inhibitory effects
+    if (numStim > 0 & numInhib == 0) {
+      # if there are only stimulatory effects
+      allModulations <- stimString
+    } else if (numInhib > 0 & numStim == 0) {
+      # if there are only inhibitory effects
+      allModulations <- inhibString
+    } else if (class(stimString) == "character" & class(inhibString) == "character") {
+      # if there are both stimulatory and inhibitory effects
+      allModulations <- paste(stimString, "*", inhibString)
+    } else if (is.null(stimString) & is.null(inhibString)) {
+      # if it is constituent wo influence from other nodes
+      allModulations <- 1
+    }
+
+  } else {
+    stop("You have not provided a accepted algorithm rule style.")
   }
 
   # multiplying modulations by necessary stimulants and genotypes
@@ -462,5 +506,4 @@ generateEquation <- function(node, genotypes, language) {
 
   return(allModulations)
 }
-
 

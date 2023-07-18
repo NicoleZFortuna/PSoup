@@ -143,7 +143,13 @@ genotypeDef
 
 As you can see, the `genotypeScreen` function will generate a data frame with combinations of up to however many mutations that you would like to explore. You can also specify the genotype expression values that you would like to use for your mutations. You can also specify if you would like for the function to output an excel file in addition to the data. The excel file will be empty, but will have row and column names that correspond to the generated data frame. This file can be filed with values that have been derived from the literature for the purpose of validating your model. You do not need to fill every value, as only the provided information will be used to validate the simulated data.
 
-In addition to being able to modify the genes and node values of the system, it is also possible to supply an external source of of the value of a node. This external supply is constantly given throughout the course of the simulation, with the amount added at each timepoint to the native value in the simulation.
+In addition to being able to modify the genes and node values of the system, it is also possible to supply an external source to a node. This external supply is constantly given throughout the course of the simulation, with the amount added at each timepoint to the native value in the simulation. An exogenous supply for a node can be specified by providing a named vector, or data frame to the `exogenousSupply` argument in either the `simulateNetwork` or `setupSims` functions. Where the name of the vector or columns correspond to a node in the network.
+
+It is possible to quickly set up a two dimensional screen of exogenously supplied treatments to the system by using the `exogenousScreen` function.
+
+
+
+
 
 ### Commentary on the collection of prior knowledge {#hypotheses}
 
