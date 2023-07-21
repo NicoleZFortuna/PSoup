@@ -2,7 +2,7 @@
 % Please edit documentation in R/ModelGeneration.R
 \name{generateEquation}
 \alias{generateEquation}
-\title{A function to generate an equation for a specific node in the modified Dun style}
+\title{A function to generate an equation for a specific node}
 \usage{
 generateEquation(node, genotypes, language, style = "Dun")
 }
@@ -17,5 +17,5 @@ Can be either "R", or "C".}
 \item{genes}{the list of genes frome within a network object}
 }
 \description{
-A function to generate an equation for a specific node in the modified Dun style
+A function to generate an equation for a specific node
 }

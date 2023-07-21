@@ -407,7 +407,7 @@ generateEquation <- function(node, genotypes, language, style = "Dun") {
       allModulations <- stimString
     } else if (numInhib > 0 & numStim == 0) {
       # if there are only inhibitory effects
-      allModulations <- sprintf("%s/(1 + %s)", numInhib + 1, inhibString)
+      allModulations <- sprintf("2/(1 + %s)" , inhibString)
     } else if (class(stimString) == "character" & class(inhibString) == "character") {
       # if there are both stimulatory and inhibitory effects
       allModulations <- sprintf("%s * (%s)/(1 + %s)", numInhib + 1, stimString, inhibString)

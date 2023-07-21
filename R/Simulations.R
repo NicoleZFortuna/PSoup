@@ -288,9 +288,6 @@ genotypeScreen <- function(folder,
 #'        want to test.
 #' @param minVal default set to 0. The minimum value for a node to be.
 #' @param maxVal default set to 2. The maximum value for a node to be.
-#' @param static default set to FALSE. Determines if the final data.frame is
-#'        saved as a .Rdata file. The default condition overwrites the
-#'        nodestartDef.R file to define the new nodestartDef data.frame.
 #' @export
 
 randomStartScreen <- function(folder,
@@ -313,18 +310,7 @@ randomStartScreen <- function(folder,
   nodestartDef[(nrow(nodestartDef) + 1):(nrow(nodestartDef) + restarts), ] <- round(runif(restarts*ncol(nodestartDef),
                                                             minVal, maxVal), 4)
 
-  if (static == T) {
-    save(nodestartDef, file = paste0(folder, "/nodestartDef.Rdata"))
-  } else {
-    cat("# defining storage data.frame and node initial values\n", file = file)
-    cat("nodestartDef <- data.frame(\n", file = file, append = T)
-
-    for (i in 1:ncol(nodestartDef)) {
-      cat("\t'", colnames(nodestartDef)[i], "' = c(", paste(nodestartDef[,i], collapse = ", "),
-          "),\n", sep="", file = file, append = T)
-    }
-  }
-  cat(")", file = file, append = T)
+  save(nodestartDef, file = paste0(folder, "/nodestartDef.Rdata"))
 }
 
 #' A function to generate all combinations of two vectors containing the values
