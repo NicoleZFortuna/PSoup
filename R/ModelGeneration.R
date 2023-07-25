@@ -359,7 +359,7 @@ generateEquation <- function(node, genotypes, language, style = "Dun") {
       coreg <- coregulators(coregInput, returnNum = T, language = language)
 
       numStim <- numStim + coreg$num
-      stimString <- paste0(stimString, coreg$coreg, collapse = " + ")
+      stimString <- paste0(c(stimString, coreg$coreg), collapse = " + ")
     }
 
     # take the average of the stimulatory effects if there are more than one
@@ -388,7 +388,7 @@ generateEquation <- function(node, genotypes, language, style = "Dun") {
       coreg <- coregulators(coregInput, returnNum = T, language = language)
 
       numInhib <- numInhib + coreg$num
-      inhibString <- paste(inhibString, coreg$coreg, collapse = " + ")
+      inhibString <- paste0(c(inhibString, coreg$coreg), collapse = " + ")
     }
 
     # take the average of the inhibitory effects if there are more than one
