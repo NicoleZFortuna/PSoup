@@ -206,7 +206,7 @@ buildHormone <- function(nodeInfo, arcInfo, i, logicIndex, ids, nodesList, lang)
   # if there are operators coming in to a node
   if (any(which(ids %in% arcInfo$source[id == arcInfo$target]) %in% logicIndex)) {
     originID <- arcInfo$source[id == arcInfo$target]
-    independentInput <- nodeInfo$name[nodeInfo$id == originID[originID %in% nodeInfo$id]]
+    independentInput <- nodeInfo$name[match(originID[originID %in% nodeInfo$id], nodeInfo$id)]
     logicInputID <- originID[!originID %in% nodeInfo$id]
 
     inNodes <- if (length(independentInput) == 0) {NULL} else {independentInput}
