@@ -15,10 +15,6 @@ want to test.}
 \item{minVal}{default set to 0. The minimum value for a node to be.}
 
 \item{maxVal}{default set to 2. The maximum value for a node to be.}
-
-\item{static}{default set to FALSE. Determines if the final data.frame is
-saved as a .Rdata file. The default condition overwrites the
-nodestartDef.R file to define the new nodestartDef data.frame.}
 }
 \description{
 Starting points will be generated for each node, pulled from a uniform
