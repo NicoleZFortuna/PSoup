@@ -10,7 +10,8 @@ setupSims(
   delay = 2,
   tmax = NA,
   steadyThreshold = 4,
-  exogenousSupply = NULL
+  exogenousSupply = NULL,
+  saveOutput = F
 )
 }
 \arguments{
