@@ -32,6 +32,10 @@ argument is NULL. To specify nodes with an exogenous supply,
 provide a data frame with column names corresponding to the
 values of the nodes, with each vector member named after their
 respective node.}
+
+\item{saveOutput}{logical. Default set to FALSE. Indicates if the output of
+simulation screen should be automatically saved in the
+provided folder location upon completion.}
 }
 \description{
 This function allows you to set up a variety of genotype and starting node

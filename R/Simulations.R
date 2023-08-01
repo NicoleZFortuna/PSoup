@@ -73,7 +73,7 @@ simulateNetwork <- function(folder,
   }
 
   simDat <- nodestartDef # initiating data.frame
-  simDat[1:(rowChunk + delay - 1), ] <- NA
+  simDat[2:(rowChunk + delay - 1), ] <- NA
   simDat[1:delay, ] <- nodestartDef
 
   t <- 2
@@ -91,13 +91,14 @@ simulateNetwork <- function(folder,
     # If reached steady state, return simDat
     if(all(round(simDat[row,], steadyThreshold) == round(simDat[row - 1,], steadyThreshold))) {
       simDat = simDat[delay:row, ]
-      return(simDat)
+      return(list(simulation = simDat, stable = T))
     }
 
     # If tmax has been reached (if there even is one), return simDat
     if (!is.na(tmax) & t == tmax) {
+      warning("The maximum timestep has been reached without achieving stability.")
       simDat = simDat[delay:row, ]
-      return(simDat)
+      return(list(simulation = simDat, stable = F))
     }
 
     # If any node has reached infinity
@@ -105,7 +106,7 @@ simulateNetwork <- function(folder,
       warning(paste0("The simulation was terminated at time ", t, " as the following node/s reached infinity: ",
                     paste(names(simDat)[is.infinite(unlist(simDat[row, ]))], collapse = ", "), "."))
       simDat = simDat[delay:row, ]
-      return(simDat)
+      return(list(simulation = simDat, stable = F))
     }
 
     # If simDat has been filled without reaching steady state or tmax, add more rows
@@ -139,6 +140,9 @@ simulateNetwork <- function(folder,
 #'               provide a data frame with column names corresponding to the
 #'               values of the nodes, with each vector member named after their
 #'               respective node.
+#' @param saveOutput logical. Default set to FALSE. Indicates if the output of
+#'               simulation screen should be automatically saved in the
+#'               provided folder location upon completion.
 #' @importFrom stats runif
 #' @export
 
@@ -146,7 +150,8 @@ setupSims <- function(folder,
                       delay = 2,
                       tmax = NA,
                       steadyThreshold = 4,
-                      exogenousSupply = NULL) {
+                      exogenousSupply = NULL,
+                      saveOutput = F) {
   # loading paramater values
   load(paste0(folder, "/genotypeDef.RData"))
   load(paste0(folder, "/nodestartDef.RData"))
@@ -162,35 +167,50 @@ setupSims <- function(folder,
   for (d in 1:nrow(nodestartDef)) {
     for (g in 1:nrow(genotypeDef)) {
       if (is.null(exogenousSupply)) {
+        simulation = simulateNetwork(folder = folder,
+                                     delay = delay,
+                                     tmax = tmax,
+                                     genotype = genotypeDef[g, ],
+                                     startingValues = nodestartDef[d, ],
+                                     exogenousSupply = NULL)
+
         sims[[i]] <- list(scenario = list(genotype = genotypeDef[g, ],
                                           startingValues = nodestartDef[d, ],
                                           exogenousSupply = NULL),
-                          simulation = simulateNetwork(folder = folder,
-                                                       delay = delay,
-                                                       tmax = tmax,
-                                                       genotype = genotypeDef[g, ],
-                                                       startingValues = nodestartDef[d, ],
-                                                       exogenousSupply = NULL))
+                          simulation = simulation$simulation,
+                          stable = simulation$stable)
         i = i + 1
       }
       else {
         for (ex in 1:nrow(exogenousSupply)) {
+          simulation = simulateNetwork(folder = folder,
+                                       delay = delay,
+                                       tmax = tmax,
+                                       genotype = genotypeDef[g, ],
+                                       startingValues = nodestartDef[d, ],
+                                       exogenousSupply = exogenousSupply[ex, ])
+
           sims[[i]] <- list(scenario = list(genotype = genotypeDef[g, ],
                                             startingValues = nodestartDef[d, ],
                                             exogenousSupply = exogenousSupply[ex, ]),
-                          simulation = simulateNetwork(folder = folder,
-                                                       delay = delay,
-                                                       tmax = tmax,
-                                                       genotype = genotypeDef[g, ],
-                                                       startingValues = nodestartDef[d, ],
-                                                       exogenousSupply = exogenousSupply[ex, ]))
+                            simulation = simulation$simulation,
+                            stable = simulation$stable)
           i = i + 1
         }
       }
     }
   }
 
-  sims
+  output <- list("modelFolder" = folder,
+                 "parameters" = c("tmax" = tmax, "delay" = delay),
+                 "screen" = sims)
+
+  if (saveOutput == T) {
+    save(output,
+         file = paste0(folder, "/allSims.RData"))
+  }
+
+  return(output)
 }
 
 #' A function to generate genotype screens.
