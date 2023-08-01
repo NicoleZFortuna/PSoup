@@ -48,14 +48,17 @@
 #'               to which node values must be equivalent to be considered
 #'               a steady state. This threshold must be passed for all nodes.
 #'               The default is set to 4.
-#' @param style either "Dun", or "Mike"
+#' @param style either "Dun", or "Mike".
+#' @param saveNetwork logical. Defaults to TRUE. Indicates if the provided
+#'               network object should be saved in the generated folder.
 #' @export
 
 buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
                        altSource = FALSE, language = "R",
                        splitCompartment = FALSE,
                        tmax = 100, steadyThreshold = 4,
-                       style = "Dun") {
+                       style = "Dun",
+                       saveNetwork = T) {
 
   if (language == "C") {
     generateC(network, tmax = tmax, steadyThreshold = steadyThreshold,
@@ -75,6 +78,9 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
 
     file.create(funcfile)
   }
+
+  # save the originating network object
+  save(network, file = paste0(folder, "/", network@name, ".RData"))
 
   if (altSource == FALSE) {
     # changing network influences so all altSource inputs are stimulants

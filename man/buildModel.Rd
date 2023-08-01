@@ -13,7 +13,8 @@ buildModel(
   splitCompartment = FALSE,
   tmax = 100,
   steadyThreshold = 4,
-  style = "Dun"
+  style = "Dun",
+  saveNetwork = T
 )
 }
 \arguments{
@@ -64,7 +65,10 @@ to which node values must be equivalent to be considered
 a steady state. This threshold must be passed for all nodes.
 The default is set to 4.}
 
-\item{style}{either "Dun", or "Mike"}
+\item{style}{either "Dun", or "Mike".}
+
+\item{saveNetwork}{logical. Defaults to TRUE. Indicates if the provided
+network object should be saved in the generated folder.}
 }
 \description{
 This function is used to define the script that is needed to simulate the

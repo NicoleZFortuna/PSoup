@@ -74,6 +74,7 @@ simulateNetwork <- function(folder,
 
   simDat <- nodestartDef # initiating data.frame
   simDat[2:(rowChunk + delay - 1), ] <- NA
+  simDat[1:delay, ] <- nodestartDef
 
   t <- 2
   while (t <= nrow(simDat)) {
@@ -90,14 +91,14 @@ simulateNetwork <- function(folder,
     # If reached steady state, return simDat
     if(all(round(simDat[row,], steadyThreshold) == round(simDat[row - 1,], steadyThreshold))) {
       simDat = simDat[delay:row, ]
-      return(simulation = simDat, stable = T)
+      return(list(simulation = simDat, stable = T))
     }
 
     # If tmax has been reached (if there even is one), return simDat
     if (!is.na(tmax) & t == tmax) {
       warning("The maximum timestep has been reached without achieving stability.")
       simDat = simDat[delay:row, ]
-      return(simulation = simDat, stable = F)
+      return(list(simulation = simDat, stable = F))
     }
 
     # If any node has reached infinity
@@ -105,7 +106,7 @@ simulateNetwork <- function(folder,
       warning(paste0("The simulation was terminated at time ", t, " as the following node/s reached infinity: ",
                     paste(names(simDat)[is.infinite(unlist(simDat[row, ]))], collapse = ", "), "."))
       simDat = simDat[delay:row, ]
-      return(simulation = simDat, stable = F)
+      return(list(simulation = simDat, stable = F))
     }
 
     # If simDat has been filled without reaching steady state or tmax, add more rows
@@ -196,16 +197,16 @@ setupSims <- function(folder,
     }
   }
 
+  output <- list("modelFolder" = folder,
+                 "parameters" = c("tmax" = tmax, "delay" = delay),
+                 "screen" = sims)
+
   if (saveOutput == T) {
-    save(list("modelFolder" = folder,
-              "parameters" = c("tmax" = tmax, "delay" = delay),
-                               "screen" = sims),
+    save(output,
          file = paste0(folder, "/allSims.RData"))
   }
 
-  return("modelFolder" = folder,
-         "parameters" = c("tmax" = tmax, "delay" = delay),
-         "screen" = sims)
+  return(output)
 }
 
 #' A function to generate genotype screens.

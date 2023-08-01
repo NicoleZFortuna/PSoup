@@ -188,6 +188,24 @@ consistencyCheck <- function(network) {
   }
 }
 
+#' A function to create a vector that reports whether simulations
+#' have managed to reach stability by the maximum timestep.
+#'
+#' @param allSim the output list of setupSims
+#' @export
+
+stabilityVector <- function(allSim) {
+
+  getStableVal <- function(x) {
+    return(x$stable)
+  }
+
+  stableSims <- sapply(allSim$screen,
+                       FUN = function(x) getStableVal(x))
+
+  return(stableSims)
+}
+
 # validityCheck
 
 # functions to find initiating and terminating nodes
