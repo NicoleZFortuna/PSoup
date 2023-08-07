@@ -412,7 +412,8 @@ generateEquation <- function(node, genotypes, language, style = "Dun") {
     if (any(!is.na(node@inputs$Coregulator) & node@inputs$Influence == "inhibition")) {
       coregInput <- node@inputs[!is.na(node@inputs$Coregulator) & node@inputs$Influence == "inhibition", 1:2]
 
-      coreg <- coregulators(coregInput, returnNum = T, language = language)
+      coreg <- coregulators(coregInput, returnNum = T, language = language,
+                            operator = node@inputs[!is.na(node@inputs$Coregulator) & node@inputs$Influence == "inhibition", "Operator"])
 
       numInhib <- numInhib + coreg$num
       inhibString <- paste0(c(inhibString, coreg$coreg), collapse = " + ")
