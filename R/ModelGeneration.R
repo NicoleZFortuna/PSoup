@@ -139,11 +139,12 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
 #' @param coreg a subsed of a the inputs of a hormone object. This subset
 #'        must all have the same modulating effect, and have coregulators
 #' @param returnNum return the number of unique coregulator sets. Default is
-#'        set to FLASE.
+#'        set to FALSE.
 #' @param language which programming language should the equation be generated in?
 #'        Can be either "R", or "C".
+#' @param operator which operator defines the coregulator, either "and" or "or".
 
-coregulators <- function(coreg, returnNum = FALSE, language) {
+coregulators <- function(coreg, returnNum = FALSE, language, operator) {
   coreg <- unname(as.matrix(coreg))
 
   split <- strsplit(coreg[,2], ", ") # Splitting apart lists of coregulators
@@ -151,7 +152,7 @@ coregulators <- function(coreg, returnNum = FALSE, language) {
   lengths <- sapply(split, length)
 
   # in the case that there is ever more than one coregulator, increase the size
-  # of the coreg matrix to accomodate
+  # of the coreg matrix to accommodate
   if (max(lengths) > 1) {
     coreg <- cbind(coreg, matrix(NA, nrow = nrow(coreg), ncol = max(lengths) - 1))
   }
@@ -162,23 +163,42 @@ coregulators <- function(coreg, returnNum = FALSE, language) {
     coreg[index, i + 1] <- sapply(split[index], `[[`, i)
   }
 
-
+  coregString = rep(NA, nrow(coreg))
+  # providing previous timestep syntax depending on the language to be used
   for (r in 1:nrow(coreg)) {
     coreg[r, !is.na(coreg[r, ])] <- sort(coreg[r, !is.na(coreg[r, ])])
     if (language == "R") {
-      coreg[r, !is.na(coreg[r, ])] <- paste0("dat$", coreg[r, !is.na(coreg[r, ])], "[t-1]")
+      coregString[r] <- paste0("dat$", coreg[r, !is.na(coreg[r, ])], "[t-1]", collapse = ", ")
     } else if (language == "C") {
-      coreg[r, !is.na(coreg[r, ])] <- paste0("old->", coreg[r, !is.na(coreg[r, ])])
+      coregString[r] <- paste0("old->", coreg[r, !is.na(coreg[r, ])], collapse = ", ")
+    } else {
+      stop("Incorrect language specification. Can only accept 'R', or 'C'.")
     }
-
   }
 
-  coreg <- unique(apply(coreg, 1, function(x) paste0(x[!is.na(x)], collapse = "*")))
-  if (returnNum == T) num = length(coreg)
-  coreg <- paste0(coreg, collapse = " + ")
+  # only keep the first instance of a piece of information
+  firstApp <- !duplicated(coregString)
+
+  coregString <- coregString[firstApp]
+  operator    <- operator[firstApp]
+
+  # perform the correct calculation depending on operator
+  # SO FAR ONLY FOR R!!!!
+  for (i in 1:length(coregString)) {
+    if (operator[i] == "and") {
+      coregString[i] <- paste0("min(", coregString[i], ")")
+    } else if (operator[i] == "or") {
+      coregString[i] <- paste0("max(", coregString[i], ")")
+    } else {
+      stop("Incorrect operator specification. Can only accept 'and', or 'or'.")
+    }
+  }
+
+  if (returnNum == T) num = length(coregString)
+  coregString <- paste0(coregString, collapse = " + ")
 
   if (returnNum == FALSE) return(coreg)
-  else return(list(coreg = coreg, num = num))
+  else return(list(coreg = coregString, num = num))
 }
 
 #' A function to build the difference equation including delays
@@ -362,7 +382,8 @@ generateEquation <- function(node, genotypes, language, style = "Dun") {
     if (any(!is.na(node@inputs$Coregulator) & node@inputs$Influence == "stimulation")) {
       coregInput <- node@inputs[!is.na(node@inputs$Coregulator) & node@inputs$Influence == "stimulation", 1:2]
 
-      coreg <- coregulators(coregInput, returnNum = T, language = language)
+      coreg <- coregulators(coregInput, returnNum = T, language = language,
+                            operator = node@inputs[!is.na(node@inputs$Coregulator) & node@inputs$Influence == "stimulation", "Operator"])
 
       numStim <- numStim + coreg$num
       stimString <- paste0(c(stimString, coreg$coreg), collapse = " + ")
