@@ -13,7 +13,9 @@ buildModel(
   splitCompartment = FALSE,
   tmax = 100,
   steadyThreshold = 4,
-  style = "Dun",
+  ruleStyle = "Dun",
+  nesStimStyle = "Linear",
+  nesStimFile = NULL,
   saveNetwork = T
 )
 }
@@ -65,7 +67,19 @@ to which node values must be equivalent to be considered
 a steady state. This threshold must be passed for all nodes.
 The default is set to 4.}
 
-\item{style}{either "Dun", or "Mike".}
+\item{ruleStyle}{either "Dun", or "Mike". The Dun style resembles the original
+Dun equations normalised such that WT conditions are always 1. The Mike
+style creates mirrored stimulatory and inhibitory effects.}
+
+\item{nesStimStyle}{the multiplicative effect taken on by necessary stimulants.
+Can be "linear" (the default) or saturating. If saturating, they can
+follow a standard "Michaelis-Menten" form, or a "switch-like" form.}
+
+\item{nesStimFile}{the file directory containing a function for determining
+the from for the multiplicative effect of a necessary stimulant.
+This function should only have a single argument representing the
+value of the necessary stimulant. If a file path is provided, the
+nesStimStyle argument will be ignored.}
 
 \item{saveNetwork}{logical. Defaults to TRUE. Indicates if the provided
 network object should be saved in the generated folder.}

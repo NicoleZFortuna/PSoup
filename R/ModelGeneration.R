@@ -48,18 +48,54 @@
 #'               to which node values must be equivalent to be considered
 #'               a steady state. This threshold must be passed for all nodes.
 #'               The default is set to 4.
-#' @param style either "Dun", or "Mike".
+#' @param ruleStyle either "Dun", or "Mike". The Dun style resembles the original
+#'        Dun equations normalised such that WT conditions are always 1. The Mike
+#'        style creates mirrored stimulatory and inhibitory effects.
+#' @param nesStimStyle the multiplicative effect taken on by necessary stimulants.
+#'        Can be "linear" (the default) or saturating. If saturating, they can
+#'        follow a standard "Michaelis-Menten" form, or a "switch-like" form.
+#' @param nesStimFile the file directory containing a function for determining
+#'        the from for the multiplicative effect of a necessary stimulant.
+#'        This function should only have a single argument representing the
+#'        value of the necessary stimulant. If a file path is provided, the
+#'        nesStimStyle argument will be ignored.
 #' @param saveNetwork logical. Defaults to TRUE. Indicates if the provided
 #'               network object should be saved in the generated folder.
 #' @export
 
-buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
-                       altSource = FALSE, language = "R",
+buildModel <- function(network,
+                       folder = "./Model",
+                       forceOverwrite = FALSE,
+                       altSource = FALSE,
+                       language = "R",
                        splitCompartment = FALSE,
-                       tmax = 100, steadyThreshold = 4,
-                       style = "Dun",
+                       tmax = 100,
+                       steadyThreshold = 4,
+                       ruleStyle = "Dun",
+                       nesStimStyle = "Linear",
+                       nesStimFile = NULL,
                        saveNetwork = T) {
 
+  # determining the form that a necessary stimulant should take.
+  if (!is.null(nesStimFile)) {
+    # in the case that there is a user provided function
+    text <- readLines(file(nesStimFile))
+    functionName <- regmatches(text[1], regexpr("^.*?(?=[^A-Za-z0-9_])", text[1], perl = T))
+  } else if (!nesStimStyle == "Linear") {
+    if (nesStimStyle == "Michaelis-Menten") {
+      text <- readLines(file("./inst/nStim_MM"))
+    } else if (nesStimStyle == "switch-like") {
+      text <- readLines(file("./inst/nStim_sl"))
+    } else {
+      stop("No valid form for a necessary stimulation has been provided.")
+    }
+    functionName <- regmatches(text[1], regexpr("^.*?(?=[^A-Za-z0-9_])", text[1], perl = T))
+  } else {
+    # in the case that the necessary stimulant has a linear form
+    functionName = NULL
+  }
+
+  # calling other function if language is "C"
   if (language == "C") {
     generateC(network, tmax = tmax, steadyThreshold = steadyThreshold,
                           folder = folder, forceOverwrite = forceOverwrite)
@@ -117,11 +153,20 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
   cat("\tt = nrow(dat)\n", file = funcfile, append = T)
   cat("\tdelay = nrow(dat) - 1\n\n", file = funcfile, append = T)
 
+  # Including a function to calculate the effects of a necessary stimulant in
+  # in the case that the style is not linear and/or there is a provided function.
+  if (!(nesStimStyle == "Linear" & is.null(nesStimFile))) {
+    cat("\t# a fucntion to define the effect of a necessary stimulant.\n", file = funcfile, append = T)
+    cat(paste0("\t", text), sep = "\n", file = funcfile, append = T)
+    cat("\n", file = funcfile, append = T)
+  }
+
   for (i in 1:length(nodes)) {
     equation <- generateEquation(nodes[[i]],
                                 genotypes,
                                 language = language,
-                                style = style)
+                                ruleStyle = ruleStyle,
+                                necStimFunc = functionName)
     cat(paste0("\tdat$",nodes[[i]]@name, "[t] = ", equation, "\n"),
         file = funcfile, append = T)
   }
@@ -144,7 +189,10 @@ buildModel <- function(network, folder = "./Model", forceOverwrite = FALSE,
 #'        Can be either "R", or "C".
 #' @param operator which operator defines the coregulator, either "and" or "or".
 
-coregulators <- function(coreg, returnNum = FALSE, language, operator) {
+coregulators <- function(coreg,
+                         returnNum = FALSE,
+                         language,
+                         operator) {
   coreg <- unname(as.matrix(coreg))
 
   split <- strsplit(coreg[,2], ", ") # Splitting apart lists of coregulators
@@ -207,20 +255,29 @@ coregulators <- function(coreg, returnNum = FALSE, language, operator) {
 #' @param delays a vector specifying if there are any delays associated with
 #'        a particular input.
 #' @param takeProduct logical. Should be set to TRUE if this function is being
-#'        to collapse necessary stimulants (* instead of)
+#'        used to collapse necessary stimulants (* instead of +). Can be set to
+#'        NULL of you do not want to concatenate into a single string.
 #' @param language which programming language should the equation be generated in?
 #'        Can be either "R", or "C".
 
-differenceString <- function(string, delays = NA, takeProduct = FALSE,
+differenceString <- function(string,
+                             delays = NA,
+                             takeProduct = FALSE,
                              language) {
   delays[delays != "delay" | is.na(delays)] = 1
 
   terms = c(" + ", " * ")
 
+  if (is.null(takeProduct)) {
+    collapse = NULL
+  } else {
+    collapse = terms[takeProduct + 1]
+  }
+
   if (language == "R") {
-    fullString <- paste0("dat$", string, "[t-",delays,"]", collapse = terms[takeProduct + 1])
+    fullString <- paste0("dat$", string, "[t-",delays,"]", collapse = collapse)
   } else if (language == "C") {
-    fullString <- paste0("old->", string, collapse = terms[takeProduct + 1])
+    fullString <- paste0("old->", string, collapse = collapse)
   }
 
   fullString
@@ -249,8 +306,11 @@ differenceString <- function(string, delays = NA, takeProduct = FALSE,
 #'               folder already exits. Can set to true if you want to replace
 #'               the existing folder.
 
-generateC <- function(network, tmax = 100, steadyThreshold = 4,
-                      folder = "./Model", forceOverwrite = FALSE) {
+generateC <- function(network,
+                      tmax = 100,
+                      steadyThreshold = 4,
+                      folder = "./Model",
+                      forceOverwrite = FALSE) {
 
   # defining constants
   insertTMAX = tmax
@@ -362,9 +422,18 @@ altSourceToStimulant <- function(hormones) {
 #' @param genes the list of genes frome within a network object
 #' @param language which programming language should the equation be generated in?
 #'        Can be either "R", or "C".
-#' @param style either "Dun", or "Mike"
+#' @param ruleStyle either "Dun", or "Mike". The Dun style resembles the original
+#'        Dun equations normalised such that WT conditions are always 1. The Mike
+#'        style creates mirrored stimulatory and inhibitory effects.
+#' @param necStimFunc the name of the function to be applied to necessary
+#'        stimulants. The default is NULL, in which case no function will be
+#'        applied, ant therefore the form will be linear.
 
-generateEquation <- function(node, genotypes, language, style = "Dun") {
+generateEquation <- function(node,
+                             genotypes,
+                             language,
+                             ruleStyle = "Dun",
+                             necStimFunc = NULL) {
   inhibition = c("inhibition", "sufficient inhibition", "necessary inhibition")
   stimulation = c("stimulation", "sufficient stimulation", "necessary stimulation")
 
@@ -428,7 +497,7 @@ generateEquation <- function(node, genotypes, language, style = "Dun") {
     numInhib = 0
   }
 
-  if (style == "Dun") {
+  if (ruleStyle == "Dun") {
     # combining stimulatory and inhibitory effects
     if (numStim > 0 & numInhib == 0) {
       # if there are only stimulatory effects
@@ -443,7 +512,7 @@ generateEquation <- function(node, genotypes, language, style = "Dun") {
       # if it is constituent wo influence from other nodes
       allModulations <- 1
     }
-  } else if (style == "Mike") {
+  } else if (ruleStyle == "Mike") {
     # Creating the Mike syntax
     if (is.na(stimString)) {
       stimString = NULL
@@ -474,7 +543,7 @@ generateEquation <- function(node, genotypes, language, style = "Dun") {
     }
 
   } else {
-    stop("You have not provided a accepted algorithm rule style.")
+    stop("You have not provided an accepted algorithm rule style.")
   }
 
   # multiplying modulations by necessary stimulants and genotypes
@@ -483,16 +552,25 @@ generateEquation <- function(node, genotypes, language, style = "Dun") {
     if (length(necstimString) > 0) {
       necstimString <- differenceString(necstimString,
                                         node@inputs$Operator[node@inputs$Operator == "delay" & node@inputs$Influence == "necessary stimulation"],
-                                        takeProduct = TRUE, language = language)
+                                        takeProduct = NULL, language = language)
+
+      if (!is.null(necStimFunc)) {
+        paste0(necStimFunc, "(", necstimString, ")", collapse = " * ")
+      }
     }
 
     # are there any necessary stimulants that are coregulators
     if (any(!is.na(node@inputs$Coregulator) & node@inputs$Influence == "necessary stimulation")) {
       coregInput <- node@inputs[!is.na(node@inputs$Coregulator) & node@inputs$Influence == "necessary stimulation", -3]
 
+      # NEED TO EDIT COREGULATORS FUNCTION SO THAT IT CAN RETURN A NON CONCATENATED VECTOR FOR THE PURPOSE OF ADDING A FUNCTION
       coreg <- coregulators(coregInput, language = language)
 
-      necstimString = paste(necstimString, coreg, sep = " + ")
+      if (!is.null(necStimFunc)) {
+        paste0(necStimFunc, "(", coreg, ")", collapse = " * ")
+      }
+
+      necstimString = paste(necstimString, coreg, sep = " * ")
     }
     allModulations <- sprintf("(%s) * (%s)", allModulations, necstimString)
   }

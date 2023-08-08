@@ -1,0 +1,3 @@
+nStim_sl <- function(x) {
+  (sqrt(x^2 + 2*x) - x)/0.7320508
+}

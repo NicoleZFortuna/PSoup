@@ -4,7 +4,13 @@
 \alias{generateEquation}
 \title{A function to generate an equation for a specific node}
 \usage{
-generateEquation(node, genotypes, language, style = "Dun")
+generateEquation(
+  node,
+  genotypes,
+  language,
+  ruleStyle = "Dun",
+  necStimFunc = NULL
+)
 }
 \arguments{
 \item{node}{a node from within a network object}
@@ -12,7 +18,13 @@ generateEquation(node, genotypes, language, style = "Dun")
 \item{language}{which programming language should the equation be generated in?
 Can be either "R", or "C".}
 
-\item{style}{either "Dun", or "Mike"}
+\item{ruleStyle}{either "Dun", or "Mike". The Dun style resembles the original
+Dun equations normalised such that WT conditions are always 1. The Mike
+style creates mirrored stimulatory and inhibitory effects.}
+
+\item{necStimFunc}{the name of the function to be applied to necessary
+stimulants. The default is NULL, in which case no function will be
+applied, ant therefore the form will be linear.}
 
 \item{genes}{the list of genes frome within a network object}
 }

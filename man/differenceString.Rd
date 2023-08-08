@@ -13,7 +13,8 @@ differenceString(string, delays = NA, takeProduct = FALSE, language)
 a particular input.}
 
 \item{takeProduct}{logical. Should be set to TRUE if this function is being
-to collapse necessary stimulants (* instead of)}
+used to collapse necessary stimulants (* instead of +). Can be set to
+NULL of you do not want to concatenate into a single string.}
 
 \item{language}{which programming language should the equation be generated in?
 Can be either "R", or "C".}
