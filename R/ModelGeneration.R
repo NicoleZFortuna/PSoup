@@ -48,17 +48,19 @@
 #'               to which node values must be equivalent to be considered
 #'               a steady state. This threshold must be passed for all nodes.
 #'               The default is set to 4.
-#' @param ruleStyle either "Dun", or "Mike". The Dun style resembles the original
-#'        Dun equations normalised such that WT conditions are always 1. The Mike
-#'        style creates mirrored stimulatory and inhibitory effects.
+#' @param ruleStyle either "Dun", or "Mike". The Dun style resembles the
+#'               original Dun equations normalised such that WT conditions are
+#'               always 1. The Mike style creates mirrored stimulatory and
+#'               inhibitory effects.
 #' @param nesStimStyle the multiplicative effect taken on by necessary stimulants.
-#'        Can be "linear" (the default) or saturating. If saturating, they can
-#'        follow a standard "Michaelis-Menten" form, or a "switch-like" form.
+#'               Can be "linear" (the default) or saturating. If saturating,
+#'               they can follow a standard "Michaelis-Menten" form, or a
+#'               "switch-like" form.
 #' @param nesStimFile the file directory containing a function for determining
-#'        the from for the multiplicative effect of a necessary stimulant.
-#'        This function should only have a single argument representing the
-#'        value of the necessary stimulant. If a file path is provided, the
-#'        nesStimStyle argument will be ignored.
+#'               the from for the multiplicative effect of a necessary stimulant.
+#'               This function should only have a single argument representing the
+#'               value of the necessary stimulant. If a file path is provided, the
+#'               nesStimStyle argument will be ignored.
 #' @param saveNetwork logical. Defaults to TRUE. Indicates if the provided
 #'               network object should be saved in the generated folder.
 #' @export
@@ -174,122 +176,13 @@ buildModel <- function(network,
   cat("}", file = funcfile, append = T)
 }
 
-
-#' A function that creates a string with coregulators multiplied together
-#'
-#' Coregulators are sorted so that their multiplications are only represented
-#' once. Each modulator is given a temporal modifier. Sets of coregulators are
-#' summed.
-#'
-#' @param coreg a subsed of a the inputs of a hormone object. This subset
-#'        must all have the same modulating effect, and have coregulators
-#' @param returnNum return the number of unique coregulator sets. Default is
-#'        set to FALSE.
-#' @param language which programming language should the equation be generated in?
-#'        Can be either "R", or "C".
-#' @param operator which operator defines the coregulator, either "and" or "or".
-
-coregulators <- function(coreg,
-                         returnNum = FALSE,
-                         language,
-                         operator) {
-  coreg <- unname(as.matrix(coreg))
-
-  split <- strsplit(coreg[,2], ", ") # Splitting apart lists of coregulators
-
-  lengths <- sapply(split, length)
-
-  # in the case that there is ever more than one coregulator, increase the size
-  # of the coreg matrix to accommodate
-  if (max(lengths) > 1) {
-    coreg <- cbind(coreg, matrix(NA, nrow = nrow(coreg), ncol = max(lengths) - 1))
-  }
-
-  # separating coregulators into their own cells
-  for (i in 1:max(lengths)) {
-    index <- which(lengths >= i)
-    coreg[index, i + 1] <- sapply(split[index], `[[`, i)
-  }
-
-  coregString = rep(NA, nrow(coreg))
-  # providing previous timestep syntax depending on the language to be used
-  for (r in 1:nrow(coreg)) {
-    coreg[r, !is.na(coreg[r, ])] <- sort(coreg[r, !is.na(coreg[r, ])])
-    if (language == "R") {
-      coregString[r] <- paste0("dat$", coreg[r, !is.na(coreg[r, ])], "[t-1]", collapse = ", ")
-    } else if (language == "C") {
-      coregString[r] <- paste0("old->", coreg[r, !is.na(coreg[r, ])], collapse = ", ")
-    } else {
-      stop("Incorrect language specification. Can only accept 'R', or 'C'.")
-    }
-  }
-
-  # only keep the first instance of a piece of information
-  firstApp <- !duplicated(coregString)
-
-  coregString <- coregString[firstApp]
-  operator    <- operator[firstApp]
-
-  # perform the correct calculation depending on operator
-  # SO FAR ONLY FOR R!!!!
-  for (i in 1:length(coregString)) {
-    if (operator[i] == "and") {
-      coregString[i] <- paste0("min(", coregString[i], ")")
-    } else if (operator[i] == "or") {
-      coregString[i] <- paste0("max(", coregString[i], ")")
-    } else {
-      stop("Incorrect operator specification. Can only accept 'and', or 'or'.")
-    }
-  }
-
-  if (returnNum == T) num = length(coregString)
-  coregString <- paste0(coregString, collapse = " + ")
-
-  if (returnNum == FALSE) return(coreg)
-  else return(list(coreg = coregString, num = num))
-}
-
-#' A function to build the difference equation including delays
-#'
-#' @param string whatever string is being constructed.
-#' @param delays a vector specifying if there are any delays associated with
-#'        a particular input.
-#' @param takeProduct logical. Should be set to TRUE if this function is being
-#'        used to collapse necessary stimulants (* instead of +). Can be set to
-#'        NULL of you do not want to concatenate into a single string.
-#' @param language which programming language should the equation be generated in?
-#'        Can be either "R", or "C".
-
-differenceString <- function(string,
-                             delays = NA,
-                             takeProduct = FALSE,
-                             language) {
-  delays[delays != "delay" | is.na(delays)] = 1
-
-  terms = c(" + ", " * ")
-
-  if (is.null(takeProduct)) {
-    collapse = NULL
-  } else {
-    collapse = terms[takeProduct + 1]
-  }
-
-  if (language == "R") {
-    fullString <- paste0("dat$", string, "[t-",delays,"]", collapse = collapse)
-  } else if (language == "C") {
-    fullString <- paste0("old->", string, collapse = collapse)
-  }
-
-  fullString
-}
-
 #' A function to generate a C script which will execute a simulation of the
 #' network given a starting condition.
 #'
 #' @param network an object of class network.
-#' @param tmax the maximum value that the simulation will be allowed to
-#'        proceed. If the midpoint is reached, a warning will be returned.
-#'        The default value is set to 0.
+#' @param tmax the maximum value that the simulation will be allowed ton proceed.
+#'             If the midpoint is reached, a warning will be returned. The
+#'             default value is set to 0.
 #' @param steadyThreshold the number of decimal places to which node values must
 #'             be equivalent to be considered a steady state. This threshold must
 #'             be passed for all nodes.
@@ -305,12 +198,21 @@ differenceString <- function(string,
 #' @param forceOverwrite default set to FALSE. Will stop the function if the
 #'               folder already exits. Can set to true if you want to replace
 #'               the existing folder.
+#' @param ruleStyle either "Dun", or "Mike". The Dun style resembles the
+#'               original Dun equations normalised such that WT conditions are
+#'               always 1. The Mike style creates mirrored stimulatory and
+#'               inhibitory effects.
+#' @param necStimFunc the name of the function to be applied to necessary
+#'               stimulants. The default is NULL, in which case no function will
+#'               be applied, ant therefore the form will be linear.
+#' @importFrom stringr str_remove
 
 generateC <- function(network,
                       tmax = 100,
                       steadyThreshold = 4,
                       folder = "./Model",
-                      forceOverwrite = FALSE) {
+                      forceOverwrite = FALSE,
+                      ruleStyle = "Dun") {
 
   # defining constants
   insertTMAX = tmax
@@ -318,18 +220,31 @@ generateC <- function(network,
 
   # change altSources to stimulations
   network@objects$Hormones <- altSourceToStimulant(network@objects$Hormones)
+  hormonesWcompartment <- sub("\\.", "_", names(network@objects$Hormones))
+
+  # function to append container info to hormone and genotype names
+  getContainer <- function(x, hormone) {
+    if (hormone == T) {
+      paste(str_remove(x@name, pattern = "\\..*"), substr(x@container, 1, 1), sep = "_")
+    } else {
+      paste(x@name, substr(names(x@expression[which(x@expression == 1)]), 1, 1), sep = "_")
+    }
+  }
+
+  # collect corrected hormone and gene names
+  hormoneList <- unname(sapply(network@objects$Hormones, getContainer, hormone = T))
+  geneList <- sapply(network@objects$Genotypes, getContainer, hormone = F)
+
+  # rename hormone objects
+  names(network@objects$Hormones) <- hormoneList
 
   # define node and gene names
-  insertSTRUCTNODENAMES <- paste0("float ", sub("\\.", "_", names(network@objects$Hormones)), ";", collapse = "\n\t")
-
-  genHolder = unlist(sapply(network@objects$Genotypes,
-                            FUN = function(x) paste(x@name, substr(names(x@expression[which(x@expression == 1)]), 1, 1), sep = "_")),
-                     use.names = F)
-  insertSTRUCTGENENAMES <- paste0("float ", genHolder, ";", collapse = "\n\t")
+  insertSTRUCTNODENAMES <- paste0("float m", hormoneList, ";", collapse = "\n\t")
+  insertSTRUCTGENENAMES <- paste0("float m", geneList, ";", collapse = "\n\t")
 
   # create standard values for nodes and genes
-  insertDATVALS <- paste(rep(1, length(network@objects$Hormones)), collapse = ", ")
-  insertGENEVALS <- paste(rep(1, length(genHolder)), collapse = ", ")
+  insertDATVALS <- paste0("\tdat.", hormoneList, " = 1;", collapse = "\n")
+  insertGENEVALS <- paste0("\tgen.", geneList, " = 1;", collapse = "\n")
 
   # define equations for nodes
   insertEQUATIONS <- rep(NA, length(network@objects$Hormones))
@@ -337,7 +252,7 @@ generateC <- function(network,
     insertEQUATIONS[i] <- generateEquation(network@objects$Hormones[[i]],
                                            network@objects$Genotypes,
                                            "C",
-                                           style)
+                                           ruleStyle)
   }
 
   insertEQUATIONS <- gsub("\\.", "_",
@@ -345,11 +260,9 @@ generateC <- function(network,
                                 insertEQUATIONS, collapse = "\n\t"))
 
   # create chain to check if nodes have changed in the previous timestep
-  insertCOMPARISONCHAIN <- paste(sprintf("if (fabs(old->%s - new->%s) > THRESHOLD) {\n\t\treturn 0;\n\t}",
-                                         names(network@objects$Hormones),
-                                         names(network@objects$Hormones)),
-                                 collapse = " else ")
-  insertCOMPARISONCHAIN <- gsub("\\.", "_", insertCOMPARISONCHAIN)
+  insertCOMPARISONCHAIN <- paste0(sprintf("fabs(oldDat.m->%s - newDat.m->%s) > THRESHOLD",
+                                          hormoneList, hormoneList),
+                                 collapse = "\n\t\t|| ")
 
   insertFINALPRINT <- paste0('"The final node values at time %d are - ',
                              paste(sprintf("%s: %%.2f", names(network@objects$Hormones)),
@@ -613,3 +526,110 @@ generateEquation <- function(node,
   return(allModulations)
 }
 
+#' A function that creates a string with coregulators multiplied together
+#'
+#' Coregulators are sorted so that their multiplications are only represented
+#' once. Each modulator is given a temporal modifier. Sets of coregulators are
+#' summed.
+#'
+#' @param coreg a subsed of a the inputs of a hormone object. This subset
+#'        must all have the same modulating effect, and have coregulators
+#' @param returnNum return the number of unique coregulator sets. Default is
+#'        set to FALSE.
+#' @param language which programming language should the equation be generated in?
+#'        Can be either "R", or "C".
+#' @param operator which operator defines the coregulator, either "and" or "or".
+
+coregulators <- function(coreg,
+                         returnNum = FALSE,
+                         language,
+                         operator) {
+  coreg <- unname(as.matrix(coreg))
+
+  split <- strsplit(coreg[,2], ", ") # Splitting apart lists of coregulators
+
+  lengths <- sapply(split, length)
+
+  # in the case that there is ever more than one coregulator, increase the size
+  # of the coreg matrix to accommodate
+  if (max(lengths) > 1) {
+    coreg <- cbind(coreg, matrix(NA, nrow = nrow(coreg), ncol = max(lengths) - 1))
+  }
+
+  # separating coregulators into their own cells
+  for (i in 1:max(lengths)) {
+    index <- which(lengths >= i)
+    coreg[index, i + 1] <- sapply(split[index], `[[`, i)
+  }
+
+  coregString = rep(NA, nrow(coreg))
+  # providing previous timestep syntax depending on the language to be used
+  for (r in 1:nrow(coreg)) {
+    coreg[r, !is.na(coreg[r, ])] <- sort(coreg[r, !is.na(coreg[r, ])])
+    if (language == "R") {
+      coregString[r] <- paste0("dat$", coreg[r, !is.na(coreg[r, ])], "[t-1]", collapse = ", ")
+    } else if (language == "C") {
+      coregString[r] <- paste0("old->", coreg[r, !is.na(coreg[r, ])], collapse = ", ")
+    } else {
+      stop("Incorrect language specification. Can only accept 'R', or 'C'.")
+    }
+  }
+
+  # only keep the first instance of a piece of information
+  firstApp <- !duplicated(coregString)
+
+  coregString <- coregString[firstApp]
+  operator    <- operator[firstApp]
+
+  # perform the correct calculation depending on operator
+  # SO FAR ONLY FOR R!!!!
+  for (i in 1:length(coregString)) {
+    if (operator[i] == "and") {
+      coregString[i] <- paste0("min(", coregString[i], ")")
+    } else if (operator[i] == "or") {
+      coregString[i] <- paste0("max(", coregString[i], ")")
+    } else {
+      stop("Incorrect operator specification. Can only accept 'and', or 'or'.")
+    }
+  }
+
+  if (returnNum == T) num = length(coregString)
+  coregString <- paste0(coregString, collapse = " + ")
+
+  if (returnNum == FALSE) return(coreg)
+  else return(list(coreg = coregString, num = num))
+}
+
+#' A function to build the difference equation including delays
+#'
+#' @param string whatever string is being constructed.
+#' @param delays a vector specifying if there are any delays associated with
+#'        a particular input.
+#' @param takeProduct logical. Should be set to TRUE if this function is being
+#'        used to collapse necessary stimulants (* instead of +). Can be set to
+#'        NULL of you do not want to concatenate into a single string.
+#' @param language which programming language should the equation be generated in?
+#'        Can be either "R", or "C".
+
+differenceString <- function(string,
+                             delays = NA,
+                             takeProduct = FALSE,
+                             language) {
+  delays[delays != "delay" | is.na(delays)] = 1
+
+  terms = c(" + ", " * ")
+
+  if (is.null(takeProduct)) {
+    collapse = NULL
+  } else {
+    collapse = terms[takeProduct + 1]
+  }
+
+  if (language == "R") {
+    fullString <- paste0("dat$", string, "[t-",delays,"]", collapse = collapse)
+  } else if (language == "C") {
+    fullString <- paste0("pDat->m", string, collapse = collapse)
+  }
+
+  fullString
+}
