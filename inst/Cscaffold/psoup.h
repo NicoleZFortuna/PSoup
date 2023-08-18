@@ -16,5 +16,7 @@ struct GeneVals {
 void stepNext(struct GeneVals gen, struct NodeVals* pDat);
 int checkSame(struct NodeVals first, struct NodeVals second);
 void calculateVals (struct GeneVals gen, struct NodeVals* pDat, int* pTime);
+float getMin(float num1, float num2);
+float getMax(float num1, float num2);
 
 #endif

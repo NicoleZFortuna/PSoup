@@ -55,3 +55,13 @@ void calculateVals (struct GeneVals gen, struct NodeVals* pDat, int* pTime) {
         ++*pTime;
     }
 }
+
+/* This function calculates the minimum of two values */
+float getMin (float num1, float num2) {
+  return (num1 > num2) ? num2 : num1;
+}
+
+/* This function calculates the maximum of two values */
+float getMax (float num1, float num2) {
+  return (num1 > num2) ? num1 : num2;
+}
