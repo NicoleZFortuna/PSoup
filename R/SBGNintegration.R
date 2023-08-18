@@ -67,11 +67,8 @@ convertSBGNdiagram <- function(file, networkName) {
     }
 
     # updating nodeInfo names
-    repeats <- names(which(table(nodeInfo$name) > 1))
-    nodeInfo$name[nodeInfo$name %in% repeats] <- paste(nodeInfo$name[which(nodeInfo$name %in% repeats)],
-                                                       substr(nodeInfo$compartment[which(nodeInfo$name %in% repeats)],
-                                                              1, letterNo),
-                                                       sep = ".")
+    nodeInfo$name <- paste(nodeInfo$name, substr(nodeInfo$compartment, 1, letterNo),
+                           sep = "_")
   }
 
   arcInfo <- data.frame(influence = rep(NA, length(arcIndex)), source = NA, target = NA)
