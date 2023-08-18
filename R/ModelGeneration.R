@@ -212,7 +212,8 @@ generateC <- function(network,
                       steadyThreshold = 4,
                       folder = "./Model",
                       forceOverwrite = FALSE,
-                      ruleStyle = "Dun") {
+                      ruleStyle = "Dun",
+                      necStimFunc = NULL) {
 
   # defining constants
   insertTMAX = tmax
@@ -223,20 +224,13 @@ generateC <- function(network,
   hormonesWcompartment <- sub("\\.", "_", names(network@objects$Hormones))
 
   # function to append container info to hormone and genotype names
-  getContainer <- function(x, hormone) {
-    if (hormone == T) {
-      paste(str_remove(x@name, pattern = "\\..*"), substr(x@container, 1, 1), sep = "_")
-    } else {
-      paste(x@name, substr(names(x@expression[which(x@expression == 1)]), 1, 1), sep = "_")
-    }
+  getGeneContainer <- function(x) {
+    paste(x@name, substr(names(x@expression[which(x@expression == 1)]), 1, 1), sep = "_")
   }
 
   # collect corrected hormone and gene names
-  hormoneList <- unname(sapply(network@objects$Hormones, getContainer, hormone = T))
-  geneList <- sapply(network@objects$Genotypes, getContainer, hormone = F)
-
-  # rename hormone objects
-  names(network@objects$Hormones) <- hormoneList
+  hormoneList <- names(network@objects$Hormones)
+  geneList <- sapply(network@objects$Genotypes, getGeneContainer)
 
   # define node and gene names
   insertSTRUCTNODENAMES <- paste0("float m", hormoneList, ";", collapse = "\n\t")
@@ -249,27 +243,24 @@ generateC <- function(network,
   # define equations for nodes
   insertEQUATIONS <- rep(NA, length(network@objects$Hormones))
   for (i in 1:length(insertEQUATIONS)) {
-    insertEQUATIONS[i] <- generateEquation(network@objects$Hormones[[i]],
-                                           network@objects$Genotypes,
-                                           "C",
-                                           ruleStyle)
+    insertEQUATIONS[i] <- generateEquation(node = network@objects$Hormones[[i]],
+                                           genotypes = network@objects$Genotypes,
+                                           language = "C",
+                                           ruleStyle = ruleStyle,
+                                           necStimFunc = necStimFunc)
   }
 
-  insertEQUATIONS <- gsub("\\.", "_",
-                         paste0("new->", names(network@objects$Hormones), " = ",
-                                insertEQUATIONS, collapse = "\n\t"))
+  insertEQUATIONS <- paste0("pDat->m", names(network@objects$Hormones), " = ",
+                            insertEQUATIONS, collapse = "\n\t")
 
   # create chain to check if nodes have changed in the previous timestep
   insertCOMPARISONCHAIN <- paste0(sprintf("fabs(oldDat.m->%s - newDat.m->%s) > THRESHOLD",
                                           hormoneList, hormoneList),
                                  collapse = "\n\t\t|| ")
 
-  insertFINALPRINT <- paste0('"The final node values at time %d are - ',
-                             paste(sprintf("%s: %%.2f", names(network@objects$Hormones)),
-                                   collapse = ", "),
-                             '", t, ', paste(paste0("new->", names(network@objects$Hormones)),
-                                                collapse = ", "))
-  insertFINALPRINT <- gsub("\\.", "_", insertFINALPRINT)
+  insertFINALPRINT <- paste0('fprintf(stderr, "', hormoneList,
+                             ': %.6f, \\n\\t", dat.m', hormoneList, ')',
+                             collapse = ";\n\t")
 
   text <- readLines(file("./inst/scaffold.txt"))
 
@@ -494,9 +485,9 @@ generateEquation <- function(node,
     for (g in 1:length(genes)) {
       if (class(genotypes[[genes[g]]]@coregulator) == "character") {
         if (language == "R") {
-          cogenes <- paste0("gen$", c(genes[g], genotypes[[genes[g]]]@coregulator), ".", substr(node@container, 1, 1))
+          cogenes <- paste0("gen$", c(genes[g], genotypes[[genes[g]]]@coregulator), "_", substr(node@container, 1, 1))
         } else if (language == "C") {
-          cogenes <- paste0("gen->", c(genes[g], genotypes[[genes[g]]]@coregulator), ".", substr(node@container, 1, 1))
+          cogenes <- paste0("gen.m", c(genes[g], genotypes[[genes[g]]]@coregulator), "_", substr(node@container, 1, 1))
         }
 
         genoString[g] <- paste0(cogenes[order(cogenes)], collapse = " * ")
@@ -628,7 +619,7 @@ differenceString <- function(string,
   if (language == "R") {
     fullString <- paste0("dat$", string, "[t-",delays,"]", collapse = collapse)
   } else if (language == "C") {
-    fullString <- paste0("pDat->m", string, collapse = collapse)
+    fullString <- paste0("oldDat.m", string, collapse = collapse)
   }
 
   fullString

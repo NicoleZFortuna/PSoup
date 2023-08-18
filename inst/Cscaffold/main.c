@@ -15,6 +15,7 @@ int main () {
     /* Calculate values. */
     calculateVals(gen, &dat, &time);
 
+    fprintf(stderr,"The final node values at time %d are - \n\t", time);
     insertFINALPRINT;
 
     return 0;
