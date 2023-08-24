@@ -158,7 +158,7 @@ buildModel <- function(network,
   # Including a function to calculate the effects of a necessary stimulant in
   # in the case that the style is not linear and/or there is a provided function.
   if (!(nesStimStyle == "Linear" & is.null(nesStimFile))) {
-    cat("\t# a fucntion to define the effect of a necessary stimulant.\n", file = funcfile, append = T)
+    cat("\t# a function to define the effect of a necessary stimulant.\n", file = funcfile, append = T)
     cat(paste0("\t", text), sep = "\n", file = funcfile, append = T)
     cat("\n", file = funcfile, append = T)
   }
@@ -459,7 +459,7 @@ generateEquation <- function(node,
                                         takeProduct = NULL, language = language)
 
       if (!is.null(necStimFunc)) {
-        paste0(necStimFunc, "(", necstimString, ")", collapse = " * ")
+        necstimString <- paste0(necStimFunc, "(", necstimString, ")", collapse = " * ")
       }
     }
 
