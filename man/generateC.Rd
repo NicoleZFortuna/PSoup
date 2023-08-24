@@ -10,15 +10,17 @@ generateC(
   tmax = 100,
   steadyThreshold = 4,
   folder = "./Model",
-  forceOverwrite = FALSE
+  forceOverwrite = FALSE,
+  ruleStyle = "Dun",
+  necStimFunc = NULL
 )
 }
 \arguments{
 \item{network}{an object of class network.}
 
-\item{tmax}{the maximum value that the simulation will be allowed to
-proceed. If the midpoint is reached, a warning will be returned.
-The default value is set to 0.}
+\item{tmax}{the maximum value that the simulation will be allowed ton proceed.
+If the midpoint is reached, a warning will be returned. The
+default value is set to 0.}
 
 \item{steadyThreshold}{the number of decimal places to which node values must
 be equivalent to be considered a steady state. This threshold must
@@ -37,6 +39,15 @@ network (nextStep.R).}
 \item{forceOverwrite}{default set to FALSE. Will stop the function if the
 folder already exits. Can set to true if you want to replace
 the existing folder.}
+
+\item{ruleStyle}{either "Dun", or "Mike". The Dun style resembles the
+original Dun equations normalised such that WT conditions are
+always 1. The Mike style creates mirrored stimulatory and
+inhibitory effects.}
+
+\item{necStimFunc}{the name of the function to be applied to necessary
+stimulants. The default is NULL, in which case no function will
+be applied, ant therefore the form will be linear.}
 }
 \description{
 A function to generate a C script which will execute a simulation of the
