@@ -33,16 +33,18 @@ checkEdgeTypes <- function(startingNetwork, nodeStartVals, genotypeVals) {
     }
   }
 
-  networkAlternations <- unlist(lapply(peaNetwork@objects$Hormones, networkChanges), use.names = F)
+  networkAlternations <- unlist(lapply(startingNetwork@objects$Hormones, networkChanges), use.names = F)
 
 
   dat <- array(NA, dim = c(length(geneModelConditions),
-                           length(peaNetwork@objects$Hormones),
+                           length(startingNetwork@objects$Hormones),
                            length(networkAlternations) + 1),
                dimnames = list(geneModelConditions,
-                               names(peaNetwork@objects$Hormones),
+                               names(startingNetwork@objects$Hormones),
                                c("startingNetwork", networkAlternations)))
+
+  for (i in length()) {
+
+  }
 }
 
-
-sapply(peaNetwork@objects$Hormones, function(x) nrow(x@inputs))
