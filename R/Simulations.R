@@ -423,13 +423,15 @@ tidyScreen <- function(frame, name, exogenous = F) {
 #' A function to generate a screen of modifier conditions based on a set of
 #' prior distributions.
 #'
-#' @param folder a string containing the directory of the folder containing
+#' @param folder a string stating the directory of the folder containing
 #'        your generated model.
 #' @param priorDistribution states the prior distribution to be used to generate
 #'        modifier values. If of length 1, the prior will be applied to all
 #'        modifier values. If length is greater than 1, the vector must be
-#'        named with the corresponding node name.
-#' @param n the number of observations.
+#'        named with the corresponding modifier name. To specify a value
+#'        for particular modifiers, provide the value of that modifier
+#'        instead of the distribution to be used.
+#' @param n the number of simulations for which a set of priors will be generated.
 #' @param savePriors logical. If the prior screen should be saved in the provided
 #'        folder.
 #' @param returnVals logical. If the output should be returned to the user.
@@ -444,19 +446,28 @@ modifierPriorScreen <- function(folder, priorDistribution = "rlnorm", n,
     names(priorDistribution) <- colnames(genotypeDef)
   } else {
     # check if anything has been missnamed
-    if (length(setdiff(priorDistribution, genotypeDef)) > 1 |
-        length(setdiff(genotypeDef, priorDistribution)) > 1) {
+    if (length(setdiff(names(priorDistribution), colnames(genotypeDef))) > 1 |
+        length(setdiff(colnames(genotypeDef), names(priorDistribution))) > 1) {
       stop("priorDistribution vector must have the same names as the network nodes.")
     }
   }
 
   # giving object a different name to distinguish from defined set of
   # experimental conditions
-  priorDef <- genotypeDef
+  priorDef <- genotypeDef[1, ]
 
   # will want to allow for different distributions in the future!!! Maybe even
   # user specified distributions?
   priorDef[2:(n + 1), names(priorDistribution)[priorDistribution == "rlnorm"]] <- rlnorm(n * sum(priorDistribution == "rlnorm"))
+
+  # replace vals with specific numbers if provided by user
+  givenVals <- sapply(priorDistribution, function(x) suppressWarnings(as.numeric(x)))
+
+  if (any(!is.na(givenVals))) {
+    for (mod in names(givenVals[!is.na(givenVals)])) {
+      priorDef[2:(n + 1), mod] <- givenVals[[mod]]
+    }
+  }
 
   if (savePriors == T) save(priorDef, file = paste0(folder, "/priorDef.RData"))
 

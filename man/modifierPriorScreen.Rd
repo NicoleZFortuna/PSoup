@@ -14,15 +14,17 @@ modifierPriorScreen(
 )
 }
 \arguments{
-\item{folder}{a string containing the directory of the folder containing
+\item{folder}{a string stating the directory of the folder containing
 your generated model.}
 
 \item{priorDistribution}{states the prior distribution to be used to generate
 modifier values. If of length 1, the prior will be applied to all
 modifier values. If length is greater than 1, the vector must be
-named with the corresponding node name.}
+named with the corresponding modifier name. To specify a value
+for particular modifiers, provide the value of that modifier
+instead of the distribution to be used.}
 
-\item{n}{the number of observations.}
+\item{n}{the number of simulations for which a set of priors will be generated.}
 
 \item{savePriors}{logical. If the prior screen should be saved in the provided
 folder.}
