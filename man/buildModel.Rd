@@ -16,7 +16,8 @@ buildModel(
   ruleStyle = "Dun",
   nesStimStyle = "Linear",
   nesStimFile = NULL,
-  saveNetwork = T
+  saveNetwork = T,
+  robustnessTest = F
 )
 }
 \arguments{
@@ -85,6 +86,9 @@ nesStimStyle argument will be ignored.}
 
 \item{saveNetwork}{logical. Defaults to TRUE. Indicates if the provided
 network object should be saved in the generated folder.}
+
+\item{robustnessTest}{logical. Defaults to FALSE. Specifies if the nextStep
+function being built is part of a network robustness check.}
 }
 \description{
 This function is used to define the script that is needed to simulate the

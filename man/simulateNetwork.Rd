@@ -11,7 +11,8 @@ simulateNetwork(
   genotype = NA,
   startingValues = NA,
   steadyThreshold = 4,
-  exogenousSupply = NULL
+  exogenousSupply = NULL,
+  robustnessTest = F
 )
 }
 \arguments{
@@ -42,6 +43,9 @@ the course of the simulation. The default value for this
 argument is NULL. To specify nodes with an exogenous supply,
 provide a named vector containing the values of the nodes, with
 each vector member named after their respective node.}
+
+\item{robustnessTest}{logical. Defaults to FALSE. Specifies if the nextStep
+function being used is part of a network robustness check.}
 }
 \description{
 Takes the output folder of the buildNetwork function and uses it to run a

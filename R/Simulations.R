@@ -28,6 +28,8 @@
 #'               argument is NULL. To specify nodes with an exogenous supply,
 #'               provide a named vector containing the values of the nodes, with
 #'               each vector member named after their respective node.
+#' @param robustnessTest logical. Defaults to FALSE. Specifies if the nextStep
+#'               function being used is part of a network robustness check.
 #' @export
 
 simulateNetwork <- function(folder,
@@ -36,7 +38,8 @@ simulateNetwork <- function(folder,
                             genotype = NA,
                             startingValues = NA,
                             steadyThreshold = 4,
-                            exogenousSupply = NULL) {
+                            exogenousSupply = NULL,
+                            robustnessTest = F) {
   # Checking if a meaningful delay has been provided
   if (delay == 1) {
     warning("You have selected a delay of 1 which is functionaly equivalent to
@@ -47,7 +50,12 @@ simulateNetwork <- function(folder,
   }
 
   # sourcing data for simulation
-  source(paste0(folder, "/nextStep.R"), local = T)
+  if (robustnessTest == F) {
+    source(paste0(folder, "/nextStep.R"), local = T)
+  } else {
+    source(paste0(folder, "/nextStepAlt.R"), local = T)
+  }
+
 
   if (any(is.na(genotype))) { # if a genotype has not been explicitly provided
     load(paste0(folder, "/genotypeDef.RData"))
@@ -143,6 +151,8 @@ simulateNetwork <- function(folder,
 #' @param saveOutput logical. Default set to FALSE. Indicates if the output of
 #'               simulation screen should be automatically saved in the
 #'               provided folder location upon completion.
+#' @param robustnessTest logical. Defaults to FALSE. Specifies if the nextStep
+#'               function being used is part of a network robustness check.
 #' @importFrom stats runif
 #' @export
 
@@ -151,7 +161,8 @@ setupSims <- function(folder,
                       tmax = NA,
                       steadyThreshold = 4,
                       exogenousSupply = NULL,
-                      saveOutput = F) {
+                      saveOutput = F,
+                      robustnessTest = F) {
   # loading paramater values
   load(paste0(folder, "/genotypeDef.RData"))
   load(paste0(folder, "/nodestartDef.RData"))
@@ -172,7 +183,8 @@ setupSims <- function(folder,
                                      tmax = tmax,
                                      genotype = genotypeDef[g, ],
                                      startingValues = nodestartDef[d, ],
-                                     exogenousSupply = NULL)
+                                     exogenousSupply = NULL,
+                                     robustnessTest = robustnessTest)
 
         sims[[i]] <- list(scenario = list(genotype = genotypeDef[g, ],
                                           startingValues = nodestartDef[d, ],
@@ -410,6 +422,25 @@ tidyScreen <- function(frame, name, exogenous = F) {
   }
 
   frame
+}
+
+#' A function to generate a screen of modifier conditions based on a set of
+#' prior distributions.
+#'
+#' @param folder a string containing the directory of the folder containing
+#'        your generated model.
+#' @param priorVector states the prior distribution to be used to generate
+#'        modifier values. If of length 1, the prior will be applied to all
+#'        modifier values. If length is greater than 1, the vector must be
+#'        named with the corresponding node name.
+#' @param n the number of observations.
+
+modifierPriorScreen <- function(folder, priorVector = "rlnorm", n) {
+  load(paste0(folder, "/genotypeDef.RData"))
+
+  if (length(genotypeDef) > 0) {
+
+  }
 }
 
 

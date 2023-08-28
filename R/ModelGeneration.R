@@ -63,6 +63,8 @@
 #'               nesStimStyle argument will be ignored.
 #' @param saveNetwork logical. Defaults to TRUE. Indicates if the provided
 #'               network object should be saved in the generated folder.
+#' @param robustnessTest logical. Defaults to FALSE. Specifies if the nextStep
+#'               function being built is part of a network robustness check.
 #' @export
 
 buildModel <- function(network,
@@ -76,7 +78,8 @@ buildModel <- function(network,
                        ruleStyle = "Dun",
                        nesStimStyle = "Linear",
                        nesStimFile = NULL,
-                       saveNetwork = T) {
+                       saveNetwork = T,
+                       robustnessTest = F) {
 
   # determining the form that a necessary stimulant should take.
   if (!is.null(nesStimFile)) {
@@ -112,7 +115,12 @@ buildModel <- function(network,
     dir.create(folder)
     genfile = paste0(folder, "/genotypeDef")
     nodefile = paste0(folder, "/nodestartDef")
-    funcfile = paste0(folder, "/nextStep.R")
+
+    if (robustnessTest == F) {
+      funcfile = paste0(folder, "/nextStep.R")
+    } else {
+      funcfile = paste0(folder, "/nextStepAlt.R")
+    }
 
     file.create(funcfile)
   }
@@ -132,7 +140,7 @@ buildModel <- function(network,
   genHolder = unlist(sapply(genotypes,
                                FUN = function(x) paste(x@name,
                                                        substr(names(x@expression[which(x@expression == 1)]),
-                                                              1, 1), sep = ".")), use.names = F)
+                                                              1, 1), sep = "_")), use.names = F)
 
   genotypeDef = rep(1, length(genHolder))
   names(genotypeDef) = genHolder

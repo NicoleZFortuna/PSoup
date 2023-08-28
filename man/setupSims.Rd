@@ -11,7 +11,8 @@ setupSims(
   tmax = NA,
   steadyThreshold = 4,
   exogenousSupply = NULL,
-  saveOutput = F
+  saveOutput = F,
+  robustnessTest = F
 )
 }
 \arguments{
@@ -37,6 +38,9 @@ respective node.}
 \item{saveOutput}{logical. Default set to FALSE. Indicates if the output of
 simulation screen should be automatically saved in the
 provided folder location upon completion.}
+
+\item{robustnessTest}{logical. Defaults to FALSE. Specifies if the nextStep
+function being used is part of a network robustness check.}
 }
 \description{
 This function allows you to set up a variety of genotype and starting node
