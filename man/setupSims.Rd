@@ -11,6 +11,7 @@ setupSims(
   tmax = NA,
   steadyThreshold = 4,
   exogenousSupply = NULL,
+  priorScreen = T,
   saveOutput = F,
   robustnessTest = F
 )
@@ -34,6 +35,9 @@ argument is NULL. To specify nodes with an exogenous supply,
 provide a data frame with column names corresponding to the
 values of the nodes, with each vector member named after their
 respective node.}
+
+\item{priorScreen}{logical. Specifies if the function should collect
+modifier values generated from generated prior distributions.}
 
 \item{saveOutput}{logical. Default set to FALSE. Indicates if the output of
 simulation screen should be automatically saved in the

@@ -148,6 +148,8 @@ simulateNetwork <- function(folder,
 #'               provide a data frame with column names corresponding to the
 #'               values of the nodes, with each vector member named after their
 #'               respective node.
+#' @param priorScreen logical. Specifies if the function should collect
+#'               modifier values generated from generated prior distributions.
 #' @param saveOutput logical. Default set to FALSE. Indicates if the output of
 #'               simulation screen should be automatically saved in the
 #'               provided folder location upon completion.
@@ -161,10 +163,17 @@ setupSims <- function(folder,
                       tmax = NA,
                       steadyThreshold = 4,
                       exogenousSupply = NULL,
+                      priorScreen = T,
                       saveOutput = F,
                       robustnessTest = F) {
-  # loading paramater values
-  load(paste0(folder, "/genotypeDef.RData"))
+  # loading parameter values
+  if (priorScreen == T) {
+    load(paste0(folder, "/priorDef.RData"))
+    genotypeDef <- priorDef
+  } else {
+    load(paste0(folder, "/genotypeDef.RData"))
+  }
+
   load(paste0(folder, "/nodestartDef.RData"))
 
   # Ensuring that the first row of any screening dataframes contain a wildtype condition in the first row
@@ -177,38 +186,25 @@ setupSims <- function(folder,
   i = 1
   for (d in 1:nrow(nodestartDef)) {
     for (g in 1:nrow(genotypeDef)) {
-      if (is.null(exogenousSupply)) {
+      # creating a placeholder value sup so that can still use for loop when
+      # exogenousSupply == NULL
+      if (is.null(exogenousSupply)) sup <- 1
+      else sup <- nrow(exogenousSupply)
+
+      for (ex in 1:sup) {
         simulation = simulateNetwork(folder = folder,
                                      delay = delay,
                                      tmax = tmax,
                                      genotype = genotypeDef[g, ],
                                      startingValues = nodestartDef[d, ],
-                                     exogenousSupply = NULL,
-                                     robustnessTest = robustnessTest)
+                                     exogenousSupply = if (is.null(exogenousSupply)) {NULL} else {exogenousSupply[ex, ]})
 
         sims[[i]] <- list(scenario = list(genotype = genotypeDef[g, ],
                                           startingValues = nodestartDef[d, ],
-                                          exogenousSupply = NULL),
+                                          exogenousSupply = if (is.null(exogenousSupply)) {NULL} else {exogenousSupply[ex, ]}),
                           simulation = simulation$simulation,
                           stable = simulation$stable)
         i = i + 1
-      }
-      else {
-        for (ex in 1:nrow(exogenousSupply)) {
-          simulation = simulateNetwork(folder = folder,
-                                       delay = delay,
-                                       tmax = tmax,
-                                       genotype = genotypeDef[g, ],
-                                       startingValues = nodestartDef[d, ],
-                                       exogenousSupply = exogenousSupply[ex, ])
-
-          sims[[i]] <- list(scenario = list(genotype = genotypeDef[g, ],
-                                            startingValues = nodestartDef[d, ],
-                                            exogenousSupply = exogenousSupply[ex, ]),
-                            simulation = simulation$simulation,
-                            stable = simulation$stable)
-          i = i + 1
-        }
       }
     }
   }
