@@ -429,18 +429,42 @@ tidyScreen <- function(frame, name, exogenous = F) {
 #'
 #' @param folder a string containing the directory of the folder containing
 #'        your generated model.
-#' @param priorVector states the prior distribution to be used to generate
+#' @param priorDistribution states the prior distribution to be used to generate
 #'        modifier values. If of length 1, the prior will be applied to all
 #'        modifier values. If length is greater than 1, the vector must be
 #'        named with the corresponding node name.
 #' @param n the number of observations.
+#' @param savePriors logical. If the prior screen should be saved in the provided
+#'        folder.
+#' @param returnVals logical. If the output should be returned to the user.
 
-modifierPriorScreen <- function(folder, priorVector = "rlnorm", n) {
+modifierPriorScreen <- function(folder, priorDistribution = "rlnorm", n,
+                                savePriors = T, returnVals = F) {
   load(paste0(folder, "/genotypeDef.RData"))
 
-  if (length(genotypeDef) > 0) {
-
+  # make sure that the priorDistribution has the correct naming convention
+  if (length(priorDistribution) == 1) {
+    priorDistribution <- rep(priorDistribution, ncol(genotypeDef))
+    names(priorDistribution) <- colnames(genotypeDef)
+  } else {
+    # check if anything has been missnamed
+    if (length(setdiff(priorDistribution, genotypeDef)) > 1 |
+        length(setdiff(genotypeDef, priorDistribution)) > 1) {
+      stop("priorDistribution vector must have the same names as the network nodes.")
+    }
   }
+
+  # giving object a different name to distinguish from defined set of
+  # experimental conditions
+  priorDef <- genotypeDef
+
+  # will want to allow for different distributions in the future!!! Maybe even
+  # user specified distributions?
+  priorDef[2:(n + 1), names(priorDistribution)[priorDistribution == "rlnorm"]] <- rlnorm(n * sum(priorDistribution == "rlnorm"))
+
+  if (savePriors == T) save(priorDef, file = paste0(folder, "/priorDef.RData"))
+
+  if (returnVals == T) return(priorDef)
 }
 
 
