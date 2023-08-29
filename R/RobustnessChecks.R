@@ -40,6 +40,7 @@
 #'               output should be saved in the provided folder. If set to FALSE,
 #'               only the outputs to simulations that have not achieved stability
 #'               will be saved.
+#' @export
 
 exploreEdges <- function(startingNetwork,
                          folder,
