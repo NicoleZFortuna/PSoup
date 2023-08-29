@@ -5,23 +5,53 @@
 #'        to be tested
 #' @param folder the directory containing the original nextStep function built
 #'        on the original network
-#' @param tmax description
-#' @param steadyThreshold description
-#' @param ruleStyle description
-#' @param nesStimStyle description
-#' @param nesStimFile description
-#' @param saveNetwork description
-#' @param saveOutput description
+#' @param tmax the maximum number of steps that you want to simulate for. Will
+#'             terminate simulation when steady state is reached, unless tmax is
+#'             reached first. If set to NA (the default), will simulate until
+#'             stability is reached.
+#' @param steadyThreshold the number of decimal places to which node values must
+#'             be equivalent to be considered a steady state. This threshold must
+#'             be passed for all nodes.
+#' @param exogenousSupply specifies if the value of a node (or nodes) is
+#'               determined by an outside supply. In this case, the value of the
+#'               node is supplied by the user and remains consistent throughout
+#'               the course of the simulation. The default value for this
+#'               argument is NULL. To specify nodes with an exogenous supply,
+#'               provide a named vector containing the values of the nodes, with
+#'               each vector member named after their respective node.
+#' @param priorScreen logical. Specifies if the function should collect
+#'               modifier values generated from generated prior distributions.
+#' @param ruleStyle either "Dun", or "Mike". The Dun style resembles the
+#'               original Dun equations normalised such that WT conditions are
+#'               always 1. The Mike style creates mirrored stimulatory and
+#'               inhibitory effects.
+#' @param nesStimStyle the multiplicative effect taken on by necessary stimulants.
+#'               Can be "linear" (the default) or saturating. If saturating,
+#'               they can follow a standard "Michaelis-Menten" form, or a
+#'               "switch-like" form.
+#' @param nesStimFile the file directory containing a function for determining
+#'               the from for the multiplicative effect of a necessary stimulant.
+#'               This function should only have a single argument representing the
+#'               value of the necessary stimulant. If a file path is provided, the
+#'               nesStimStyle argument will be ignored.
+#' @param saveNetwork logical. Defaults to TRUE. Indicates if alternative
+#'               network objects should be saved in the generated folder.
+#' @param saveOutput logical. Defaults to TRUE. Indicates if all the simulated
+#'               output should be saved in the provided folder. If set to FALSE,
+#'               only the outputs to simulations that have not achieved stability
+#'               will be saved.
 
 exploreEdges <- function(startingNetwork,
-                           folder,
-                           tmax = 100,
-                           steadyThreshold = 4,
-                           ruleStyle = "Dun",
-                           nesStimStyle = "Linear",
-                           nesStimFile = NULL,
-                           saveNetwork = T,
-                           saveOutput = F) {
+                         folder,
+                         tmax = 100,
+                         steadyThreshold = 4,
+                         exogenousSupply = NULL,
+                         priorScreen = F,
+                         ruleStyle = "Dun",
+                         nesStimStyle = "Linear",
+                         nesStimFile = NULL,
+                         saveNetwork = T,
+                         saveOutput = F) {
 
   load(paste0(folder, "/nodestartDef.RData"))
   load(paste0(folder, "/genotypeDef.RData"))
@@ -40,6 +70,7 @@ exploreEdges <- function(startingNetwork,
   #nodeModelConditions <- apply(nodestartDef, 1, nonWT)
   geneModelConditions <- apply(genotypeDef, 1, nonWT)
 
+  # a function to generate a list of the network alternatives to be tested
   networkChanges <- function(x) {
     edges <- c("stimulation", "inhibition")
     toChange <- which(x@inputs$Influence %in% edges)
@@ -55,9 +86,10 @@ exploreEdges <- function(startingNetwork,
     }
   }
 
+  # the list of alternative networks. The syntax being 'origin node.destination node.edge type'
   networkAlternations <- unlist(lapply(startingNetwork@objects$Hormones, networkChanges), use.names = F)
 
-
+  # object to house the final state information for each topology and model parameter condition
   dat <- array(NA, dim = c(length(geneModelConditions),
                            length(startingNetwork@objects$Hormones),
                            length(networkAlternations) + 1),
@@ -65,44 +97,54 @@ exploreEdges <- function(startingNetwork,
                                names(startingNetwork@objects$Hormones),
                                c("startingNetwork", networkAlternations)))
 
+  # split networkAlternations vector to make it easy to generate alternative topologies
   newNetInfo <- strsplit(networkAlternations, ".", fixed = T)
 
+  # object and counter to save any condition that did not achieve stability
   noStabilityTracker <- data.frame(model.row = NA, network.depth = NA)
   nST <- 0
 
-  for (n in 1:length(networkAlternations)) {
+  for (n in 1:(length(networkAlternations) + 1)) {
     net <- startingNetwork
 
     if (n != 1) {
-      net@objects$Hormones[[newNetInfo[[n]][2]]]@inputs$Influence[net@objects$Hormones[[newNetInfo[[n]][2]]]@inputs$Node == newNetInfo[[n]][1]] <- newNetInfo[[n]][3]
-      buildModel(net, folder, forceOverwrite = T, tmax, steadyThreshold,
-                 ruleStyle, nesStimStyle, nesStimFile, saveNetwork = F,
-                 robustnessTest = T, forceOverwrite = T)
+      # if not using the original topology, generate the relevant change in the
+      # topology and then generate the corresponding nextStep function.
+      net@objects$Hormones[[newNetInfo[[n - 1]][2]]]@inputs$Influence[net@objects$Hormones[[newNetInfo[[n - 1]][2]]]@inputs$Node == newNetInfo[[n - 1]][1]] <- newNetInfo[[n - 1]][3]
+      altTopologyName = sprintf("altNetwork_%s->%s.%s",
+                                newNetInfo[[n - 1]][1],
+                                newNetInfo[[n - 1]][2],
+                                newNetInfo[[n - 1]][3])
 
-      if (saveNetwork == T) {
-        save(net, file = sprintf("%s/altNetwork_%s->%s.%s", folder,
-                                 newNetInfo[[n]][1],
-                                 newNetInfo[[n]][2],
-                                 newNetInfo[[n]][3]))
+      buildModel(network = net, folder = folder, forceOverwrite = T, tmax = tmax,
+                 steadyThreshold = steadyThreshold, ruleStyle = ruleStyle,
+                 nesStimStyle = nesStimStyle, nesStimFile = nesStimFile,
+                 saveNetwork = saveNetwork, robustnessTest = T,
+                 altTopologyName = altTopologyName)
+    } else {altTopologyName = NULL}
+
+    # run simulation, making sure that the correct nextStep function is being used
+    simulations <- setupSims(folder, tmax = tmax,
+                             steadyThreshold = steadyThreshold,
+                             exogenousSupply = exogenousSupply,
+                             priorScreen = priorScreen,
+                             robustnessTest = if (n == 1) {F} else {T},
+                             altTopologyName = altTopologyName,
+                             saveOutput = saveOutput)
+
+    dat[1:3, colnames(dat), n] <- as.matrix(finalStates(simulations$screen)[, colnames(dat)])
+
+    if (any(stabilityVector(simulations) == F)) {
+      isStable <- stabilityVector(simulations)
+      noStabilityTracker[(nST + 1):((nST + 1) + sum(isStable == F) - 1), 'model.row'] <- which(isStable == F)
+      noStabilityTracker[(nST + 1):((nST + 1) + sum(isStable == F) - 1), 'network.depth'] <- networkAlternations[n - 1]
+
+      nST <- nST + sum(isStable == F)
+
+      if (saveOutput == F) {
+        # create object to house any simulations that have not achieved stability
+        # if this object has length > 0, save it.
       }
-      simulations <- setupSims(folder, tmax = tmax,
-                               steadyThreshold = steadyThreshold,
-                               robustnessTest = T)[, colnames(dat)]
-    } else {
-      source(paste0(folder, "/nextStep.R"), local = T)
-
-      simulations <- setupSims(folder, tmax = tmax,
-                               steadyThreshold = steadyThreshold,
-                               robustnessTest = F)[, colnames(dat)]
-    }
-
-    dat[, colnames(dat), n] <- simulations$screen$simulations[, colnames(dat)]
-
-    if (any(simulations$screen$stable == F)) {
-      noStabilityTracker[(nST + 1):sum(simulations$screen$stable == F), 'model.row'] <- which(simulations$screen$stable == F)
-      noStabilityTracker[(nST + 1):sum(simulations$screen$stable == F), 'network.depth'] <- networkAlternations[n]
-
-      nST <- nST + sum(simulations$screen$stable == F)
     }
   }
 

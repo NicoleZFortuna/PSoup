@@ -10,6 +10,8 @@ exploreEdges(
   folder,
   tmax = 100,
   steadyThreshold = 4,
+  exogenousSupply = NULL,
+  priorScreen = F,
   ruleStyle = "Dun",
   nesStimStyle = "Linear",
   nesStimFile = NULL,
@@ -24,19 +26,49 @@ to be tested}
 \item{folder}{the directory containing the original nextStep function built
 on the original network}
 
-\item{tmax}{description}
+\item{tmax}{the maximum number of steps that you want to simulate for. Will
+terminate simulation when steady state is reached, unless tmax is
+reached first. If set to NA (the default), will simulate until
+stability is reached.}
 
-\item{steadyThreshold}{description}
+\item{steadyThreshold}{the number of decimal places to which node values must
+be equivalent to be considered a steady state. This threshold must
+be passed for all nodes.}
 
-\item{ruleStyle}{description}
+\item{exogenousSupply}{specifies if the value of a node (or nodes) is
+determined by an outside supply. In this case, the value of the
+node is supplied by the user and remains consistent throughout
+the course of the simulation. The default value for this
+argument is NULL. To specify nodes with an exogenous supply,
+provide a named vector containing the values of the nodes, with
+each vector member named after their respective node.}
 
-\item{nesStimStyle}{description}
+\item{priorScreen}{logical. Specifies if the function should collect
+modifier values generated from generated prior distributions.}
 
-\item{nesStimFile}{description}
+\item{ruleStyle}{either "Dun", or "Mike". The Dun style resembles the
+original Dun equations normalised such that WT conditions are
+always 1. The Mike style creates mirrored stimulatory and
+inhibitory effects.}
 
-\item{saveNetwork}{description}
+\item{nesStimStyle}{the multiplicative effect taken on by necessary stimulants.
+Can be "linear" (the default) or saturating. If saturating,
+they can follow a standard "Michaelis-Menten" form, or a
+"switch-like" form.}
 
-\item{saveOutput}{description}
+\item{nesStimFile}{the file directory containing a function for determining
+the from for the multiplicative effect of a necessary stimulant.
+This function should only have a single argument representing the
+value of the necessary stimulant. If a file path is provided, the
+nesStimStyle argument will be ignored.}
+
+\item{saveNetwork}{logical. Defaults to TRUE. Indicates if alternative
+network objects should be saved in the generated folder.}
+
+\item{saveOutput}{logical. Defaults to TRUE. Indicates if all the simulated
+output should be saved in the provided folder. If set to FALSE,
+only the outputs to simulations that have not achieved stability
+will be saved.}
 }
 \description{
 A function to test how network behavior changes in response to changing the

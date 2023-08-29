@@ -13,7 +13,8 @@ setupSims(
   exogenousSupply = NULL,
   priorScreen = T,
   saveOutput = F,
-  robustnessTest = F
+  robustnessTest = F,
+  altTopologyName = NULL
 )
 }
 \arguments{
@@ -45,6 +46,11 @@ provided folder location upon completion.}
 
 \item{robustnessTest}{logical. Defaults to FALSE. Specifies if the nextStep
 function being used is part of a network robustness check.}
+
+\item{altTopologyName}{default to NULL. If robustnessTest = T, this argument
+allows the user to keep the generated alternate nextStep function
+with a specific name. If no name is provided, the alternate
+nextStep functions will be names nextStepAlt.R.}
 }
 \description{
 This function allows you to set up a variety of genotype and starting node

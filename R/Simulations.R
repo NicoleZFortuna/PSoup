@@ -30,6 +30,10 @@
 #'               each vector member named after their respective node.
 #' @param robustnessTest logical. Defaults to FALSE. Specifies if the nextStep
 #'               function being used is part of a network robustness check.
+#' @param altTopologyName default to NULL. If robustnessTest = T, this argument
+#'               allows the user to keep the generated alternate nextStep function
+#'               with a specific name. If no name is provided, the alternate
+#'               nextStep functions will be names nextStepAlt.R.
 #' @export
 
 simulateNetwork <- function(folder,
@@ -39,7 +43,8 @@ simulateNetwork <- function(folder,
                             startingValues = NA,
                             steadyThreshold = 4,
                             exogenousSupply = NULL,
-                            robustnessTest = F) {
+                            robustnessTest = F,
+                            altTopologyName = NULL) {
   # Checking if a meaningful delay has been provided
   if (delay == 1) {
     warning("You have selected a delay of 1 which is functionaly equivalent to
@@ -53,7 +58,7 @@ simulateNetwork <- function(folder,
   if (robustnessTest == F) {
     source(paste0(folder, "/nextStep.R"), local = T)
   } else {
-    source(paste0(folder, "/nextStepAlt.R"), local = T)
+    source(paste0(folder, "/", altTopologyName, "_nextStepAlt.R"))
   }
 
 
@@ -155,6 +160,10 @@ simulateNetwork <- function(folder,
 #'               provided folder location upon completion.
 #' @param robustnessTest logical. Defaults to FALSE. Specifies if the nextStep
 #'               function being used is part of a network robustness check.
+#' @param altTopologyName default to NULL. If robustnessTest = T, this argument
+#'               allows the user to keep the generated alternate nextStep function
+#'               with a specific name. If no name is provided, the alternate
+#'               nextStep functions will be names nextStepAlt.R.
 #' @importFrom stats runif
 #' @export
 
@@ -165,9 +174,13 @@ setupSims <- function(folder,
                       exogenousSupply = NULL,
                       priorScreen = T,
                       saveOutput = F,
-                      robustnessTest = F) {
+                      robustnessTest = F,
+                      altTopologyName = NULL) {
   # loading parameter values
   if (priorScreen == T) {
+    if (!file.exists(paste0(folder, "/priorDef.RData"))) {
+      stop("You have requested to use modifer values generated from a prior distribution, but there is no priorDef.RData file in the folder indicated.")
+    }
     load(paste0(folder, "/priorDef.RData"))
     genotypeDef <- priorDef
   } else {
@@ -197,7 +210,9 @@ setupSims <- function(folder,
                                      tmax = tmax,
                                      genotype = genotypeDef[g, ],
                                      startingValues = nodestartDef[d, ],
-                                     exogenousSupply = if (is.null(exogenousSupply)) {NULL} else {exogenousSupply[ex, ]})
+                                     exogenousSupply = if (is.null(exogenousSupply)) {NULL} else {exogenousSupply[ex, ]},
+                                     robustnessTest = robustnessTest,
+                                     altTopologyName = altTopologyName)
 
         sims[[i]] <- list(scenario = list(genotype = genotypeDef[g, ],
                                           startingValues = nodestartDef[d, ],
@@ -214,8 +229,9 @@ setupSims <- function(folder,
                  "screen" = sims)
 
   if (saveOutput == T) {
+    if (!is.null(altTopologyName)) altTopologyName <- paste0(altTopologyName, "_")
     save(output,
-         file = paste0(folder, "/allSims.RData"))
+         file = paste0(folder, "/", altTopologyName, "allSims.RData"))
   }
 
   return(output)
@@ -435,6 +451,7 @@ tidyScreen <- function(frame, name, exogenous = F) {
 #' @param savePriors logical. If the prior screen should be saved in the provided
 #'        folder.
 #' @param returnVals logical. If the output should be returned to the user.
+#' @export
 
 modifierPriorScreen <- function(folder, priorDistribution = "rlnorm", n,
                                 savePriors = T, returnVals = F) {

@@ -65,6 +65,10 @@
 #'               network object should be saved in the generated folder.
 #' @param robustnessTest logical. Defaults to FALSE. Specifies if the nextStep
 #'               function being built is part of a network robustness check.
+#' @param altTopologyName default to NULL. If robustnessTest = T, this argument
+#'               allows the user to keep the generated alternate nextStep function
+#'               with a specific name. If no name is provided, the alternate
+#'               nextStep functions will be names nextStepAlt.R.
 #' @export
 
 buildModel <- function(network,
@@ -79,7 +83,8 @@ buildModel <- function(network,
                        nesStimStyle = "Linear",
                        nesStimFile = NULL,
                        saveNetwork = T,
-                       robustnessTest = F) {
+                       robustnessTest = F,
+                       altTopologyName = NULL) {
 
   # determining the form that a necessary stimulant should take.
   if (!is.null(nesStimFile)) {
@@ -119,14 +124,19 @@ buildModel <- function(network,
     if (robustnessTest == F) {
       funcfile = paste0(folder, "/nextStep.R")
     } else {
-      funcfile = paste0(folder, "/nextStepAlt.R")
+      funcfile = paste0(folder, "/", altTopologyName, "_nextStepAlt.R")
     }
 
     file.create(funcfile)
   }
 
   # save the originating network object
-  save(network, file = paste0(folder, "/", network@name, ".RData"))
+  if (saveNetwork == T) {
+    save(network, file = paste0(folder, "/",
+                                if (robustnessTest == T) {altTopologyName}
+                                else {network@name},
+                                ".RData"))
+  }
 
   if (altSource == FALSE) {
     # changing network influences so all altSource inputs are stimulants
@@ -136,23 +146,26 @@ buildModel <- function(network,
   nodes = network@objects$Hormones
   genotypes = network@objects$Genotypes
 
-  # Creating the genotype and node data.frames
-  genHolder = unlist(sapply(genotypes,
-                               FUN = function(x) paste(x@name,
-                                                       substr(names(x@expression[which(x@expression == 1)]),
-                                                              1, 1), sep = "_")), use.names = F)
+  # if nextStep is being generated as part of a robustness test, the node and
+  # modifier data.frmes do not need to be generated
+  if (robustnessTest == F) {
+    # Creating the genotype and node data.frames
+    genHolder = unlist(sapply(genotypes,
+                              FUN = function(x) paste(x@name,
+                                                      substr(names(x@expression[which(x@expression == 1)]),
+                                                             1, 1), sep = "_")), use.names = F)
 
-  genotypeDef = rep(1, length(genHolder))
-  names(genotypeDef) = genHolder
-  genotypeDef = as.data.frame(t(genotypeDef))
+    genotypeDef = rep(1, length(genHolder))
+    names(genotypeDef) = genHolder
+    genotypeDef = as.data.frame(t(genotypeDef))
 
-  save(genotypeDef, file = paste0(genfile, ".RData"))
+    nodestartDef = rep(1, length(nodes))
+    names(nodestartDef) = names(nodes)
+    nodestartDef = as.data.frame(t(nodestartDef))
 
-  nodestartDef = rep(1, length(nodes))
-  names(nodestartDef) = names(nodes)
-  nodestartDef = as.data.frame(t(nodestartDef))
-
-  save(nodestartDef, file = paste0(nodefile, ".RData"))
+    save(genotypeDef, file = paste0(genfile, ".RData"))
+    save(nodestartDef, file = paste0(nodefile, ".RData"))
+  }
 
   inhibition = c("inhibition", "sufficient inhibition", "necessary inhibition")
   stimulation = c("stimulation", "sufficient stimulation", "necessary stimulation")

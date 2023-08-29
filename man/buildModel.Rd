@@ -17,7 +17,8 @@ buildModel(
   nesStimStyle = "Linear",
   nesStimFile = NULL,
   saveNetwork = T,
-  robustnessTest = F
+  robustnessTest = F,
+  altTopologyName = NULL
 )
 }
 \arguments{
@@ -89,6 +90,11 @@ network object should be saved in the generated folder.}
 
 \item{robustnessTest}{logical. Defaults to FALSE. Specifies if the nextStep
 function being built is part of a network robustness check.}
+
+\item{altTopologyName}{default to NULL. If robustnessTest = T, this argument
+allows the user to keep the generated alternate nextStep function
+with a specific name. If no name is provided, the alternate
+nextStep functions will be names nextStepAlt.R.}
 }
 \description{
 This function is used to define the script that is needed to simulate the
