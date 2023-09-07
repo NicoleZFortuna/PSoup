@@ -164,6 +164,8 @@ simulateNetwork <- function(folder,
 #'               allows the user to keep the generated alternate nextStep function
 #'               with a specific name. If no name is provided, the alternate
 #'               nextStep functions will be names nextStepAlt.R.
+#' @param report Logical, defaults to FALSE. Indicates if the index of the
+#'               completed simulations is returned.
 #' @importFrom stats runif
 #' @export
 
@@ -175,7 +177,8 @@ setupSims <- function(folder,
                       priorScreen = T,
                       saveOutput = F,
                       robustnessTest = F,
-                      altTopologyName = NULL) {
+                      altTopologyName = NULL,
+                      report = F) {
   # loading parameter values
   if (priorScreen == T) {
     if (!file.exists(paste0(folder, "/priorDef.RData"))) {
@@ -201,8 +204,8 @@ setupSims <- function(folder,
     for (g in 1:nrow(genotypeDef)) {
       # creating a placeholder value sup so that can still use for loop when
       # exogenousSupply == NULL
-      if (is.null(exogenousSupply)) sup <- 1
-      else sup <- nrow(exogenousSupply)
+      if (is.null(exogenousSupply)) {sup <- 1
+      } else {sup <- nrow(exogenousSupply)}
 
       for (ex in 1:sup) {
         simulation = simulateNetwork(folder = folder,
@@ -219,6 +222,12 @@ setupSims <- function(folder,
                                           exogenousSupply = if (is.null(exogenousSupply)) {NULL} else {exogenousSupply[ex, ]}),
                           simulation = simulation$simulation,
                           stable = simulation$stable)
+        if (report == T) {
+          print(paste("Simulation", i, "out of",
+                      nrow(nodestartDef) * nrow(genotypeDef) * sup,
+                      "completed..."))
+        }
+
         i = i + 1
       }
     }

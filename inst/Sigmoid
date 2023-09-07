@@ -1,0 +1,3 @@
+logDif <- function(x, max) {
+  plogis(x, location = (-qlogis(1/max)), scale = 1) * max
+}

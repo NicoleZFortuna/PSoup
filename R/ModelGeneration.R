@@ -147,7 +147,7 @@ buildModel <- function(network,
   genotypes = network@objects$Genotypes
 
   # if nextStep is being generated as part of a robustness test, the node and
-  # modifier data.frmes do not need to be generated
+  # modifier data.frames do not need to be generated
   if (robustnessTest == F) {
     # Creating the genotype and node data.frames
     genHolder = unlist(sapply(genotypes,
@@ -472,12 +472,32 @@ generateEquation <- function(node,
   }
 
   # multiplying modulations by necessary stimulants and genotypes
+  if (length(node@genotypes) > 0) {
+    genes <- node@genotypes
+    genoString <- rep(NA, length(genes))
+    for (g in 1:length(genes)) {
+      if (class(genotypes[[genes[g]]]@coregulator) == "character") {
+        if (language == "R") {
+          cogenes <- paste0("gen$", c(genes[g], genotypes[[genes[g]]]@coregulator), "_", substr(node@container, 1, 1))
+        } else if (language == "C") {
+          cogenes <- paste0("gen.m", c(genes[g], genotypes[[genes[g]]]@coregulator), "_", substr(node@container, 1, 1))
+        }
+
+        genoString[g] <- paste0(cogenes[order(cogenes)], collapse = " * ")
+      }
+    }
+
+    genoString = unique(genoString)
+    allModulations <- sprintf("(%s) * (%s)", allModulations, genoString)
+  }
+
   if (any(node@inputs$Influence == "necessary stimulation")) {
     necstimString <- node@inputs$Node[node@inputs$Influence %in% "necessary stimulation" & is.na(node@inputs$Coregulator)]
     if (length(necstimString) > 0) {
       necstimString <- differenceString(necstimString,
                                         node@inputs$Operator[node@inputs$Operator == "delay" & node@inputs$Influence == "necessary stimulation"],
-                                        takeProduct = NULL, language = language)
+                                        takeProduct = if (length(necstimString) == 1) {NULL} else {T},
+                                        language = language)
 
       if (!is.null(necStimFunc)) {
         necstimString <- paste0(necStimFunc, "(", necstimString, ")", collapse = " * ")
@@ -498,25 +518,6 @@ generateEquation <- function(node,
       necstimString = paste(necstimString, coreg, sep = " * ")
     }
     allModulations <- sprintf("(%s) * (%s)", allModulations, necstimString)
-  }
-
-  if (length(node@genotypes) > 0) {
-    genes <- node@genotypes
-    genoString <- rep(NA, length(genes))
-    for (g in 1:length(genes)) {
-      if (class(genotypes[[genes[g]]]@coregulator) == "character") {
-        if (language == "R") {
-          cogenes <- paste0("gen$", c(genes[g], genotypes[[genes[g]]]@coregulator), "_", substr(node@container, 1, 1))
-        } else if (language == "C") {
-          cogenes <- paste0("gen.m", c(genes[g], genotypes[[genes[g]]]@coregulator), "_", substr(node@container, 1, 1))
-        }
-
-        genoString[g] <- paste0(cogenes[order(cogenes)], collapse = " * ")
-      }
-    }
-
-    genoString = unique(genoString)
-    allModulations <- sprintf("(%s) * (%s)", allModulations, genoString)
   }
 
   # add if there is a source from another node (will not be influenced by dynamics of current node)

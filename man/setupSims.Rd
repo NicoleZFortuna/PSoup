@@ -14,7 +14,8 @@ setupSims(
   priorScreen = T,
   saveOutput = F,
   robustnessTest = F,
-  altTopologyName = NULL
+  altTopologyName = NULL,
+  report = F
 )
 }
 \arguments{
@@ -51,6 +52,9 @@ function being used is part of a network robustness check.}
 allows the user to keep the generated alternate nextStep function
 with a specific name. If no name is provided, the alternate
 nextStep functions will be names nextStepAlt.R.}
+
+\item{report}{Logical, defaults to FALSE. Indicates if the index of the
+completed simulations is returned.}
 }
 \description{
 This function allows you to set up a variety of genotype and starting node

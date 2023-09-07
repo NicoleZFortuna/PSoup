@@ -12,6 +12,19 @@
 #' @param steadyThreshold the number of decimal places to which node values must
 #'             be equivalent to be considered a steady state. This threshold must
 #'             be passed for all nodes.
+#' @param ruleStyle either "Dun", or "Mike". The Dun style resembles the
+#'               original Dun equations normalised such that WT conditions are
+#'               always 1. The Mike style creates mirrored stimulatory and
+#'               inhibitory effects.
+#' @param nesStimStyle the multiplicative effect taken on by necessary stimulants.
+#'               Can be "linear" (the default) or saturating. If saturating,
+#'               they can follow a standard "Michaelis-Menten" form, or a
+#'               "switch-like" form.
+#' @param nesStimFile the file directory containing a function for determining
+#'               the from for the multiplicative effect of a necessary stimulant.
+#'               This function should only have a single argument representing the
+#'               value of the necessary stimulant. If a file path is provided, the
+#'               nesStimStyle argument will be ignored.
 #' @param exogenousSupply specifies if the value of a node (or nodes) is
 #'               determined by an outside supply. In this case, the value of the
 #'               node is supplied by the user and remains consistent throughout
@@ -46,11 +59,11 @@ exploreEdges <- function(startingNetwork,
                          folder,
                          tmax = 100,
                          steadyThreshold = 4,
+                         ruleStyle = "Dun",
+                         nesStimStyle = "Michaelis-Menten",
+                         nesStimFile = NULL,
                          exogenousSupply = NULL,
                          priorScreen = F,
-                         ruleStyle = "Dun",
-                         nesStimStyle = "Linear",
-                         nesStimFile = NULL,
                          saveNetwork = T,
                          saveOutput = F) {
 
