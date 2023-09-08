@@ -4,12 +4,12 @@
 \name{langConversion}
 \alias{langConversion}
 \title{A data.frame containing the language conventions and their
-equivalence of the peaSoup package, and the SBGN languages
+equivalence of the PSoup package, and the SBGN languages
 'activity flow' and 'entity relationship'.}
 \format{
 a data.frame containing three rows:
 \describe{
-  \item{peaSoup}{The relationships supported by peaSoup}
+  \item{PSoup}{The relationships supported by PSoup}
   \item{AF}{The equivalent relationship for the activity flow notation}
   \item{ER}{The equivalent relationship for the entitiy relationship notation}
 }

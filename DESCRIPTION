@@ -1,4 +1,4 @@
-Package: peaSoup
+Package: PSoup
 Type: Package
 Title: A Package That Models Pea Hormone Interactions, And Predicts Branching Phenotypes
 Version: 0.1.0

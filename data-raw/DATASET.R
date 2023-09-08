@@ -3,7 +3,7 @@ peaNetwork <- convertSBGNdiagram(file = "./data-raw/DunAFgenotype.sbgn", network
 save(peaNetwork, file = "./Data/peaNetwork.RData")
 
 # a key used to maintain consistent language
-langConversion <- data.frame(peaSoup = c("stimulation",
+langConversion <- data.frame(PSoup = c("stimulation",
                                           "inhibition",
                                           "necessary stimulation",
                                           "necessary inhibition",

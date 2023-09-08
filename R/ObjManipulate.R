@@ -223,7 +223,7 @@ restoreBaseModel <- function() {
 
   files <- paste0(getwd(), "/", list.files("Data", full.names = T))
 
-  #obj = data(package="peaSoup", verbose = T)$results[,3]
+  #obj = data(package="PSoup", verbose = T)$results[,3]
   for (i in files) load(i, envir = parent.env(environment()))
 }
 

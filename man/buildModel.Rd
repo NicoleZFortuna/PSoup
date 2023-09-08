@@ -18,9 +18,7 @@ buildModel(
   nesStimFile = NULL,
   saveNetwork = T,
   robustnessTest = F,
-  altTopologyName = NULL,
-  glue = "+",
-  before = T
+  altTopologyName = NULL
 )
 }
 \arguments{
@@ -74,7 +72,7 @@ The default is set to 4.}
 \item{ruleStyle}{either "Dun", or "Mike". The Dun style resembles the
 original Dun equations normalised such that WT conditions are
 always 1. The Mike style creates mirrored stimulatory and
-inhibitory effects. Added "Differential" equations.}
+inhibitory effects.}
 
 \item{nesStimStyle}{the multiplicative effect taken on by necessary stimulants.
 Can be "linear" (the default) or saturating. If saturating,

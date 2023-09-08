@@ -2,7 +2,7 @@
 % Please edit documentation in R/SBGNintegration.R
 \name{languageConversion}
 \alias{languageConversion}
-\title{A function to convert SBGN language to peaSoup language}
+\title{A function to convert SBGN language to PSoup language}
 \usage{
 languageConversion(influenceFrame, language)
 }
@@ -14,5 +14,5 @@ slot of a hormone object}
 network}
 }
 \description{
-A function to convert SBGN language to peaSoup language
+A function to convert SBGN language to PSoup language
 }

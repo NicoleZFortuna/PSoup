@@ -319,7 +319,7 @@ buildHormone <- function(nodeInfo, arcInfo, i, logicIndex, ids, nodesList, lang)
   hormone
 }
 
-#' A function to convert SBGN language to peaSoup language
+#' A function to convert SBGN language to PSoup language
 #'
 #' @param influenceFrame the influence column of either the input or output
 #'                       slot of a hormone object
@@ -329,6 +329,6 @@ buildHormone <- function(nodeInfo, arcInfo, i, logicIndex, ids, nodesList, lang)
 languageConversion <- function(influenceFrame, language) {
   column <- which(c("activity flow", "entity relationship") %in% language) + 1
 
-  replace <- langConversion$peaSoup[match(influenceFrame, langConversion[,column])]
+  replace <- langConversion$PSoup[match(influenceFrame, langConversion[,column])]
   replace
 }

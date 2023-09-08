@@ -9,9 +9,7 @@ generateEquation(
   genotypes,
   language,
   ruleStyle = "Dun",
-  necStimFunc = NULL,
-  glue = "+",
-  before = T
+  necStimFunc = NULL
 )
 }
 \arguments{
@@ -22,7 +20,7 @@ Can be either "R", or "C".}
 
 \item{ruleStyle}{either "Dun", or "Mike". The Dun style resembles the original
 Dun equations normalised such that WT conditions are always 1. The Mike
-style creates mirrored stimulatory and inhibitory effects. "Differential"}
+style creates mirrored stimulatory and inhibitory effects.}
 
 \item{necStimFunc}{the name of the function to be applied to necessary
 stimulants. The default is NULL, in which case no function will be
