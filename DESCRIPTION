@@ -1,6 +1,6 @@
 Package: PSoup
 Type: Package
-Title: A Package That Models Pea Hormone Interactions, And Predicts Branching Phenotypes
+Title: A Package That Translates Network Diagrams Into A Mathematical Model And Runs Simulations.
 Version: 0.1.0
 Authors@R: person("Nicole", "Fortuna", email = "nicole.fortuna@uqconnect.edu.au", role = c("aut", "cre"))
 Description: This package builds networks of interacting hormones to predict branching outcomes in

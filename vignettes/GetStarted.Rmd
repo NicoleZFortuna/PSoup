@@ -33,6 +33,8 @@ PSoup has been designed to automate aspects 3, 4, and 5. Therefore, when generat
 
 A benefit of PSoup is that it allows users who may not be comfortable with mathematics to dabble with simulations. Even so, PSoup is completely transparent in regard to how the diagramatic description of the system has been translated into a series of equations by generating an R script which defines the function (called `nextStep`) which calculates the values of nodes at each timestep. By allowing access to this function, PSoup gives the possibility for the user to manually change aspects of the mathematical description of the system if they wish to do so.
 
+Need an overview of PSoup running simulations until reaching stability. Not a direct replication of biology. Not meaningful through time as no reliance on coefficients.
+
 ### Walkthrough of how to use PSoup
 
 This is a short tutorial to demonstrate how you can use PSoup to simulate network outcomes. Examples will use data that is included in this package.
@@ -57,8 +59,7 @@ The above network object is available with the PSoup package, and can therefore 
 peaNetwork
 ```
 
-Network objects can then be passed to a function called 'buildModel' which will generate all
-the information that is required to run a simulation of your network. You will need to provide a directory pathway for your model information to be stored in. If there already exists a folder of the specified name, this function will not overwrite the folder unless requested to do so (you would need to pass an additional argument `forceOverwrite = TRUE` to the buildModel function.)
+Network objects can then be passed to a function called 'buildModel' which will generate all the information that is required to run a simulation of your network. You will need to provide a directory pathway for your model information to be stored in. If there already exists a folder of the specified name, this function will not overwrite the folder unless requested to do so (you would need to pass an additional argument `forceOverwrite = TRUE` to the buildModel function.)
 
 ```{r, eval=FALSE}
 folder = "~/Desktop/Model"
@@ -76,7 +77,7 @@ load(paste0(folder, "/genotypeDef.RData"))
 load(paste0(folder, "/nodestartDef.RData"))
 ```
 
-Within the folder that you have built, there will be three objects. Two of these objects will be data frames specifying values to be fed to the model: one will give the genotypes and their wild type values, the second will give the starting node values for the simulation.
+Within the folder that you have built, there will be three objects. Two of these objects will be data frames specifying values to be fed to the model: one will give the genotypes and their baseline values, the second will give the starting node values for the simulation.
 
 ```{r, echo=FALSE}
 holder = genotypeDef
@@ -97,11 +98,11 @@ In addition to these two data frames, the folder you generate will also contain 
 knitr::include_graphics("buildModelOutput.png")
 ```
 
-This function is what will be doing most of the work when running simulations of the network. This function is what calculates the node values at each step in time. It contains a series of difference equations which are the mathematical description of the information contained in the diagram.
+This function is what will be doing most of the work when running simulations of the network. This function is what calculates the node values at each step. It contains a series of difference equations which are the mathematical description of the information contained in the diagram.
 
 This function has been provided as a script accessible to the user in order to make the translation of the provided diagram transparent to the user. In addition, it provides an opportunity for the user to modify the equations if they wish to do so. This is a potentially a dangerous thing to attempt as it is possible to introduce errors or bugs into the simulations. If the user decides to modify the code, they will be responsible for creating usable functions. In addition, the user should be wary that by modifying the code, that they may be creating runaway dynamics that cause simulations to never reach stability. Even if this is the case, the `tmax` argument will prevent the simulation from becoming stuck in an endless loop. In addition, if any of the nodes reaches infinity (`Inf`), the simulation will be terminated and an error generated.
 
-Once these three data objects have been created in our Model folder, the path directory of this folder can be provided as input to run simulations. If we want to run a single simulation, we can call the `simulateNetwork` function.
+Once these three data objects have been created in your specified folder, the path directory of this folder can be provided as input to run simulations. If we want to run a single simulation, we can call the `simulateNetwork` function.
 
 ```{r}
 simulation <- simulateNetwork(folder, tmax = 100) 
