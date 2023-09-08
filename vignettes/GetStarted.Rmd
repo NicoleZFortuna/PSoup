@@ -1,10 +1,10 @@
 ---
-title: "Get started using peaSoup"
+title: "Get started using PSoup"
 author: "Nicole Fortuna"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Get started using peaSoup}
+  %\VignetteIndexEntry{Get started using PSoup}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,9 +16,9 @@ knitr::opts_chunk$set(
 )
 ```
 
-### Purpose and design philosophy of peaSoup
+### Purpose and design philosophy of PSoup
 
-The peaSoup package was built as a tool to support the generation of network descriptions of biological systems. It is embedded in a larger workflow designed to ultimately assist in predicting the direction of change in a system in response to perturbations.
+The PSoup package was built as a tool to support the generation of network descriptions of biological systems. It is embedded in a larger workflow designed to ultimately assist in predicting the direction of change in a system in response to perturbations.
 
 This workflow consists of several critical aspects: 
 
@@ -27,17 +27,17 @@ This workflow consists of several critical aspects:
 3. Translate statements into a diagram.
 4. Convert the diagram into a computational model.
 5. Test if the computational model recapitulates experimental outcomes.
-6. Design new experiments to further test the functioning of the model.
+6. Design new experiments to test the predictive power of the model.
 
-peaSoup has been designed to automate aspects 3, 4, and 5. Therefore, when generating models of a biological system, the user only needs to be actively involved with collating the existing knowledge of the system, and describing said system in a systematic way as peaSoup has a philosophy of standardizing how biological systems are described mathematically. Once a diagram has been produced, peaSoup will take care to convert that diagram into a model that can be simulated.
+PSoup has been designed to automate aspects 3, 4, and 5. Therefore, when generating models of a biological system, the user only needs to be actively involved with collating the existing knowledge of the system, and describing said system using a standard diagram syntax. Once a diagram has been produced, PSoup will convert that diagram into a mathematical model using a set of algebraic rules. This mathematical model can then be used to simulate how the system deviates from the baseline under different conditions.
 
-In addition, peaSoup has the benefit of being completely transparent in how the model has been translated by explicitly giving the user access to the internal engine of the simulation (the `nextStep` function). In allowing access to this internal engine, peaSoup gives the possibility for the user to manually change the mathematical description of the system.
+A benefit of PSoup is that it allows users who may not be comfortable with mathematics to dabble with simulations. Even so, PSoup is completely transparent in regard to how the diagramatic description of the system has been translated into a series of equations by generating an R script which defines the function (called `nextStep`) which calculates the values of nodes at each timestep. By allowing access to this function, PSoup gives the possibility for the user to manually change aspects of the mathematical description of the system if they wish to do so.
 
-### Walkthrough of how to use peaSoup
+### Walkthrough of how to use PSoup
 
-This is a short tutorial to demonstrate how you can use peaSoup to simulate network outcomes. Examples will use data that is included in this package.
+This is a short tutorial to demonstrate how you can use PSoup to simulate network outcomes. Examples will use data that is included in this package.
 
-First start by building a diagram of your network using some editor that can support SBGN diagrams of the Activity Flow language (I recommend [Newt Pathway Viewer & Editor](https://web.newteditor.org/)). When building your diagram, make sure that you specify that map is of type AF, and that you only use symbols from the Activity Flow Palette. This diagram will be based on the series of statements that you have constructed describing your system. For advice on how to construct your statements, click [here](#hypotheses). To see the algebraic rules that peaSoup uses to convert a diagram to a mathematical model click [here](#rules).
+First start by building a diagram of your network using an editor that can support SBGN diagrams of the Activity Flow language (I recommend [Newt Pathway Viewer & Editor](https://web.newteditor.org/)). When building your diagram, make sure that you specify that map is of type AF, and that you only use symbols from the Activity Flow Palette. This diagram will be based on the series of statements that you have constructed describing your system. For advice on how to construct your statements, click [here](#hypotheses). For a detailed description of how to use the Newt editor, click [here](#newt).To see the algebraic rules that PSoup uses to convert a diagram to a mathematical model click [here](#rules).
 
 ```{r, echo=FALSE, out.width="50%", fig.cap="Figure 1. An example of a network diagram that can be produced using the Newt online editor."}
 knitr::include_graphics("DunAFgenotype.jpg")
@@ -46,12 +46,12 @@ knitr::include_graphics("DunAFgenotype.jpg")
 Once you are happy with your diagram, click `File` -> `Export` -> `SBGN-ML Plain`. This will generate a text file representation of your diagram using SBGN markdown language. You will then need to use the `convertSBGNdiagram` function to translate this text file into a Network object that is easy to use.
 
 ```{r}
-library(peaSoup)
+library(PSoup)
 PeaNetwork = convertSBGNdiagram("../data-raw/DunAFgenotype.sbgn", "PeaNetwork")
 PeaNetwork
 ```
 
-The above network object is available with the peaSoup package, and can therefore be called directly:
+The above network object is available with the PSoup package, and can therefore be called directly:
 
 ```{r}
 peaNetwork
@@ -153,9 +153,9 @@ It is possible to quickly set up a two dimensional screen of exogenously supplie
 
 ### Commentary on the collection of prior knowledge {#hypotheses}
 
-### Algebraic Rules {#rules}
+### Newt Instructions {#newt}
 
-### Organising experimental outputs into bins
+### Algebraic Rules {#rules}
 
 ### Comparing experimental outputs to simulated outputs
 
