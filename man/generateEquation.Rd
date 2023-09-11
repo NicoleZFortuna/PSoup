@@ -15,6 +15,8 @@ generateEquation(
 \arguments{
 \item{node}{a node from within a network object}
 
+\item{genotypes}{the list of genes frome within a network object}
+
 \item{language}{which programming language should the equation be generated in?
 Can be either "R", or "C".}
 
@@ -25,8 +27,6 @@ style creates mirrored stimulatory and inhibitory effects.}
 \item{necStimFunc}{the name of the function to be applied to necessary
 stimulants. The default is NULL, in which case no function will be
 applied, ant therefore the form will be linear.}
-
-\item{genes}{the list of genes frome within a network object}
 }
 \description{
 A function to generate an equation for a specific node

@@ -272,7 +272,6 @@ genotypeScreen <- function(folder,
                            graft = FALSE) {
   if (file.exists(paste0(folder, "/genotypeDef.RData"))) {
     load(paste0(folder, "/genotypeDef.RData"))
-    load(paste0(folder, "/nodestartDef.RData"))
   } else {
     source(paste0(folder, "/genotypeDef.R"))
   }
@@ -282,7 +281,8 @@ genotypeScreen <- function(folder,
     genotypeDef <- genotypeDef[1, ]
   }
 
-  comp = stringr::str_sub(colnames(genotypeDef), -1, -1)
+  # collect the compartment extention of nodes
+  comp = unlist(strsplit(colnames(genotypeDef), "_"))[c(F, T)]
 
   compartments <- vector("list", length = length(unique(comp)))
   names(compartments) <- unique(comp)
@@ -292,19 +292,16 @@ genotypeScreen <- function(folder,
   }
 
   if (graft == F) {
-    genotypeDef[2:((numCombn(ncol(genotypeDef)/length(compartments), numMutations)*length(mutationVal)) + 1), ] <- 1
+    noComp <- unlist(strsplit(colnames(genotypeDef), "_"))[c(T, F)]
+    genotypeDef[2:((numCombn(length(unique(noComp)), numMutations)*length(mutationVal)) + 1), ] <- 1
   } else {
     genotypeDef[2:(numCombn(ncol(genotypeDef), numMutations)*length(mutationVal) + 1), ] <- 1
   }
 
   if (graft == F){
-    splitGen <- unlist(strsplit(colnames(genotypeDef), "\\."))
-    genType <- splitGen[(1:length(splitGen) %% 2) == T]
-    gen <- unique(genType)
-
-    combGen <- combn(gen, numMutations)
+    combGen <- combn(unique(noComp), numMutations)
     for (i in 2:nrow(genotypeDef)) {
-      genotypeDef[i, which(genType %in% combGen[, i - 1])] <- mutationVal
+      genotypeDef[i, which(noComp %in% combGen[, i - 1])] <- mutationVal
     }
   } else {
     combCol <- combn(ncol(genotypeDef), numMutations)
@@ -350,8 +347,7 @@ genotypeScreen <- function(folder,
 randomStartScreen <- function(folder,
                               restarts,
                               minVal = 0,
-                              maxVal = 2,
-                              static = FALSE) {
+                              maxVal = 2) {
   if (minVal < 0) {
     minVal = 0
     warning("Expression levels cannot be below 0. Have reassigned the minimum
@@ -460,6 +456,7 @@ tidyScreen <- function(frame, name, exogenous = F) {
 #' @param savePriors logical. If the prior screen should be saved in the provided
 #'        folder.
 #' @param returnVals logical. If the output should be returned to the user.
+#' @importFrom stats rlnorm
 #' @export
 
 modifierPriorScreen <- function(folder, priorDistribution = "rlnorm", n,

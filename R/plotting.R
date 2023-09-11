@@ -1,50 +1,29 @@
-#' A function to quickly inspect the through time outcome of a simulation
+#' A plot to quickly inspect the progression of a simulation.
 #'
-#' @param simulationData the data.frame output of a simulation. A subset of the
-#'        data.frame can be passed if the user does not want to plot all of the
-#'        nodes.
-#' @param col default is set to NA, in which case the viridis colour palette will
-#'        be used. Otherwise, the user can pass a vector of colors the same length
-#'        as the number of nodes to be plotted
-#' @param logTransform whether the simulation values should be log transformed.
-#' @param addLabels if you want to add labels next to the
-#'        final value of each node.
-#' @importFrom viridis viridis
-#' @importFrom stats plot.ts
-#' @importFrom graphics plot.new
-#' @importFrom graphics plot.window
-#' @importFrom graphics legend
+#' This function is not designed to produce high quality plots. It is simply to
+#' quickly inspect the progression of a simulation.
 #'
+#' @param simData the output of a single simulation.
+#' @param logTransform defaults to TRUE. Indicates if the data should be log
+#'        transformed.
+#' @importFrom methods is
+#' @importFrom data.table melt
+#' @importFrom ggplot2 ggplot
+#' @importFrom ggplot2 geom_line
+#' @importFrom ggplot2 labs
+#' @importFrom ggplot2 aes
 #' @export
 
-quickPlot <- function(simulationData, col = NA,
-                      logTransform = FALSE,
-                      addLabels = FALSE,
-                      title = NA) {
-  if (unique(is.na(col))) {col = viridis(ncol(simulationData))}
+fastPlot <- function(simData, logTransform = T) {
+  if (is(simData, "list") & "simulation" %in% names(simData)) simData <- simData$simulation
+  dat = cbind(x = 1:nrow(simData), if (logTransform == T) {log(simData)} else {simData})
 
-  par(mfrow = c(1, 2), mar = c(4,4,1,0), xpd = T)
-  if (logTransform == FALSE) {
-    plot.ts(simulationData, plot.type = "single",
-            col = col, ylab = "Expression")
-  } else {
-    plot.ts(log(simulationData), plot.type = "single",
-            col = col, ylab = "Expression")
-    mtext(title)
-  }
-
-  if (addLabels == T) {
-    text(x = rep(nrow(simulationData) + 5, ncol(simulationData)),
-         y = log(tail(simulationData, 1)),
-         labels = colnames(simulationData), xpd = NA,
-         adj = 0, cex = 0.8)
-  }
-
-  plot.new( )
-  plot.window(ylim = c(0, 10), xlim = c(0, 10))
-  legend(0, 10, legend = colnames(simulationData),
-         fill = col, cex = 0.5,
-         bty = "n")
+  dat_long <- melt(dat, id = "x")
+  colnames(dat_long)[2] <- "Nodes"
+  ggplot(data = dat_long, aes(x = x, y = value, color = Nodes)) +
+    geom_line() +
+    labs(x = "Steps",
+         y = if (logTransform == T) {"Log Transformed Node Value"} else {"Node Value"})
 }
 
 #' A function to pull the final states from a set of simulations and normalise
@@ -54,7 +33,7 @@ quickPlot <- function(simulationData, col = NA,
 #' @importFrom utils tail
 #' @export
 
-finalStates <- function(simulations, nodes = NA) {
+finalStates <- function(simulations) {
   final <- tail(simulations[[1]]$simulation,1)
   final[2:length(simulations), ] <- NA
 
@@ -85,6 +64,7 @@ finalStates <- function(simulations, nodes = NA) {
 #'        value is provided will use the viridis palette as default.
 #' @param bioData a matrix containing the biological data corresponding to the
 #'        simulated data.
+#' @importFrom graphics barplot
 
 plot.simData <- function(data, node, bioData = NA, ...) {
   vals = finalStates(data)[, node]

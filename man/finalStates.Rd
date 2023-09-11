@@ -5,7 +5,7 @@
 \title{A function to pull the final states from a set of simulations and normalise
 against the wildtype (baseline).}
 \usage{
-finalStates(simulations, nodes = NA)
+finalStates(simulations)
 }
 \arguments{
 \item{simulations}{a list containing the output of the setupSims function}

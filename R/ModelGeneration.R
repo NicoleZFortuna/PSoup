@@ -344,7 +344,7 @@ altSourceToStimulant <- function(hormones) {
 #' A function to generate an equation for a specific node
 #'
 #' @param node a node from within a network object
-#' @param genes the list of genes frome within a network object
+#' @param genotypes the list of genes frome within a network object
 #' @param language which programming language should the equation be generated in?
 #'        Can be either "R", or "C".
 #' @param ruleStyle either "Dun", or "Mike". The Dun style resembles the original
@@ -353,6 +353,7 @@ altSourceToStimulant <- function(hormones) {
 #' @param necStimFunc the name of the function to be applied to necessary
 #'        stimulants. The default is NULL, in which case no function will be
 #'        applied, ant therefore the form will be linear.
+#' @importFrom methods is
 
 generateEquation <- function(node,
                              genotypes,
@@ -430,7 +431,7 @@ generateEquation <- function(node,
     } else if (numInhib > 0 & numStim == 0) {
       # if there are only inhibitory effects
       allModulations <- sprintf("2/(1 + %s)" , inhibString)
-    } else if (class(stimString) == "character" & class(inhibString) == "character") {
+    } else if (is(stimString, "character") & is(inhibString, "character")) {
       # if there are both stimulatory and inhibitory effects
       allModulations <- sprintf("%s * (%s)/(1 + %s)", numInhib + 1, stimString, inhibString)
     } else if (is.na(stimString) & is.na(inhibString)) {
@@ -459,7 +460,7 @@ generateEquation <- function(node,
     } else if (numInhib > 0 & numStim == 0) {
       # if there are only inhibitory effects
       allModulations <- inhibString
-    } else if (class(stimString) == "character" & class(inhibString) == "character") {
+    } else if (is(stimString, "character") & is(inhibString, "character")) {
       # if there are both stimulatory and inhibitory effects
       allModulations <- paste(stimString, "*", inhibString)
     } else if (is.null(stimString) & is.null(inhibString)) {
@@ -476,7 +477,7 @@ generateEquation <- function(node,
     genes <- node@genotypes
     genoString <- rep(NA, length(genes))
     for (g in 1:length(genes)) {
-      if (class(genotypes[[genes[g]]]@coregulator) == "character") {
+      if (is(genotypes[[genes[g]]]@coregulator, "character") == "character") {
         if (language == "R") {
           cogenes <- paste0("gen$", c(genes[g], genotypes[[genes[g]]]@coregulator), "_", substr(node@container, 1, 1))
         } else if (language == "C") {

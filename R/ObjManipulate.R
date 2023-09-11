@@ -72,26 +72,27 @@ Network <- setClass("Network", slots = c(name = "character",
 #' @param genotypes a list containing objects of class hormone.
 #' @param name the name to be given to the network
 #' @importFrom methods new
+#' @importFrom methods is
 #' @export
 #' @examples
 #' NA
 
 buildNetwork <- function(hormones, genotypes, name) {
   # Making sure that data will be of the correct format
-  if (class(hormones) != "list" | class(genotypes) != "list") {
+  if (!is(hormones, "list") | !is(genotypes, "list")) {
     stop("Make sure that you have provided you hormones and genotypes in list form")
   }
 
   h = NULL
   for (i in 1:length(hormones)) {
-    if (class(hormones[[i]]) != "Hormone") {
+    if (!is(hormones[[i]], "Hormone")) {
       h = c(h, i)
     }
   }
 
   g = NULL
   for (i in 1:length(genotypes)) {
-    if (class(genotypes[[i]]) != "Genotype") {
+    if (!is(genotypes[[i]], "Genotype")) {
       g = c(g, i)
     }
   }
