@@ -6,24 +6,49 @@
 #' @param simData the output of a single simulation.
 #' @param logTransform defaults to TRUE. Indicates if the data should be log
 #'        transformed.
+#' @param removeBaseline defualts to TRUE Indicates if nodes that have remained
+#'        at baseline throughout the simulation should be removed.
 #' @importFrom methods is
-#' @importFrom data.table melt
+#' @importFrom reshape2 melt
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 geom_line
 #' @importFrom ggplot2 labs
 #' @importFrom ggplot2 aes
 #' @export
 
-fastPlot <- function(simData, logTransform = T) {
+fastPlot <- function(simData, logTransform = T, removeBaseline = T) {
   if (is(simData, "list") & "simulation" %in% names(simData)) simData <- simData$simulation
+
+  nonBaseline <- apply(simData, 2, function(x) any(x != 1))
+
+  if (removeBaseline == T & sum(nonBaseline) > 0) {
+    simData <- simData[nonBaseline]
+  }
   dat = cbind(x = 1:nrow(simData), if (logTransform == T) {log(simData)} else {simData})
 
   dat_long <- melt(dat, id = "x")
   colnames(dat_long)[2] <- "Nodes"
+
+  if (removeBaseline == T & sum(nonBaseline) > 0 & sum(nonBaseline) < length(nonBaseline)) {
+    caption <- paste0("Nodes which never deviated from the baseline condition:\n",
+                      paste0(names(nonBaseline[nonBaseline == F]), collapse = ", "))
+  } else if (removeBaseline == T & sum(nonBaseline) == length(nonBaseline)) {
+    caption <- "All nodes deviated from the baseline condition."
+  } else if (removeBaseline == T & sum(nonBaseline) == 0) {
+    caption <- "All nodes maintained the baseline condition"
+  } else {
+    caption <- waiver()
+  }
+
   ggplot(data = dat_long, aes(x = x, y = value, color = Nodes)) +
     geom_line() +
     labs(x = "Steps",
-         y = if (logTransform == T) {"Log Transformed Node Value"} else {"Node Value"})
+         y = if (logTransform == T) {"Log Transformed Node Value"} else {"Node Value"},
+         caption = caption) +
+    scale_colour_viridis_d(option = "H") +
+    theme_bw()
+
+
 }
 
 #' A function to pull the final states from a set of simulations and normalise

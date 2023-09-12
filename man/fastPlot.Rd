@@ -4,13 +4,16 @@
 \alias{fastPlot}
 \title{A plot to quickly inspect the progression of a simulation.}
 \usage{
-fastPlot(simData, logTransform = T)
+fastPlot(simData, logTransform = T, removeBaseline = T)
 }
 \arguments{
 \item{simData}{the output of a single simulation.}
 
 \item{logTransform}{defaults to TRUE. Indicates if the data should be log
 transformed.}
+
+\item{removeBaseline}{defualts to TRUE Indicates if nodes that have remained
+at baseline throughout the simulation should be removed.}
 }
 \description{
 This function is not designed to produce high quality plots. It is simply to

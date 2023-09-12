@@ -433,7 +433,7 @@ generateEquation <- function(node,
       allModulations <- sprintf("2/(1 + %s)" , inhibString)
     } else if (is(stimString, "character") & is(inhibString, "character")) {
       # if there are both stimulatory and inhibitory effects
-      allModulations <- sprintf("%s * (%s)/(1 + %s)", numInhib + 1, stimString, inhibString)
+      allModulations <- sprintf("2 * (%s)/(1 + %s)", stimString, inhibString)
     } else if (is.na(stimString) & is.na(inhibString)) {
       # if it is constituent wo influence from other nodes
       allModulations <- 1
@@ -477,7 +477,7 @@ generateEquation <- function(node,
     genes <- node@genotypes
     genoString <- rep(NA, length(genes))
     for (g in 1:length(genes)) {
-      if (is(genotypes[[genes[g]]]@coregulator, "character") == "character") {
+      if (is(genotypes[[genes[g]]]@coregulator, "character")) {
         if (language == "R") {
           cogenes <- paste0("gen$", c(genes[g], genotypes[[genes[g]]]@coregulator), "_", substr(node@container, 1, 1))
         } else if (language == "C") {
@@ -647,3 +647,4 @@ differenceString <- function(string,
 
   fullString
 }
+

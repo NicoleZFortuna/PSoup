@@ -155,6 +155,7 @@ simulateNetwork <- function(folder,
 #'               respective node.
 #' @param priorScreen logical. Specifies if the function should collect
 #'               modifier values generated from generated prior distributions.
+#'               Default is set to FALSE.
 #' @param saveOutput logical. Default set to FALSE. Indicates if the output of
 #'               simulation screen should be automatically saved in the
 #'               provided folder location upon completion.
@@ -171,10 +172,10 @@ simulateNetwork <- function(folder,
 
 setupSims <- function(folder,
                       delay = 2,
-                      tmax = NA,
+                      tmax = 100,
                       steadyThreshold = 4,
                       exogenousSupply = NULL,
-                      priorScreen = T,
+                      priorScreen = F,
                       saveOutput = F,
                       robustnessTest = F,
                       altTopologyName = NULL,
@@ -188,6 +189,11 @@ setupSims <- function(folder,
     genotypeDef <- priorDef
   } else {
     load(paste0(folder, "/genotypeDef.RData"))
+  }
+
+  if (is.na(tmax)) {
+    tmax <- 100
+    warning("You did not provide a tmax value. It has been set to 100.")
   }
 
   load(paste0(folder, "/nodestartDef.RData"))

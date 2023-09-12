@@ -8,10 +8,10 @@ many different conditions.}
 setupSims(
   folder,
   delay = 2,
-  tmax = NA,
+  tmax = 100,
   steadyThreshold = 4,
   exogenousSupply = NULL,
-  priorScreen = T,
+  priorScreen = F,
   saveOutput = F,
   robustnessTest = F,
   altTopologyName = NULL,
@@ -39,7 +39,8 @@ values of the nodes, with each vector member named after their
 respective node.}
 
 \item{priorScreen}{logical. Specifies if the function should collect
-modifier values generated from generated prior distributions.}
+modifier values generated from generated prior distributions.
+Default is set to FALSE.}
 
 \item{saveOutput}{logical. Default set to FALSE. Indicates if the output of
 simulation screen should be automatically saved in the
