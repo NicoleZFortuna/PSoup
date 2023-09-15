@@ -11,7 +11,7 @@ buildModel(
   altSource = FALSE,
   language = "R",
   splitCompartment = FALSE,
-  tmax = 100,
+  maxStep = 100,
   steadyThreshold = 4,
   ruleStyle = "Dun",
   nesStimStyle = "Linear",
@@ -58,7 +58,7 @@ intend to use L-Systems to mediate the communication
 nodes of different compartments. As such, the default
 has been set to FALSE. NOT YET FINISHED!}
 
-\item{tmax}{this only needs to be specified in the case that language
+\item{maxStep}{this only needs to be specified in the case that language
 has been set to "C". The maximum value that the simulation
 will be allowed to proceed. If the midpoint is reached, a
 warning will be returned. The default value is set to 100.}

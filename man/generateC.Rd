@@ -7,7 +7,7 @@ network given a starting condition.}
 \usage{
 generateC(
   network,
-  tmax = 100,
+  maxStep = 100,
   steadyThreshold = 4,
   folder = "./Model",
   forceOverwrite = FALSE,
@@ -18,7 +18,7 @@ generateC(
 \arguments{
 \item{network}{an object of class network.}
 
-\item{tmax}{the maximum value that the simulation will be allowed ton proceed.
+\item{maxStep}{the maximum value that the simulation will be allowed ton proceed.
 If the midpoint is reached, a warning will be returned. The
 default value is set to 0.}
 

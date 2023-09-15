@@ -8,7 +8,7 @@ nature of edge types.}
 exploreEdges(
   startingNetwork,
   folder,
-  tmax = 100,
+  maxStep = 100,
   steadyThreshold = 4,
   ruleStyle = "Dun",
   nesStimStyle = "Michaelis-Menten",
@@ -26,8 +26,8 @@ to be tested}
 \item{folder}{the directory containing the original nextStep function built
 on the original network}
 
-\item{tmax}{the maximum number of steps that you want to simulate for. Will
-terminate simulation when steady state is reached, unless tmax is
+\item{maxStep}{the maximum number of steps that you want to simulate for. Will
+terminate simulation when steady state is reached, unless maxStep is
 reached first. If set to NA (the default), will simulate until
 stability is reached.}
 

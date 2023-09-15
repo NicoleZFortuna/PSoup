@@ -8,7 +8,7 @@ many different conditions.}
 setupSims(
   folder,
   delay = 2,
-  tmax = 100,
+  maxStep = 100,
   steadyThreshold = 4,
   exogenousSupply = NULL,
   priorScreen = F,
@@ -23,7 +23,7 @@ setupSims(
 
 \item{delay}{the amount of delay for any delayed transport. Default set to 2.}
 
-\item{tmax}{the maximum number of timesteps for which to simulate.}
+\item{maxStep}{the maximum number of timesteps for which to simulate.}
 
 \item{steadyThreshold}{the number of decimal places to which node values must
 be equivalent to be considered a steady state. This threshold must

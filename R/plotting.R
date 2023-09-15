@@ -14,6 +14,7 @@
 #' @importFrom ggplot2 geom_line
 #' @importFrom ggplot2 labs
 #' @importFrom ggplot2 aes
+#' @importFrom ggplot2 scale_x_continuous
 #' @export
 
 fastPlot <- function(simData, logTransform = T, removeBaseline = T) {
@@ -46,9 +47,8 @@ fastPlot <- function(simData, logTransform = T, removeBaseline = T) {
          y = if (logTransform == T) {"Log Transformed Node Value"} else {"Node Value"},
          caption = caption) +
     scale_colour_viridis_d(option = "H") +
-    theme_bw()
-
-
+    theme_bw() +
+    scale_x_continuous(breaks = seq(1, max(dat_long$x), 1)) # only label x values that were actually simulated
 }
 
 #' A function to pull the final states from a set of simulations and normalise
@@ -105,7 +105,7 @@ plot.simData <- function(data, node, bioData = NA, ...) {
 #
 # file <- "/Users/uqnfortu/Desktop/equations.R"
 #
-# simulations <- setupSims(file, randomStart = NA, delay = 2, tmax = 50)
+# simulations <- setupSims(file, randomStart = NA, delay = 2, maxStep = 50)
 #
 # final = finalStates(simulations)
 # barplot(as.matrix(final$BranchOutgrowth), beside = T, ylab = "Expression", las=2,

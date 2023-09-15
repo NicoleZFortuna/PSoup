@@ -5,8 +5,8 @@
 #'        to be tested
 #' @param folder the directory containing the original nextStep function built
 #'        on the original network
-#' @param tmax the maximum number of steps that you want to simulate for. Will
-#'             terminate simulation when steady state is reached, unless tmax is
+#' @param maxStep the maximum number of steps that you want to simulate for. Will
+#'             terminate simulation when steady state is reached, unless maxStep is
 #'             reached first. If set to NA (the default), will simulate until
 #'             stability is reached.
 #' @param steadyThreshold the number of decimal places to which node values must
@@ -57,7 +57,7 @@
 
 exploreEdges <- function(startingNetwork,
                          folder,
-                         tmax = 100,
+                         maxStep = 100,
                          steadyThreshold = 4,
                          ruleStyle = "Dun",
                          nesStimStyle = "Michaelis-Menten",
@@ -130,7 +130,7 @@ exploreEdges <- function(startingNetwork,
                                 newNetInfo[[n - 1]][2],
                                 newNetInfo[[n - 1]][3])
 
-      buildModel(network = net, folder = folder, forceOverwrite = T, tmax = tmax,
+      buildModel(network = net, folder = folder, forceOverwrite = T, maxStep = maxStep,
                  steadyThreshold = steadyThreshold, ruleStyle = ruleStyle,
                  nesStimStyle = nesStimStyle, nesStimFile = nesStimFile,
                  saveNetwork = saveNetwork, robustnessTest = T,
@@ -138,7 +138,7 @@ exploreEdges <- function(startingNetwork,
     } else {altTopologyName = NULL}
 
     # run simulation, making sure that the correct nextStep function is being used
-    simulations <- setupSims(folder, tmax = tmax,
+    simulations <- setupSims(folder, maxStep = maxStep,
                              steadyThreshold = steadyThreshold,
                              exogenousSupply = exogenousSupply,
                              priorScreen = priorScreen,
@@ -164,6 +164,8 @@ exploreEdges <- function(startingNetwork,
 
   return(list(data = dat, stable = noStabilityTracker))
 }
+
+
 
 # measureEdgeRobustness <- function(x) {
 #

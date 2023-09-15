@@ -100,25 +100,27 @@ knitr::include_graphics("buildModelOutput.png")
 
 This function is what will be doing most of the work when running simulations of the network. This function is what calculates the node values at each step. It contains a series of difference equations which are the mathematical description of the information contained in the diagram.
 
-This function has been provided as a script accessible to the user in order to make the translation of the provided diagram transparent to the user. In addition, it provides an opportunity for the user to modify the equations if they wish to do so. This is a potentially a dangerous thing to attempt as it is possible to introduce errors or bugs into the simulations. If the user decides to modify the code, they will be responsible for creating usable functions. In addition, the user should be wary that by modifying the code, that they may be creating runaway dynamics that cause simulations to never reach stability. Even if this is the case, the `tmax` argument will prevent the simulation from becoming stuck in an endless loop. In addition, if any of the nodes reaches infinity (`Inf`), the simulation will be terminated and an error generated.
+This function has been provided as a script accessible to the user in order to make the translation of the provided diagram transparent to the user. In addition, it provides an opportunity for the user to modify the equations if they wish to do so. This is a potentially a dangerous thing to attempt as it is possible to introduce errors or bugs into the simulations. If the user decides to modify the code, they will be responsible for creating usable functions. In addition, the user should be wary that by modifying the code, that they may be creating runaway dynamics that cause simulations to never reach stability. Even if this is the case, the `maxStep` argument will prevent the simulation from becoming stuck in an endless loop. In addition, if any of the nodes reaches infinity (`Inf`), the simulation will be terminated and an error generated.
 
 Once these three data objects have been created in your specified folder, the path directory of this folder can be provided as input to run simulations. If we want to run a single simulation, we can call the `simulateNetwork` function.
 
 ```{r}
-simulation <- simulateNetwork(folder, tmax = 100) 
+simulation <- simulateNetwork(folder, maxStep = 100) 
 head(simulation)
-```
-
-```{r, out.width="80%", dpi=300}
-quickPlot(simulation)
 ```
 
 As the folder contains all of our genotype information, node starting values, as well as the script for the `nextStep` function, all the information to run the simulation is already provided. The simulation will run until the system reaches stability, unless one of the exceptions listed above occurs.
 
+To quickly inspect the outcome of a simulation, the `fastPlot` function can be called as bellow. As the genotypeDef and nodestartDef data frames in our model folder only contain the baseline condition, the system is already at stability, and therefore the plot shows no change. Note that in the plot bellow that the node values have been log transformed. The `fastPlot` function has an argument `logTransform` which by default is set to     `TRUE`. This transformation makes it easier to discern the releative differences for positive and negative changes in the system. If you would like to see the true node values, set this argument to `FALSE`. This function is useful to make a quick diagnosis of the system. To make high quaility plots, use existing R plotting tools.
+
+```{r, out.width="80%", dpi=300}
+fastPlot(simulation)
+```
+
 #### How to set up a simulation screen
 It will often be the case that you do not wish to test a network only under a single condition. Sometimes there are a few specific conditions that you want to test, other times you want to conduct an exhaustive search. In either case, you will need to use the `setupSims` function, rather than the `simulateNetwork` function.
 
-If there are a few specific conditions that you want to test, you can simply add rows to the respective data frames. These rows will each be considered a unique starting condition for a simulation.
+If there are a few specific conditions that you want to test, you can simply add rows to the respective data frames. These rows will each be considered a unique condition for a simulation.
 
 ```{r}
 genotypeDef[2:3, ] <- 1
@@ -142,9 +144,9 @@ load(paste0(folder, "/genotypeDef.RData"))
 genotypeDef 
 ```
 
-As you can see, the `genotypeScreen` function will generate a data frame with combinations of up to however many mutations that you would like to explore. You can also specify the genotype expression values that you would like to use for your mutations. You can also specify if you would like for the function to output an excel file in addition to the data. The excel file will be empty, but will have row and column names that correspond to the generated data frame. This file can be filed with values that have been derived from the literature for the purpose of validating your model. You do not need to fill every value, as only the provided information will be used to validate the simulated data.
+As you can see, the `genotypeScreen` function will generate a data frame with combinations of up to however many mutations that you would like to explore, including the genotype expression values that you would like to use for your mutations. In the case that a gene is attached to multiple nodes in different compartments, you can choose whether to have differential expression in the different compartments. The default condition `graft = FALSE` indicates that all nodes modified by the same gene should be modified identically. To allow for differential expression in different compartments of the system, specify `graft = TRUE`. You can also specify if you would like for the function to output an excel file in addition to the data. The excel file will be empty, but will have row and column names that correspond to the generated data frame. This file can be filed with values that have been derived from the literature for the purpose of validating your model. You do not need to fill every value, as only the provided information will be used to validate the simulated data.
 
-In addition to being able to modify the genes and node values of the system, it is also possible to supply an external source to a node. This external supply is constantly given throughout the course of the simulation, with the amount added at each timepoint to the native value in the simulation. An exogenous supply for a node can be specified by providing a named vector, or data frame to the `exogenousSupply` argument in either the `simulateNetwork` or `setupSims` functions. Where the name of the vector or columns correspond to a node in the network.
+In addition to being able to modify the genes and node values of the system, it is also possible to supply an external source to a node. This external supply is constantly given throughout the course of the simulation, with the amount added at each timepoint to the native value in the simulation. An exogenous supply for a node can be specified by providing a named vector, or data frame to the `exogenousSupply` argument in either the `simulateNetwork` or `setupSims` functions. Where the name of the vector or columns correspond to a node in the network (only nodes for which an exogenous supply will be provided need to be included).
 
 It is possible to quickly set up a two dimensional screen of exogenously supplied treatments to the system by using the `exogenousScreen` function.
 

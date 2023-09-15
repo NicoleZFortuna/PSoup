@@ -7,7 +7,7 @@
 simulateNetwork(
   folder,
   delay = 2,
-  tmax = NA,
+  maxStep = NA,
   genotype = NA,
   startingValues = NA,
   steadyThreshold = 4,
@@ -22,8 +22,8 @@ simulateNetwork(
 \item{delay}{the amount of delay to apply for delayed action of nodes. The
 default is set to 2.}
 
-\item{tmax}{the maximum number of steps that you want to simulate for. Will
-terminate simulation when steady state is reached, unless tmax is
+\item{maxStep}{the maximum number of steps that you want to simulate for. Will
+terminate simulation when steady state is reached, unless maxStep is
 reached first. If set to NA (the default), will simulate until
 stability is reached.}
 

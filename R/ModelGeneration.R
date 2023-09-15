@@ -39,7 +39,7 @@
 #'               intend to use L-Systems to mediate the communication
 #'               nodes of different compartments. As such, the default
 #'               has been set to FALSE. NOT YET FINISHED!
-#' @param tmax this only needs to be specified in the case that language
+#' @param maxStep this only needs to be specified in the case that language
 #'               has been set to "C". The maximum value that the simulation
 #'               will be allowed to proceed. If the midpoint is reached, a
 #'               warning will be returned. The default value is set to 100.
@@ -77,7 +77,7 @@ buildModel <- function(network,
                        altSource = FALSE,
                        language = "R",
                        splitCompartment = FALSE,
-                       tmax = 100,
+                       maxStep = 100,
                        steadyThreshold = 4,
                        ruleStyle = "Dun",
                        nesStimStyle = "Linear",
@@ -107,7 +107,7 @@ buildModel <- function(network,
 
   # calling other function if language is "C"
   if (language == "C") {
-    generateC(network, tmax = tmax, steadyThreshold = steadyThreshold,
+    generateC(network, maxStep = maxStep, steadyThreshold = steadyThreshold,
                           folder = folder, forceOverwrite = forceOverwrite)
     return(NULL)
   }
@@ -201,7 +201,7 @@ buildModel <- function(network,
 #' network given a starting condition.
 #'
 #' @param network an object of class network.
-#' @param tmax the maximum value that the simulation will be allowed ton proceed.
+#' @param maxStep the maximum value that the simulation will be allowed ton proceed.
 #'             If the midpoint is reached, a warning will be returned. The
 #'             default value is set to 0.
 #' @param steadyThreshold the number of decimal places to which node values must
@@ -229,7 +229,7 @@ buildModel <- function(network,
 #' @importFrom stringr str_remove
 
 generateC <- function(network,
-                      tmax = 100,
+                      maxStep = 100,
                       steadyThreshold = 4,
                       folder = "./Model",
                       forceOverwrite = FALSE,
@@ -237,7 +237,7 @@ generateC <- function(network,
                       necStimFunc = NULL) {
 
   # defining constants
-  insertTMAX = tmax
+  insertTMAX = maxStep
   insertTHRESHOLD = 10^(-steadyThreshold)
 
   # change altSources to stimulations
