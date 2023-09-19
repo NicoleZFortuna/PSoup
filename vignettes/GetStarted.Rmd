@@ -146,13 +146,38 @@ genotypeDef
 
 As you can see, the `genotypeScreen` function will generate a data frame with combinations of up to however many mutations that you would like to explore, including the genotype expression values that you would like to use for your mutations. In the case that a gene is attached to multiple nodes in different compartments, you can choose whether to have differential expression in the different compartments. The default condition `graft = FALSE` indicates that all nodes modified by the same gene should be modified identically. To allow for differential expression in different compartments of the system, specify `graft = TRUE`. You can also specify if you would like for the function to output an excel file in addition to the data. The excel file will be empty, but will have row and column names that correspond to the generated data frame. This file can be filed with values that have been derived from the literature for the purpose of validating your model. You do not need to fill every value, as only the provided information will be used to validate the simulated data.
 
+The sister function to `genotypeScreen` is `randomStartScreen`. This function will generate a data frame corresponding to the nodes of the network, with values indicating the value of the node at the start of the simulation. To use this function, you must provide the model folder path, as well as the number of restart values that you want to generate. In addition you can also indicate what the maximum and minimum values that you want for nodes. The default minimum is set to 0, while the default maximum value is 2. This function will pull values from a uniform distribution bound by these values.
+
+```{r}
+randomStartScreen(folder, restarts = 5)
+
+load(paste0(folder, "/nodestartDef.RData"))
+nodestartDef 
+```
+
 In addition to being able to modify the genes and node values of the system, it is also possible to supply an external source to a node. This external supply is constantly given throughout the course of the simulation, with the amount added at each timepoint to the native value in the simulation. An exogenous supply for a node can be specified by providing a named vector, or data frame to the `exogenousSupply` argument in either the `simulateNetwork` or `setupSims` functions. Where the name of the vector or columns correspond to a node in the network (only nodes for which an exogenous supply will be provided need to be included).
 
 It is possible to quickly set up a two dimensional screen of exogenously supplied treatments to the system by using the `exogenousScreen` function.
 
+```{r}
+exogenousScreen(c("Strigolactone_S", "Cytokinin_R"), 1:3, 1:3, folder)
 
+load(paste0(folder, "/exogenousScreen.RData"))
+exoScreen
+```
 
+There is one more useful function when it comes to setting up a set of conditions to be simulated. The function `modifierPriorScreen` is designed to generate a data frame containing modifier values that have been pulled from a prior distribution of values. As of now, only a log normal distribution can be used, but more distributions may be added in the future. The argument `priorDistribution` is automatically set to `"rlnorm"` which indicates that all modifier values should be pulled from a log normal distribution. It is possible to instead provide a vector named after the modifiers. In this case you can indicate if particular values should maintain a particular value, while others have values pulled from a distribution. You can shoose the number of experimental conditions with genereated modifier values with the argument `n`. Note that the data frame produced from this function is called `priorDef` rather than `nodestartDef`. This is to recognise that use of the `modifierPriorScreen` function is associated with running a robustness check on the topology of the network.
 
+```{r}
+modifierPriorScreen(folder, n = 5, returnVals = T)
+
+load(paste0(folder, "/priorDef.RData"))
+priorDef
+```
+
+You should view the model folder that you generate to run simulations as a record. You can generate a variety of different screens, not all of which you need to explore at the same time. When generating screens of parameter values, those screens can be saved in the folder for record keeping. They can also be accessed by simulation functions so that they do not need to be passed to the function manually.
+
+To set up a series of simulations, this can be done easily by using the `setupSims` function.
 
 ### Commentary on the collection of prior knowledge {#hypotheses}
 

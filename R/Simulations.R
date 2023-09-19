@@ -337,7 +337,6 @@ genotypeScreen <- function(folder,
   }
 }
 
-
 #' A function to generate a number of random starting point reassignments.
 #'
 #' Starting points will be generated for each node, pulled from a uniform
@@ -354,6 +353,7 @@ randomStartScreen <- function(folder,
                               restarts,
                               minVal = 0,
                               maxVal = 2) {
+
   if (minVal < 0) {
     minVal = 0
     warning("Expression levels cannot be below 0. Have reassigned the minimum
@@ -367,8 +367,7 @@ randomStartScreen <- function(folder,
   }
 
   nodestartDef[(nrow(nodestartDef) + 1):(nrow(nodestartDef) + restarts), ] <- round(runif(restarts*ncol(nodestartDef),
-                                                            minVal, maxVal), 4)
-
+                                                                                          minVal, maxVal), 4)
   save(nodestartDef, file = paste0(folder, "/nodestartDef.Rdata"))
 }
 
@@ -381,15 +380,23 @@ randomStartScreen <- function(folder,
 #'                first listed node.
 #' @param screen2 a vector containing all the values to be tested for the
 #'                second listed node.
+#' @param folder the directory for the model folder in which to save the output
+#'        of this function. Only provide a directory if you want to save the
+#'        output.
 #' @export
-exogenousScreen <- function(nodes, screen1, screen2) {
+exogenousScreen <- function(nodes, screen1, screen2, folder = NULL) {
   # making sure that there is a condition where no exogenous hormone is provided
   if (!0 %in% screen1) {screen1 <- c(0, screen1)}
   if (!0 %in% screen1) {screen1 <- c(0, screen1)}
 
   combo <- expand.grid(screen1, screen2)
   colnames(combo) <- nodes
-  combo
+
+  if (!is.null(folder)) {
+    save(combo, file = paste0(folder, "/exoScreen.RData"))
+  } else {
+    combo
+  }
 }
 
 #' A function to calculate the number of unique combinations of a vector
@@ -455,18 +462,36 @@ tidyScreen <- function(frame, name, exogenous = F) {
 #' @param priorDistribution states the prior distribution to be used to generate
 #'        modifier values. If of length 1, the prior will be applied to all
 #'        modifier values. If length is greater than 1, the vector must be
-#'        named with the corresponding modifier name. To specify a value
+#'        named with the corresponding modifier names. To specify a value
 #'        for particular modifiers, provide the value of that modifier
-#'        instead of the distribution to be used.
+#'        instead of the distribution to be used. Available distributions
+#'        and be either 'logNormal', or 'uniform'. Default is set to 'logNormal'.
+#'        if 'uniform' is chosen, you must provide values for the minVal and
+#'        maxVal arguments.
 #' @param n the number of simulations for which a set of priors will be generated.
 #' @param savePriors logical. If the prior screen should be saved in the provided
 #'        folder.
 #' @param returnVals logical. If the output should be returned to the user.
+#' @param minVal default set to 0. The minimum starting value for a node.
+#' @param maxVal default set to NULL. The maximum starting value for a node.
 #' @importFrom stats rlnorm
 #' @export
 
-modifierPriorScreen <- function(folder, priorDistribution = "rlnorm", n,
-                                savePriors = T, returnVals = F) {
+modifierPriorScreen <- function(folder, priorDistribution = "logNormal", n,
+                            savePriors = T, returnVals = F,
+                            minVal = 0,
+                            maxVal = NULL) {
+  # checking user inputs
+  if ("uniform" %in% priorDistribution & minVal < 0) {
+    minVal = 0
+    warning("Expression levels cannot be below 0. Have reassigned the minimum
+            value to 0.")
+  }
+
+  if ("uniform" %in% priorDistribution & is.null(maxVal)) {
+    stop("If you are drawing from a uniform distribution, you must provide a maxVal.")
+  }
+
   load(paste0(folder, "/genotypeDef.RData"))
 
   # make sure that the priorDistribution has the correct naming convention
@@ -488,6 +513,8 @@ modifierPriorScreen <- function(folder, priorDistribution = "rlnorm", n,
   # will want to allow for different distributions in the future!!! Maybe even
   # user specified distributions?
   priorDef[2:(n + 1), names(priorDistribution)[priorDistribution == "rlnorm"]] <- rlnorm(n * sum(priorDistribution == "rlnorm"))
+  priorDef[2:(n + 1), names(priorDistribution)[priorDistribution == "runif"]] <- runif(n * sum(priorDistribution == "runif"),
+                                                                                       min = minVal, max = maxVal)
 
   # replace vals with specific numbers if provided by user
   givenVals <- sapply(priorDistribution, function(x) suppressWarnings(as.numeric(x)))
