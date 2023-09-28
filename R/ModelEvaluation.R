@@ -203,6 +203,14 @@ stabilityVector <- function(allSim) {
   stableSims <- sapply(allSim$screen,
                        FUN = function(x) getStableVal(x))
 
+  if (all(stableSims)) {
+    print("All simulations reached stability.")
+  } else if (all(!stableSims)) {
+    print("All simulations failed to reached stability.")
+  } else {
+    print(paste0("The following simulations did not reach stability: ", paste0(which(stableSims == F), collapse = ", ")))
+  }
+
   return(stableSims)
 }
 

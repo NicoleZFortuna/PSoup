@@ -17,18 +17,20 @@
 #' @importFrom ggplot2 scale_x_continuous
 #' @export
 
-fastPlot <- function(simData, logTransform = T, removeBaseline = T) {
-  if (is(simData, "list") & "simulation" %in% names(simData)) simData <- simData$simulation
+fastPlot <- function(sim, logTransform = T, removeBaseline = T) {
+  if (is(sim, "list") & "simulation" %in% names(sim)) sim <- sim$simulation
 
-  nonBaseline <- apply(simData, 2, function(x) any(x != 1))
+  nonBaseline <- apply(sim, 2, function(x) any(x != 1))
 
   if (removeBaseline == T & sum(nonBaseline) > 0) {
-    simData <- simData[nonBaseline]
+    sim <- sim[nonBaseline]
   }
-  dat = cbind(x = 1:nrow(simData), if (logTransform == T) {log(simData)} else {simData})
+  dat = cbind(x = 1:nrow(sim), if (logTransform == T) {log(sim)} else {sim})
 
   dat_long <- melt(dat, id = "x")
   colnames(dat_long)[2] <- "Nodes"
+
+  dat_long$x <- dat_long$x - 1
 
   if (removeBaseline == T & sum(nonBaseline) > 0 & sum(nonBaseline) < length(nonBaseline)) {
     caption <- paste0("Nodes which never deviated from the baseline condition:\n",
@@ -41,6 +43,25 @@ fastPlot <- function(simData, logTransform = T, removeBaseline = T) {
     caption <- waiver()
   }
 
+  if (max(dat_long$x) < 30) {
+    breaks <- seq(0, max(dat_long$x), 1)
+  } else if (max(dat_long$x) >= 10 & max(dat_long$x) < 50) {
+    if ((max(dat_long$x) %% 2) == 0) {maxX <- max(dat_long$x)
+    } else {maxX <- max(dat_long$x) + 1}
+
+    breaks <- seq(0, maxX, 2)
+  } else if (max(dat_long$x) >= 50 & max(dat_long$x) < 100) {
+    if ((max(dat_long$x) %% 5) == 0) {maxX <- max(dat_long$x)
+    } else {maxX <- max(dat_long$x) + 5 - (max(dat_long$x) %% 5)}
+
+    breaks <- seq(0, maxX, 5)
+  } else if (max(dat_long$x) > 100) {
+    if ((max(dat_long$x) %% 10) == 0) {maxX <- max(dat_long$x)
+    } else {maxX <- max(dat_long$x) + 10 - (max(dat_long$x) %% 10)}
+
+    breaks <- seq(0, maxX, 10)
+  }
+
   ggplot(data = dat_long, aes(x = x, y = value, color = Nodes)) +
     geom_line() +
     labs(x = "Steps",
@@ -48,7 +69,7 @@ fastPlot <- function(simData, logTransform = T, removeBaseline = T) {
          caption = caption) +
     scale_colour_viridis_d(option = "H") +
     theme_bw() +
-    scale_x_continuous(breaks = seq(1, max(dat_long$x), 1)) # only label x values that were actually simulated
+    scale_x_continuous(breaks = breaks)
 }
 
 #' A function to pull the final states from a set of simulations and normalise
