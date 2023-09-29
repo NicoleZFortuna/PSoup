@@ -1,0 +1,38 @@
+---
+title: "introduction"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{introduction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(PSoup)
+```
+
+### Purpose and design philosophy of PSoup
+
+The PSoup package was built as a tool to support the generation of network descriptions of biological systems. It is embedded in a larger workflow designed to ultimately assist in predicting the direction of change in a system in response to perturbations.
+
+This workflow consists of several critical aspects: 
+
+1. Describe the prior knowledge of the system as a series of statements.
+2. Record the starting conditions and outcomes of experiments.
+3. Translate statements into a diagram.
+4. Convert the diagram into a computational model.
+5. Test if the computational model recapitulates experimental outcomes.
+6. Design new experiments to test the predictive power of the model.
+
+PSoup has been designed to automate aspects 3, 4, and 5. Therefore, when generating models of a biological system, the user only needs to be actively involved with collating the existing knowledge of the system, and describing said system using a standard diagram syntax. Once a diagram has been produced, PSoup will convert that diagram into a mathematical model using a set of algebraic rules. This mathematical model can then be used to simulate how the system deviates from the baseline under different conditions.
+
+A benefit of PSoup is that it allows users who may not be comfortable with mathematics to dabble with simulations. Even so, PSoup is completely transparent in regard to how the diagramatic description of the system has been translated into a series of equations by generating an R script which defines the function (called `nextStep`) which calculates the values of nodes at each timestep. By allowing access to this function, PSoup gives the possibility for the user to manually change aspects of the mathematical description of the system if they wish to do so.
+
+Need an overview of PSoup running simulations until reaching stability. Not a direct replication of biology. Not meaningful through time as no reliance on coefficients.

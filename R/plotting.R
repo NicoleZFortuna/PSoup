@@ -15,6 +15,8 @@
 #' @importFrom ggplot2 labs
 #' @importFrom ggplot2 aes
 #' @importFrom ggplot2 scale_x_continuous
+#' @importFrom ggplot2 scale_colour_viridis_d
+#' @importFrom ggplot2 theme_bw
 #' @export
 
 fastPlot <- function(sim, logTransform = T, removeBaseline = T) {

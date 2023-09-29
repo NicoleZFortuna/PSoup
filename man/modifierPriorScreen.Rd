@@ -7,10 +7,11 @@ prior distributions.}
 \usage{
 modifierPriorScreen(
   folder,
-  priorDistribution = "rlnorm",
+  priorDistribution = "logNormal",
   n,
-  savePriors = T,
-  returnVals = F
+  returnVals = F,
+  minVal = 0,
+  maxVal = NULL
 )
 }
 \arguments{
@@ -20,16 +21,20 @@ your generated model.}
 \item{priorDistribution}{states the prior distribution to be used to generate
 modifier values. If of length 1, the prior will be applied to all
 modifier values. If length is greater than 1, the vector must be
-named with the corresponding modifier name. To specify a value
+named with the corresponding modifier names. To specify a value
 for particular modifiers, provide the value of that modifier
-instead of the distribution to be used.}
+instead of the distribution to be used. Available distributions
+and be either 'logNormal', or 'uniform'. Default is set to 'logNormal'.
+if 'uniform' is chosen, you must provide values for the minVal and
+maxVal arguments.}
 
 \item{n}{the number of simulations for which a set of priors will be generated.}
 
-\item{savePriors}{logical. If the prior screen should be saved in the provided
-folder.}
-
 \item{returnVals}{logical. If the output should be returned to the user.}
+
+\item{minVal}{default set to 0. The minimum starting value for a node.}
+
+\item{maxVal}{default set to NULL. The maximum starting value for a node.}
 }
 \description{
 A function to generate a screen of modifier conditions based on a set of

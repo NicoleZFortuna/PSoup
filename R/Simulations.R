@@ -389,14 +389,15 @@ exogenousScreen <- function(nodes, screen1, screen2, folder = NULL) {
   if (!0 %in% screen1) {screen1 <- c(0, screen1)}
   if (!0 %in% screen1) {screen1 <- c(0, screen1)}
 
-  combo <- expand.grid(screen1, screen2)
-  colnames(combo) <- nodes
+  exogenousDef <- expand.grid(screen1, screen2)
+  colnames(exogenousDef) <- nodes
 
   if (!is.null(folder)) {
-    save(combo, file = paste0(folder, "/exoScreen.RData"))
+    save(exogenousDef, file = paste0(folder, "/exogenousDef.RData"))
   } else {
-    combo
+    exogenousDef
   }
+  exogenousDef
 }
 
 #' A function to calculate the number of unique combinations of a vector
@@ -469,18 +470,18 @@ tidyScreen <- function(frame, name, exogenous = F) {
 #'        if 'uniform' is chosen, you must provide values for the minVal and
 #'        maxVal arguments.
 #' @param n the number of simulations for which a set of priors will be generated.
-#' @param savePriors logical. If the prior screen should be saved in the provided
-#'        folder.
 #' @param returnVals logical. If the output should be returned to the user.
 #' @param minVal default set to 0. The minimum starting value for a node.
 #' @param maxVal default set to NULL. The maximum starting value for a node.
 #' @importFrom stats rlnorm
 #' @export
 
-modifierPriorScreen <- function(folder, priorDistribution = "logNormal", n,
-                            savePriors = T, returnVals = F,
-                            minVal = 0,
-                            maxVal = NULL) {
+modifierPriorScreen <- function(folder,
+                                priorDistribution = "logNormal",
+                                n,
+                                returnVals = F,
+                                minVal = 0,
+                                maxVal = NULL) {
   # checking user inputs
   if ("uniform" %in% priorDistribution & minVal < 0) {
     minVal = 0
@@ -512,9 +513,12 @@ modifierPriorScreen <- function(folder, priorDistribution = "logNormal", n,
 
   # will want to allow for different distributions in the future!!! Maybe even
   # user specified distributions?
-  priorDef[2:(n + 1), names(priorDistribution)[priorDistribution == "rlnorm"]] <- rlnorm(n * sum(priorDistribution == "rlnorm"))
-  priorDef[2:(n + 1), names(priorDistribution)[priorDistribution == "runif"]] <- runif(n * sum(priorDistribution == "runif"),
-                                                                                       min = minVal, max = maxVal)
+  priorDef[2:(n + 1), names(priorDistribution)[priorDistribution == "logNormal"]] <- rlnorm(n * sum(priorDistribution == "logNormal"))
+  if (any(priorDistribution == "uniform")) {
+    priorDef[2:(n + 1), names(priorDistribution)[priorDistribution == "uniform"]] <- runif(n * sum(priorDistribution == "uniform"),
+                                                                                           min = minVal, max = maxVal)
+  }
+
 
   # replace vals with specific numbers if provided by user
   givenVals <- sapply(priorDistribution, function(x) suppressWarnings(as.numeric(x)))

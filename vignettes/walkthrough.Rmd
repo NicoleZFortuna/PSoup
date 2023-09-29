@@ -1,49 +1,42 @@
 ---
-title: "Get started using PSoup"
-author: "Nicole Fortuna"
-date: "`r Sys.Date()`"
+title: "PSoup Walkthrough"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Get started using PSoup}
+  %\VignetteIndexEntry{walkthrough}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include = FALSE}
+```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 ```
 
-### Purpose and design philosophy of PSoup
+```{r setup}
+library(PSoup)
+```
 
-The PSoup package was built as a tool to support the generation of network descriptions of biological systems. It is embedded in a larger workflow designed to ultimately assist in predicting the direction of change in a system in response to perturbations.
+```{r echo = FALSE}
+# run  buildDependentFiles.R to generate the files that will be used to produce
+# this article. Below are the directories to the generated files.
 
-This workflow consists of several critical aspects: 
+folder1 = "Model1"
+folder2 = "Model2"
+```
 
-1. Describe the prior knowledge of the system as a series of statements.
-2. Record the starting conditions and outcomes of experiments.
-3. Translate statements into a diagram.
-4. Convert the diagram into a computational model.
-5. Test if the computational model recapitulates experimental outcomes.
-6. Design new experiments to test the predictive power of the model.
-
-PSoup has been designed to automate aspects 3, 4, and 5. Therefore, when generating models of a biological system, the user only needs to be actively involved with collating the existing knowledge of the system, and describing said system using a standard diagram syntax. Once a diagram has been produced, PSoup will convert that diagram into a mathematical model using a set of algebraic rules. This mathematical model can then be used to simulate how the system deviates from the baseline under different conditions.
-
-A benefit of PSoup is that it allows users who may not be comfortable with mathematics to dabble with simulations. Even so, PSoup is completely transparent in regard to how the diagramatic description of the system has been translated into a series of equations by generating an R script which defines the function (called `nextStep`) which calculates the values of nodes at each timestep. By allowing access to this function, PSoup gives the possibility for the user to manually change aspects of the mathematical description of the system if they wish to do so.
-
-Need an overview of PSoup running simulations until reaching stability. Not a direct replication of biology. Not meaningful through time as no reliance on coefficients.
-
-### Walkthrough of how to use PSoup
+## Importing a diagram
 
 This is a short tutorial to demonstrate how you can use PSoup to simulate network outcomes. Examples will use data that is included in this package.
 
 First start by building a diagram of your network using an editor that can support SBGN diagrams of the Activity Flow language (I recommend [Newt Pathway Viewer & Editor](https://web.newteditor.org/)). When building your diagram, make sure that you specify that map is of type AF, and that you only use symbols from the Activity Flow Palette. This diagram will be based on the series of statements that you have constructed describing your system. For advice on how to construct your statements, click [here](#hypotheses). For a detailed description of how to use the Newt editor, click [here](#newt). To see the algebraic rules that PSoup uses to convert a diagram to a mathematical model click [here](#rules).
 
+<center>
 ```{r, echo=FALSE, out.width="50%", fig.cap="Figure 1. An example of a network diagram that can be produced using the Newt online editor."}
 knitr::include_graphics("DunAFgenotype.jpg")
 ```
+</center>
 
 Once you are happy with your diagram, click `File` -> `Export` -> `SBGN-ML Plain`. This will generate a text file representation of your diagram using SBGN markdown language. You will then need to use the `convertSBGNdiagram` function to translate this text file into a Network object that is easy to use.
 
@@ -59,6 +52,8 @@ The above network object is available with the PSoup package, and can therefore 
 peaNetwork
 ```
 
+## Generating a Model
+
 Network objects can then be passed to a function called 'buildModel' which will generate all the information that is required to run a simulation of your network. You will need to provide a directory pathway for your model information to be stored in. If there already exists a folder of the specified name, this function will not overwrite the folder unless requested to do so (you would need to pass an additional argument `forceOverwrite = TRUE` to the buildModel function.)
 
 ```{r, eval=FALSE}
@@ -67,22 +62,19 @@ buildModel(PeaNetwork, folder, forceOverwrite = T)
 ```
 
 To access the information, all you need to do is source the folder into the local environment:
-```{r, echo=FALSE}
-folder = "~/Desktop/Model"
-```
 
-
-```{r}
+```{r eval = FALSE}
 load(paste0(folder, "/genotypeDef.RData"))
 load(paste0(folder, "/nodestartDef.RData"))
 ```
 
-Within the folder that you have built, there will be three objects. Two of these objects will be data frames specifying values to be fed to the model: one will give the genotypes and their baseline values, the second will give the starting node values for the simulation.
-
-```{r, echo=FALSE}
-holder = genotypeDef
-genotypeDef = genotypeDef[1,]
+```{r echo = FALSE}
+load(paste0(folder1, "/genotypeDef.RData"))
+load(paste0(folder1, "/nodestartDef.RData"))
+load(paste0(folder1, "/simulation.RData"))
 ```
+
+Within the folder that you have built, there will be three objects. Two of these objects will be data frames specifying values to be fed to the model: one will give the genotypes and their baseline values, the second will give the starting node values for the simulation.
 
 ```{r}
 genotypeDef
@@ -94,9 +86,11 @@ For these data frames, each row can be considered as an experimental condition t
 
 In addition to these two data frames, the folder you generate will also contain a script defining a function that is called `nextStep`. This function has been automatically generated from the PeaNetwork object based on the original diagram. 
 
+<center>
 ```{r, echo=FALSE, out.width="80%", fig.cap="Figure 1. The nextStep function, which is automatically generated by the buildModel function."}
 knitr::include_graphics("buildModelOutput.png")
 ```
+</center>
 
 This function is what will be doing most of the work when running simulations of the network. This function is what calculates the node values at each step. It contains a series of difference equations which are the mathematical description of the information contained in the diagram.
 
@@ -104,20 +98,25 @@ This function has been provided as a script accessible to the user in order to m
 
 Once these three data objects have been created in your specified folder, the path directory of this folder can be provided as input to run simulations. If we want to run a single simulation, we can call the `simulateNetwork` function.
 
-```{r}
+```{r eval=FALSE}
 simulation <- simulateNetwork(folder, maxStep = 100) 
 head(simulation)
 ```
 
+```{r echo=FALSE}
+head(simulation)
+```
+
+
 As the folder contains all of our genotype information, node starting values, as well as the script for the `nextStep` function, all the information to run the simulation is already provided. The simulation will run until the system reaches stability, unless one of the exceptions listed above occurs.
 
-To quickly inspect the outcome of a simulation, the `fastPlot` function can be called as bellow. As the genotypeDef and nodestartDef data frames in our model folder only contain the baseline condition, the system is already at stability, and therefore the plot shows no change. Note that in the plot bellow that the node values have been log transformed. The `fastPlot` function has an argument `logTransform` which by default is set to     `TRUE`. This transformation makes it easier to discern the releative differences for positive and negative changes in the system. If you would like to see the true node values, set this argument to `FALSE`. This function is useful to make a quick diagnosis of the system. To make high quaility plots, use existing R plotting tools.
+To quickly inspect the outcome of a simulation, the `fastPlot` function can be called as bellow. As the genotypeDef and nodestartDef data frames in our model folder only contain the baseline condition, the system is already at stability, and therefore the plot shows no change. Note that in the plot bellow that the node values have been log transformed. The `fastPlot` function has an argument `logTransform` which by default is set to     `TRUE`. This transformation makes it easier to discern the releative differences for positive and negative changes in the system. If you would like to see the true node values, set this argument to `FALSE`. This function is useful to make a quick diagnosis of the system. To make high quality plots, use existing R plotting tools.
 
-```{r, out.width="80%", dpi=300}
+```{r, out.width="80%", dpi=300, fig.align = 'center'}
 fastPlot(simulation)
 ```
 
-#### How to set up a simulation screen
+## Running Simulations
 It will often be the case that you do not wish to test a network only under a single condition. Sometimes there are a few specific conditions that you want to test, other times you want to conduct an exhaustive search. In either case, you will need to use the `setupSims` function, rather than the `simulateNetwork` function.
 
 If there are a few specific conditions that you want to test, you can simply add rows to the respective data frames. These rows will each be considered a unique condition for a simulation.
@@ -129,18 +128,19 @@ genotypeDef[3, 1:2] <- 0.5
 
 genotypeDef
 ```
+
 In the example above, the second row represents an 'experimental' condition where the function of RMS2 in the scion (shoot) has been knocked out. The third row represents a condition where the function of RMS1 has been reduced to half of its capacity in both the root, and the scion.
 
 In the case that you want to do an exhaustive search, the `genotypeScreen` is useful for automating the construction of the appropriate data frames.
 
-```{r, echo=FALSE}
-genotypeDef = holder
-```
-
-```{r}
+```{r eval=FALSE}
 genotypeScreen(folder)
 
 load(paste0(folder, "/genotypeDef.RData"))
+genotypeDef 
+```
+```{r echo=FALSE}
+load(paste0(folder2, "/genotypeDef.RData"))
 genotypeDef 
 ```
 
@@ -148,10 +148,15 @@ As you can see, the `genotypeScreen` function will generate a data frame with co
 
 The sister function to `genotypeScreen` is `randomStartScreen`. This function will generate a data frame corresponding to the nodes of the network, with values indicating the value of the node at the start of the simulation. To use this function, you must provide the model folder path, as well as the number of restart values that you want to generate. In addition you can also indicate what the maximum and minimum values that you want for nodes. The default minimum is set to 0, while the default maximum value is 2. This function will pull values from a uniform distribution bound by these values.
 
-```{r}
+```{r eval=FALSE}
 randomStartScreen(folder, restarts = 5)
 
 load(paste0(folder, "/nodestartDef.RData"))
+nodestartDef 
+```
+
+```{r echo=FALSE}
+load(paste0(folder2, "/nodestartDef.RData"))
 nodestartDef 
 ```
 
@@ -159,32 +164,34 @@ In addition to being able to modify the genes and node values of the system, it 
 
 It is possible to quickly set up a two dimensional screen of exogenously supplied treatments to the system by using the `exogenousScreen` function.
 
-```{r}
+```{r eval=FALSE}
 exogenousScreen(c("Strigolactone_S", "Cytokinin_R"), 1:3, 1:3, folder)
 
-load(paste0(folder, "/exogenousScreen.RData"))
-exoScreen
+load(paste0(folder, "/exogenousDef.RData"))
+exogenousDef
+```
+
+```{r echo=FALSE}
+load(paste0(folder2, "/exogenousDef.RData"))
+exogenousDef
 ```
 
 There is one more useful function when it comes to setting up a set of conditions to be simulated. The function `modifierPriorScreen` is designed to generate a data frame containing modifier values that have been pulled from a prior distribution of values. As of now, only a log normal distribution can be used, but more distributions may be added in the future. The argument `priorDistribution` is automatically set to `"rlnorm"` which indicates that all modifier values should be pulled from a log normal distribution. It is possible to instead provide a vector named after the modifiers. In this case you can indicate if particular values should maintain a particular value, while others have values pulled from a distribution. You can shoose the number of experimental conditions with genereated modifier values with the argument `n`. Note that the data frame produced from this function is called `priorDef` rather than `nodestartDef`. This is to recognise that use of the `modifierPriorScreen` function is associated with running a robustness check on the topology of the network.
 
-```{r}
-modifierPriorScreen(folder, n = 5, returnVals = T)
+```{r eval=FALSE}
+modifierPriorScreen(folder, n = 5)
 
 load(paste0(folder, "/priorDef.RData"))
 priorDef
 ```
 
+```{r echo=FALSE}
+load(paste0(folder2, "/priorDef.RData"))
+priorDef
+```
+
 You should view the model folder that you generate to run simulations as a record. You can generate a variety of different screens, not all of which you need to explore at the same time. When generating screens of parameter values, those screens can be saved in the folder for record keeping. They can also be accessed by simulation functions so that they do not need to be passed to the function manually.
 
-To set up a series of simulations, this can be done easily by using the `setupSims` function.
+### Simulating Multiple conditions
 
-### Commentary on the collection of prior knowledge {#hypotheses}
-
-### Newt Instructions {#newt}
-
-### Algebraic Rules {#rules}
-
-### Comparing experimental outputs to simulated outputs
-
-### Recommended readings
+To set up a series of simulations, this can be done easily by using the `setupSims` function. This function will pull data objects from the model folder that you generated, and will simulate every row combination from each data object. It is possible to specify to only explore specific data objects. The only required decision to make is if both a `genotypeDef.RData` and `priorDef.RData` is available in the folder. The reason for this is that both of these objects are providing 'experimental' conditions for the modifiers of your model. However, the purpose behind the different screens are ve
