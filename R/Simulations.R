@@ -165,8 +165,6 @@ simulateNetwork <- function(folder,
 #'               allows the user to keep the generated alternate nextStep function
 #'               with a specific name. If no name is provided, the alternate
 #'               nextStep functions will be names nextStepAlt.R.
-#' @param report Logical, defaults to FALSE. Indicates if the index of the
-#'               completed simulations is returned.
 #' @importFrom stats runif
 #' @export
 
@@ -228,11 +226,8 @@ setupSims <- function(folder,
                                           exogenousSupply = if (is.null(exogenousSupply)) {NULL} else {exogenousSupply[ex, ]}),
                           simulation = simulation$simulation,
                           stable = simulation$stable)
-        if (report == T) {
-          print(paste("Simulation", i, "out of",
-                      nrow(nodestartDef) * nrow(genotypeDef) * sup,
-                      "completed..."))
-        }
+
+        report(i, nrow(nodestartDef) * nrow(genotypeDef) * sup)
 
         i = i + 1
       }
@@ -535,4 +530,19 @@ modifierPriorScreen <- function(folder,
 }
 
 
+#' A function to produce a report of simulation progression
+#'
+#' @param x the index for the simulation completed
+#' @param r the total number of simulations to be completed
+
+report <- function(x, r) {
+  if (r < 20) return(NULL) # not worth reporting on progress
+
+  thresh <- round(quantile(1:r, seq(0, 1, 0.2)))
+
+  if (x %in% thresh) {
+    i <- which(x == thresh)
+    cat(paste0("\r", names(i), " of simulations are complete."))
+  }
+}
 

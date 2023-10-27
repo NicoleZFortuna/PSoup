@@ -1,8 +1,8 @@
 ---
-title: "modelvalidations"
+title: "Newt Editor Instructions"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{modelvalidations}
+  %\VignetteIndexEntry{newtinstructions}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -14,6 +14,3 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
-library(PSoup)
-```

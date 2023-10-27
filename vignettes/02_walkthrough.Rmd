@@ -52,7 +52,7 @@ The above network object is available with the PSoup package, and can therefore 
 peaNetwork
 ```
 
-## Generating a Model
+## Setting up a simulation screen
 
 Network objects can then be passed to a function called 'buildModel' which will generate all the information that is required to run a simulation of your network. You will need to provide a directory pathway for your model information to be stored in. If there already exists a folder of the specified name, this function will not overwrite the folder unless requested to do so (you would need to pass an additional argument `forceOverwrite = TRUE` to the buildModel function.)
 
@@ -192,6 +192,6 @@ priorDef
 
 You should view the model folder that you generate to run simulations as a record. You can generate a variety of different screens, not all of which you need to explore at the same time. When generating screens of parameter values, those screens can be saved in the folder for record keeping. They can also be accessed by simulation functions so that they do not need to be passed to the function manually.
 
-### Simulating Multiple conditions
+### Running simulations
 
-To set up a series of simulations, this can be done easily by using the `setupSims` function. This function will pull data objects from the model folder that you generated, and will simulate every row combination from each data object. It is possible to specify to only explore specific data objects. The only required decision to make is if both a `genotypeDef.RData` and `priorDef.RData` is available in the folder. The reason for this is that both of these objects are providing 'experimental' conditions for the modifiers of your model. However, the purpose behind the different screens are ve
+Running a simulation screen can be done easily by using the `setupSims` function. This function will pull data objects from the model folder that you generated, and will simulate every row combination from each data object. It is possible to specify to only explore specific data objects. The only required decision to make is if both a `genotypeDef.RData` and `priorDef.RData` is available in the folder. The reason for this is that both of these objects are providing 'experimental' conditions for the modifiers of your model. However, the purpose behind the different screens are ve
