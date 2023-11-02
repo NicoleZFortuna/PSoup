@@ -26,9 +26,9 @@ folder1 = "Model1"
 folder2 = "Model2"
 ```
 
-## Importing a diagram
-
 This is a short tutorial to demonstrate how you can use PSoup to simulate network outcomes. Examples will use data that is included in this package.
+
+## Importing a diagram
 
 First start by building a diagram of your network using an editor that can support SBGN diagrams of the Activity Flow language (I recommend [Newt Pathway Viewer & Editor](https://web.newteditor.org/)). When building your diagram, make sure that you specify that map is of type AF, and that you only use symbols from the Activity Flow Palette. This diagram will be based on the series of statements that you have constructed describing your system. For advice on how to construct your statements, click [here](#hypotheses). For a detailed description of how to use the Newt editor, click [here](#newt). To see the algebraic rules that PSoup uses to convert a diagram to a mathematical model click [here](#rules).
 
@@ -52,9 +52,11 @@ The above network object is available with the PSoup package, and can therefore 
 peaNetwork
 ```
 
-## Setting up a simulation screen
+For greater detail on how to use Newt, view the Newt Editor Instructions article attached to this site.
 
-Network objects can then be passed to a function called 'buildModel' which will generate all the information that is required to run a simulation of your network. You will need to provide a directory pathway for your model information to be stored in. If there already exists a folder of the specified name, this function will not overwrite the folder unless requested to do so (you would need to pass an additional argument `forceOverwrite = TRUE` to the buildModel function.)
+## Generating a model from a diagram
+
+Network objects can then be passed to a function called 'buildModel' which will generate all the information that is required to create a mathematical description of your network. You will need to provide a directory pathway for your model information to be stored in. If there already exists a folder of the specified name, this function will not overwrite the folder unless requested to do so (you would need to pass an additional argument `forceOverwrite = TRUE` to the buildModel function.)
 
 ```{r, eval=FALSE}
 folder = "~/Desktop/Model"
@@ -110,14 +112,14 @@ head(simulation)
 
 As the folder contains all of our genotype information, node starting values, as well as the script for the `nextStep` function, all the information to run the simulation is already provided. The simulation will run until the system reaches stability, unless one of the exceptions listed above occurs.
 
-To quickly inspect the outcome of a simulation, the `fastPlot` function can be called as bellow. As the genotypeDef and nodestartDef data frames in our model folder only contain the baseline condition, the system is already at stability, and therefore the plot shows no change. Note that in the plot bellow that the node values have been log transformed. The `fastPlot` function has an argument `logTransform` which by default is set to     `TRUE`. This transformation makes it easier to discern the releative differences for positive and negative changes in the system. If you would like to see the true node values, set this argument to `FALSE`. This function is useful to make a quick diagnosis of the system. To make high quality plots, use existing R plotting tools.
+To quickly inspect the outcome of a simulation, the `fastPlot` function can be called as below. As the genotypeDef and nodestartDef data frames in our model folder only contain the baseline condition, the system is already at stability, and therefore the plot shows no change. Note that in the plot bellow that the node values have been log transformed. The `fastPlot` function has an argument `logTransform` which by default is set to     `TRUE`. This transformation makes it easier to discern the releative differences for positive and negative changes in the system. If you would like to see the true node values, set this argument to `FALSE`. This function is useful to make a quick diagnosis of the system. To make high quality plots, use existing R plotting tools.
 
 ```{r, out.width="80%", dpi=300, fig.align = 'center'}
 fastPlot(simulation)
 ```
 
-## Running Simulations
-It will often be the case that you do not wish to test a network only under a single condition. Sometimes there are a few specific conditions that you want to test, other times you want to conduct an exhaustive search. In either case, you will need to use the `setupSims` function, rather than the `simulateNetwork` function.
+## Setting up a set of simulation conditions
+It will usually be the case that you want to test a network under multiple conditions. Sometimes there are a few specific conditions that you want to test, other times you want to conduct an exhaustive search. In either case, you will need to use the `setupSims` function, rather than the `simulateNetwork` function.
 
 If there are a few specific conditions that you want to test, you can simply add rows to the respective data frames. These rows will each be considered a unique condition for a simulation.
 
@@ -160,9 +162,11 @@ load(paste0(folder2, "/nodestartDef.RData"))
 nodestartDef 
 ```
 
-In addition to being able to modify the genes and node values of the system, it is also possible to supply an external source to a node. This external supply is constantly given throughout the course of the simulation, with the amount added at each timepoint to the native value in the simulation. An exogenous supply for a node can be specified by providing a named vector, or data frame to the `exogenousSupply` argument in either the `simulateNetwork` or `setupSims` functions. Where the name of the vector or columns correspond to a node in the network (only nodes for which an exogenous supply will be provided need to be included).
+### Adding an exogenous supply to a system
 
-It is possible to quickly set up a two dimensional screen of exogenously supplied treatments to the system by using the `exogenousScreen` function.
+In addition to being able to modify the genes and node values of the system, it is also possible to supply an external source to a node. This external supply is constantly given throughout the course of the simulation, with the amount added at each timepoint to the native value in the simulation. An exogenous supply for a node can be specified by providing a named vector, or data frame to the `exogenousSupply` argument in either the `simulateNetwork` or `setupSims` functions. Where the name of the vector or columns correspond to a node in the network (only nodes for which an exogenous supply will be provided should be included).
+
+It is possible to quickly set up a two dimensional screen of exogenous treatments to the system by using the `exogenousScreen` function.
 
 ```{r eval=FALSE}
 exogenousScreen(c("Strigolactone_S", "Cytokinin_R"), 1:3, 1:3, folder)
@@ -176,7 +180,9 @@ load(paste0(folder2, "/exogenousDef.RData"))
 exogenousDef
 ```
 
-There is one more useful function when it comes to setting up a set of conditions to be simulated. The function `modifierPriorScreen` is designed to generate a data frame containing modifier values that have been pulled from a prior distribution of values. As of now, only a log normal distribution can be used, but more distributions may be added in the future. The argument `priorDistribution` is automatically set to `"rlnorm"` which indicates that all modifier values should be pulled from a log normal distribution. It is possible to instead provide a vector named after the modifiers. In this case you can indicate if particular values should maintain a particular value, while others have values pulled from a distribution. You can shoose the number of experimental conditions with genereated modifier values with the argument `n`. Note that the data frame produced from this function is called `priorDef` rather than `nodestartDef`. This is to recognise that use of the `modifierPriorScreen` function is associated with running a robustness check on the topology of the network.
+### Set up a screen of priors from a distribution
+
+There is one more useful function when it comes to setting up a set of conditions to be simulated. The function `modifierPriorScreen` is designed to generate a data frame containing modifier values that have been pulled from a prior distribution of values. As of now, only a log normal distribution can be used, but more distributions may be added in the future. The argument `priorDistribution` is automatically set to `"rlnorm"` which indicates that all modifier values should be pulled from a log normal distribution. It is possible to instead provide a vector named after the modifiers. In this case you can indicate if certain nodes should maintain a particular value, while others have values pulled from a distribution. You can choose the number of experimental conditions with generated modifier values with the argument `n`. Note that the data frame produced from this function is called `priorDef` rather than `nodestartDef`. This is to recognise that use of the `modifierPriorScreen` function is associated with running a robustness check on the topology of the network.
 
 ```{r eval=FALSE}
 modifierPriorScreen(folder, n = 5)
@@ -192,6 +198,43 @@ priorDef
 
 You should view the model folder that you generate to run simulations as a record. You can generate a variety of different screens, not all of which you need to explore at the same time. When generating screens of parameter values, those screens can be saved in the folder for record keeping. They can also be accessed by simulation functions so that they do not need to be passed to the function manually.
 
-### Running simulations
+## Executing a simulation screen
 
-Running a simulation screen can be done easily by using the `setupSims` function. This function will pull data objects from the model folder that you generated, and will simulate every row combination from each data object. It is possible to specify to only explore specific data objects. The only required decision to make is if both a `genotypeDef.RData` and `priorDef.RData` is available in the folder. The reason for this is that both of these objects are providing 'experimental' conditions for the modifiers of your model. However, the purpose behind the different screens are ve
+Running a simulation screen can be done easily by using the `setupSims` function. This function will pull data objects from the model folder that you generated, and will simulate every row combination from each data object. It is possible to specify to only explore specific data objects. The only required decision to make is if both a `genotypeDef.RData` and `priorDef.RData` is available in the folder. The reason for this is that both of these objects are providing 'experimental' conditions for the modifiers of your model. 
+
+
+modifierPriorScreen(folder, n = 1000)
+load(paste0(folder, "/priorDef.RData"))
+priorDef
+
+boxplot(log(priorDef))
+
+
+priorSims <- setupSims(folder, report = T, priorScreen = T, tmax = 100)
+save(priorSims, file = paste0(folder, "/priorSims.RData"))
+load(paste0(folder, "/priorSims.RData"))
+
+fastPlot(priorSims$screen[[7]])
+unique(stabilityVector(priorSims))
+
+stableNodes <- finalStates(priorSims$screen)
+
+boxplot(log(stableNodes), cex = 0.5, cex.axis = 0.5)
+abline(0,0, col = "red")
+
+plot(stableNodes$FB_P, stableNodes$InhibitGrowth_B, pch = 16, cex = 0.5, col = rgb(0,0,0,0.5))
+plot(stableNodes$FB_R, stableNodes$InhibitGrowth_B, pch = 16, cex = 0.5, col = rgb(0,0,0,0.5))
+plot(stableNodes$SL_R, stableNodes$InhibitGrowth_B, pch = 16, cex = 0.5, col = rgb(0,0,0,0.5))
+plot(stableNodes$SL_P, stableNodes$InhibitGrowth_B, pch = 16, cex = 0.5, col = rgb(0,0,0,0.5))
+plot(stableNodes$Perception_P, stableNodes$InhibitGrowth_B, pch = 16, cex = 0.5, col = rgb(0,0,0,0.5))
+
+priorDef[which(stableNodes$SL_P == max(stableNodes$SL_P)), ]
+
+plot(stableNodes$SL_R, stableNodes$SL_S, pch = 16, cex = 0.5, col = rgb(0,0,0,0.5))
+
+decreasingBO <- stableNodes[order(stableNodes$InhibitGrowth_B), ]
+
+plot.ts(decreasingBO[, c("InhibitGrowth_B", "FB_P", "FB_R", "SL_P", "SL_R", "Perception_P")])
+
+
+
