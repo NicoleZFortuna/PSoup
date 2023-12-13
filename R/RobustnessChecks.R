@@ -63,12 +63,18 @@ exploreEdges <- function(startingNetwork,
                          nesStimStyle = "Michaelis-Menten",
                          nesStimFile = NULL,
                          exogenousSupply = NULL,
-                         priorScreen = F,
-                         saveNetwork = T,
-                         saveOutput = F) {
+                         priorScreen = FALSE,
+                         saveNetwork = TRUE,
+                         saveOutput = FALSE) {
 
   load(paste0(folder, "/nodestartDef.RData"))
-  load(paste0(folder, "/genotypeDef.RData"))
+
+  if (priorScreen == FALSE) {
+    load(paste0(folder, "/genotypeDef.RData"))
+  } else {
+    load(paste0(folder, "/priorDef.RData"))
+    genotypeDef <- priorDef
+  }
 
   if (nrow(nodestartDef) > 1) stop("Please make sure that your nodestartDef data.frame only contains a single wild-type row (one row only containing 1s).")
 
@@ -109,7 +115,7 @@ exploreEdges <- function(startingNetwork,
                            length(networkAlternations) + 1),
                dimnames = list(geneModelConditions,
                                names(startingNetwork@objects$Hormones),
-                               c("startingNetwork", networkAlternations)))
+                               c("startingNetwork", unname(networkAlternations))))
 
   # split networkAlternations vector to make it easy to generate alternative topologies
   newNetInfo <- strsplit(networkAlternations, ".", fixed = T)
@@ -142,20 +148,21 @@ exploreEdges <- function(startingNetwork,
                              steadyThreshold = steadyThreshold,
                              exogenousSupply = exogenousSupply,
                              priorScreen = priorScreen,
-                             robustnessTest = if (n == 1) {F} else {T},
+                             robustnessTest = if (n == 1) {FALSE} else {TRUE},
                              altTopologyName = altTopologyName,
                              saveOutput = saveOutput)
 
-    dat[1:3, colnames(dat), n] <- as.matrix(finalStates(simulations$screen)[, colnames(dat)])
+    dat[ , colnames(dat), n] <- as.matrix(finalStates(simulations$screen)[, colnames(dat)])
 
-    if (any(stabilityVector(simulations) == F)) {
+    tempStabilityVec <- stabilityVector(simulations)
+    if (any(tempStabilityVec == FALSE)) {
       isStable <- stabilityVector(simulations)
-      noStabilityTracker[(nST + 1):((nST + 1) + sum(isStable == F) - 1), 'model.row'] <- which(isStable == F)
-      noStabilityTracker[(nST + 1):((nST + 1) + sum(isStable == F) - 1), 'network.depth'] <- networkAlternations[n - 1]
+      noStabilityTracker[(nST + 1):((nST + 1) + sum(isStable == FALSE) - 1), 'model.row'] <- which(isStable == FALSE)
+      noStabilityTracker[(nST + 1):((nST + 1) + sum(isStable == FALSE) - 1), 'network.depth'] <- networkAlternations[n - 1]
 
-      nST <- nST + sum(isStable == F)
+      nST <- nST + sum(isStable == FALSE)
 
-      if (saveOutput == F) {
+      if (saveOutput == FALSE) {
         # create object to house any simulations that have not achieved stability
         # if this object has length > 0, save it.
       }

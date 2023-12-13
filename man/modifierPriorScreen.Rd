@@ -9,9 +9,10 @@ modifierPriorScreen(
   folder,
   priorDistribution = "logNormal",
   n,
-  returnVals = F,
+  returnVals = FALSE,
   minVal = 0,
-  maxVal = NULL
+  maxVal = NULL,
+  savePriors = T
 )
 }
 \arguments{

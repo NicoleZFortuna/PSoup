@@ -30,7 +30,7 @@
 #'               each vector member named after their respective node.
 #' @param robustnessTest logical. Defaults to FALSE. Specifies if the nextStep
 #'               function being used is part of a network robustness check.
-#' @param altTopologyName default to NULL. If robustnessTest = T, this argument
+#' @param altTopologyName default to NULL. If robustnessTest =TRUE, this argument
 #'               allows the user to keep the generated alternate nextStep function
 #'               with a specific name. If no name is provided, the alternate
 #'               nextStep functions will be names nextStepAlt.R.
@@ -43,7 +43,7 @@ simulateNetwork <- function(folder,
                             startingValues = NA,
                             steadyThreshold = 4,
                             exogenousSupply = NULL,
-                            robustnessTest = F,
+                            robustnessTest =FALSE,
                             altTopologyName = NULL) {
   # Checking if a meaningful delay has been provided
   if (delay == 1) {
@@ -55,8 +55,8 @@ simulateNetwork <- function(folder,
   }
 
   # sourcing data for simulation
-  if (robustnessTest == F) {
-    source(paste0(folder, "/nextStep.R"), local = T)
+  if (robustnessTest == FALSE) {
+    source(paste0(folder, "/nextStep.R"), local = TRUE)
   } else {
     source(paste0(folder, "/", altTopologyName, "_nextStepAlt.R"))
   }
@@ -104,14 +104,14 @@ simulateNetwork <- function(folder,
     # If reached steady state, return simDat
     if(all(round(simDat[row,], steadyThreshold) == round(simDat[row - 1,], steadyThreshold))) {
       simDat = simDat[delay:row, ]
-      return(list(simulation = simDat, stable = T))
+      return(list(simulation = simDat, stable = TRUE))
     }
 
     # If maxStep has been reached (if there even is one), return simDat
     if (!is.na(maxStep) & t == maxStep) {
       warning("The maximum timestep has been reached without achieving stability.")
       simDat = simDat[delay:row, ]
-      return(list(simulation = simDat, stable = F))
+      return(list(simulation = simDat, stable = FALSE))
     }
 
     # If any node has reached infinity
@@ -119,7 +119,7 @@ simulateNetwork <- function(folder,
       warning(paste0("The simulation was terminated at time ", t, " as the following node/s reached infinity: ",
                     paste(names(simDat)[is.infinite(unlist(simDat[row, ]))], collapse = ", "), "."))
       simDat = simDat[delay:row, ]
-      return(list(simulation = simDat, stable = F))
+      return(list(simulation = simDat, stable = FALSE))
     }
 
     # If simDat has been filled without reaching steady state or maxStep, add more rows
@@ -161,7 +161,7 @@ simulateNetwork <- function(folder,
 #'               provided folder location upon completion.
 #' @param robustnessTest logical. Defaults to FALSE. Specifies if the nextStep
 #'               function being used is part of a network robustness check.
-#' @param altTopologyName default to NULL. If robustnessTest = T, this argument
+#' @param altTopologyName default to NULL. If robustnessTest = TRUE, this argument
 #'               allows the user to keep the generated alternate nextStep function
 #'               with a specific name. If no name is provided, the alternate
 #'               nextStep functions will be names nextStepAlt.R.
@@ -173,13 +173,13 @@ setupSims <- function(folder,
                       maxStep = 100,
                       steadyThreshold = 4,
                       exogenousSupply = NULL,
-                      priorScreen = F,
-                      saveOutput = F,
-                      robustnessTest = F,
+                      priorScreen =FALSE,
+                      saveOutput =FALSE,
+                      robustnessTest =FALSE,
                       altTopologyName = NULL,
-                      report = F) {
+                      report = FALSE) {
   # loading parameter values
-  if (priorScreen == T) {
+  if (priorScreen == TRUE) {
     if (!file.exists(paste0(folder, "/priorDef.RData"))) {
       stop("You have requested to use modifer values generated from a prior distribution, but there is no priorDef.RData file in the folder indicated.")
     }
@@ -199,7 +199,7 @@ setupSims <- function(folder,
   # Ensuring that the first row of any screening dataframes contain a wildtype condition in the first row
   nodestartDef    <- tidyScreen(nodestartDef, "nodestartDef")
   genotypeDef     <- tidyScreen(genotypeDef, "genotypeDef")
-  exogenousSupply <- tidyScreen(exogenousSupply, "exogenousSupply", exogenous = T)
+  exogenousSupply <- tidyScreen(exogenousSupply, "exogenousSupply", exogenous = TRUE)
 
   # Run simulations
   sims <- list()
@@ -238,7 +238,7 @@ setupSims <- function(folder,
                  "parameters" = c("maxStep" = maxStep, "delay" = delay),
                  "screen" = sims)
 
-  if (saveOutput == T) {
+  if (saveOutput == TRUE) {
     if (!is.null(altTopologyName)) altTopologyName <- paste0(altTopologyName, "_")
     save(output,
          file = paste0(folder, "/", altTopologyName, "allSims.RData"))
@@ -283,7 +283,7 @@ genotypeScreen <- function(folder,
   }
 
   # collect the compartment extention of nodes
-  comp = unlist(strsplit(colnames(genotypeDef), "_"))[c(F, T)]
+  comp = unlist(strsplit(colnames(genotypeDef), "_"))[c(FALSE, TRUE)]
 
   compartments <- vector("list", length = length(unique(comp)))
   names(compartments) <- unique(comp)
@@ -292,14 +292,14 @@ genotypeScreen <- function(folder,
     compartments[[i]] <- colnames(genotypeDef)[which(comp == unique(comp)[i])]
   }
 
-  if (graft == F) {
-    noComp <- unlist(strsplit(colnames(genotypeDef), "_"))[c(T, F)]
+  if (graft == FALSE) {
+    noComp <- unlist(strsplit(colnames(genotypeDef), "_"))[c(TRUE, FALSE)]
     genotypeDef[2:((numCombn(length(unique(noComp)), numMutations)*length(mutationVal)) + 1), ] <- 1
   } else {
     genotypeDef[2:(numCombn(ncol(genotypeDef), numMutations)*length(mutationVal) + 1), ] <- 1
   }
 
-  if (graft == F){
+  if (graft == FALSE){
     combGen <- combn(unique(noComp), numMutations)
     for (i in 2:nrow(genotypeDef)) {
       genotypeDef[i, which(noComp %in% combGen[, i - 1])] <- mutationVal
@@ -314,7 +314,7 @@ genotypeScreen <- function(folder,
   save(genotypeDef, file = paste0(folder, "/genotypeDef.Rdata"))
   return("File overwritten.")
 
-  if (returnExcel == T) {
+  if (returnExcel == TRUE) {
     sheets = vector("list", length = length(mutationVal))
     names(sheets) <- paste0("MutationVal=", mutationVal)
 
@@ -328,7 +328,7 @@ genotypeScreen <- function(folder,
 
     write.table(spreadSheet,
                 file = paste0(folder, "/experimentalData_mutationVal=",mutationVal,".csv"),
-                sep = ",", row.names = T, col.names = NA)
+                sep = ",", row.names =TRUE, col.names = NA)
   }
 }
 
@@ -419,7 +419,7 @@ numCombn <- function(n, r) {
 #'                  if checking modifier or node screens, should be set to F.
 #'                  If checking exogenous screens, should be T.
 #' @importFrom prodlim row.match
-tidyScreen <- function(frame, name, exogenous = F) {
+tidyScreen <- function(frame, name, exogenous = FALSE) {
   WT <- as.numeric(!exogenous)
 
   warn <- NULL # initiate vector to store warning messages.
@@ -444,7 +444,7 @@ tidyScreen <- function(frame, name, exogenous = F) {
   }
 
   if (!is.null(warn)) { # provide warning messages in case any changes were made
-    sapply(sprintf(warn, name), warning, call. = F)
+    sapply(sprintf(warn, name), warning, call. = FALSE)
   }
 
   frame
@@ -474,9 +474,10 @@ tidyScreen <- function(frame, name, exogenous = F) {
 modifierPriorScreen <- function(folder,
                                 priorDistribution = "logNormal",
                                 n,
-                                returnVals = F,
+                                returnVals =FALSE,
                                 minVal = 0,
-                                maxVal = NULL) {
+                                maxVal = NULL,
+                                savePriors = T) {
   # checking user inputs
   if ("uniform" %in% priorDistribution & minVal < 0) {
     minVal = 0
@@ -524,9 +525,9 @@ modifierPriorScreen <- function(folder,
     }
   }
 
-  if (savePriors == T) save(priorDef, file = paste0(folder, "/priorDef.RData"))
+  if (savePriors == TRUE) save(priorDef, file = paste0(folder, "/priorDef.RData"))
 
-  if (returnVals == T) return(priorDef)
+  if (returnVals == TRUE) return(priorDef)
 }
 
 

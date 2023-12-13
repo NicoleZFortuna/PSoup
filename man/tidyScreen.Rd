@@ -6,7 +6,7 @@
 are organised correctly. The wild-type condition is made to come first,
 and any duplicate rows are removed.}
 \usage{
-tidyScreen(frame, name, exogenous = F)
+tidyScreen(frame, name, exogenous = FALSE)
 }
 \arguments{
 \item{frame}{a data.frame}

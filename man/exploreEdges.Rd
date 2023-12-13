@@ -14,9 +14,9 @@ exploreEdges(
   nesStimStyle = "Michaelis-Menten",
   nesStimFile = NULL,
   exogenousSupply = NULL,
-  priorScreen = F,
-  saveNetwork = T,
-  saveOutput = F
+  priorScreen = FALSE,
+  saveNetwork = TRUE,
+  saveOutput = FALSE
 )
 }
 \arguments{
