@@ -5,11 +5,11 @@
 information. Includes the names that will be used to communicate with an
 L-System. */
 struct NodeVals {
-  insertSTRUCTNODENAMES
+    insertSTRUCTNODENAMES
 };
 
 struct GeneVals {
-  insertSTRUCTGENENAMES
+    insertSTRUCTGENENAMES
 };
 
 /* Declaring support functions. */

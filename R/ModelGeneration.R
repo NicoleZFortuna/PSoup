@@ -251,15 +251,15 @@ generateC <- function(network,
 
   # collect corrected hormone and gene names
   hormoneList <- names(network@objects$Hormones)
-  geneList <- sapply(network@objects$Genotypes, getGeneContainer)
+  geneList <- unname(unlist(sapply(network@objects$Genotypes, getGeneContainer)))
 
   # define node and gene names
   insertSTRUCTNODENAMES <- paste0("float m", hormoneList, ";", collapse = "\n\t")
   insertSTRUCTGENENAMES <- paste0("float m", geneList, ";", collapse = "\n\t")
 
   # create standard values for nodes and genes
-  insertDATVALS <- paste0("\tdat.", hormoneList, " = 1;", collapse = "\n")
-  insertGENEVALS <- paste0("\tgen.", geneList, " = 1;", collapse = "\n")
+  insertDATVALS <- paste0("\tdat.m", hormoneList, " = 1;", collapse = "\n")
+  insertGENEVALS <- paste0("\tgen.m", geneList, " = 1;", collapse = "\n")
 
   # define equations for nodes
   insertEQUATIONS <- rep(NA, length(network@objects$Hormones))
@@ -275,15 +275,17 @@ generateC <- function(network,
                             insertEQUATIONS, collapse = "\n\t")
 
   # create chain to check if nodes have changed in the previous timestep
-  insertCOMPARISONCHAIN <- paste0(sprintf("fabs(oldDat.m->%s - newDat.m->%s) > THRESHOLD",
+  insertCOMPARISONCHAIN <- paste0(sprintf("fabs(oldDat.m%s - newDat.m%s) > THRESHOLD",
                                           hormoneList, hormoneList),
                                  collapse = "\n\t\t|| ")
 
   insertFINALPRINT <- paste0('fprintf(stderr, "', hormoneList,
-                             ': %.6f, \\n\\t", dat.m', hormoneList, ')',
+                             ': %.6f, \\\\n\\\\t", dat.m', hormoneList, ')',
                              collapse = ";\n\t")
 
-  text <- readLines(file("./inst/scaffold.txt"))
+  text_main.c <- readLines(file("./inst/Cscaffold/main.c"))
+  text_psoup.c <- readLines(file("./inst/Cscaffold/psoup.c"))
+  text_psoup.h <- readLines(file("./inst/Cscaffold/psoup.h"))
 
   insertReplacements <- list("insertTMAX" = insertTMAX,
                              "insertSTRUCTNODENAMES" = insertSTRUCTNODENAMES,
@@ -305,10 +307,18 @@ generateC <- function(network,
     test
   }
 
-  for (i in 1:length(insertReplacements)) {
-    whichLine <- as.logical(sapply(text, containsKey, key = names(insertReplacements)[i], USE.NAMES = F))
-    text[whichLine] <- sub(names(insertReplacements)[i], insertReplacements[i], text[whichLine])
+  # a function to replace key words
+  replaceKeyWords <- function(text, insertReplacements) {
+    for (i in 1:length(insertReplacements)) {
+      whichLine <- as.logical(sapply(text, containsKey, key = names(insertReplacements)[i], USE.NAMES = F))
+      text[whichLine] <- sub(names(insertReplacements)[i], insertReplacements[i], text[whichLine])
+    }
+    text
   }
+
+  text_main.c <- replaceKeyWords(text_main.c, insertReplacements)
+  text_psoup.c <- replaceKeyWords(text_psoup.c, insertReplacements)
+  text_psoup.h <- replaceKeyWords(text_psoup.h, insertReplacements)
 
   # a place to save the equations
   if (dir.exists(folder) & forceOverwrite == FALSE) {
@@ -316,16 +326,22 @@ generateC <- function(network,
          set forceOverwrite to TRUE.")
   } else {
     dir.create(folder)
-    file = paste0(folder, "/Cscript.c")
+  }
 
+  # a function to write the
+  writeCtoFile <- function(text, file) {
     file.create(file)
+
+    cat(paste0(text[1], "\n"), file = file)
+
+    for (i in 2:length(text)) {
+      cat(paste0(text[i], "\n"), file = file, append = T)
+    }
   }
 
-  cat(paste0(text[1], "\n"), file = file)
-
-  for (i in 2:length(text)) {
-    cat(paste0(text[i], "\n"), file = file, append = T)
-  }
+  writeCtoFile(text_main.c, paste0(folder, "/main.c"))
+  writeCtoFile(text_psoup.c, paste0(folder, "/psoup.c"))
+  writeCtoFile(text_psoup.h, paste0(folder, "/psoup.h"))
 }
 
 #' A function to convert altSource inputs to stimulants.
@@ -583,7 +599,7 @@ coregulators <- function(coreg,
     if (language == "R") {
       coregString[r] <- paste0("dat$", coreg[r, !is.na(coreg[r, ])], "[t-1]", collapse = ", ")
     } else if (language == "C") {
-      coregString[r] <- paste0("old->", coreg[r, !is.na(coreg[r, ])], collapse = ", ")
+      coregString[r] <- paste0("oldDat.m", coreg[r, !is.na(coreg[r, ])], collapse = ", ")
     } else {
       stop("Incorrect language specification. Can only accept 'R', or 'C'.")
     }
@@ -599,9 +615,17 @@ coregulators <- function(coreg,
   # SO FAR ONLY FOR R!!!!
   for (i in 1:length(coregString)) {
     if (operator[i] == "and") {
-      coregString[i] <- paste0("min(", coregString[i], ")")
+      if (language == "R") {
+        coregString[i] <- paste0("min(", coregString[i], ")")
+      } else if (language == "C") {
+        coregString[i] <- paste0("getMin(", coregString[i], ")")
+      }
     } else if (operator[i] == "or") {
-      coregString[i] <- paste0("max(", coregString[i], ")")
+      if (language == "R") {
+        coregString[i] <- paste0("max(", coregString[i], ")")
+      } else if (language == "C") {
+        coregString[i] <- paste0("getMax(", coregString[i], ")")
+      }
     } else {
       stop("Incorrect operator specification. Can only accept 'and', or 'or'.")
     }

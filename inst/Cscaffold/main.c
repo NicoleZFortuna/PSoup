@@ -8,9 +8,9 @@ int main () {
     struct NodeVals dat;
     struct GeneVals gen;
 
-    insertDATVALS;
+  insertDATVALS;
 
-    insertSTRUCTGENENAMES;
+  insertGENEVALS;
 
     /* Calculate values. */
     calculateVals(gen, &dat, &time);

@@ -2,9 +2,9 @@
 #include <math.h>
 #include "psoup.h"
 /* Define the maximum timesteps that you want to run in case of an infinite loop. */
-#define TMAX insertTMAX;
+#define TMAX insertTMAX
 /* Threshold of accuracy for matching values. */
-#define THRESHOLD insertTHRESHOLD;
+#define THRESHOLD insertTHRESHOLD
 
 /* This function calculates the new element values based on the element values of
 the previous time step */
