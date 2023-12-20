@@ -535,6 +535,7 @@ modifierPriorScreen <- function(folder,
 #'
 #' @param x the index for the simulation completed
 #' @param r the total number of simulations to be completed
+#' @importFrom stats quantile
 
 report <- function(x, r) {
   if (r < 20) return(NULL) # not worth reporting on progress

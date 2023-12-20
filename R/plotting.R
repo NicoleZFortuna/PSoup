@@ -42,7 +42,7 @@ fastPlot <- function(sim, logTransform = T, removeBaseline = T) {
   } else if (removeBaseline == T & sum(nonBaseline) == 0) {
     caption <- "All nodes maintained the baseline condition"
   } else {
-    caption <- waiver()
+    caption <- ggplot2::waiver()
   }
 
   if (max(dat_long$x) < 30) {

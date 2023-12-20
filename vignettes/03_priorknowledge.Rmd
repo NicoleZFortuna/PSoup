@@ -1,5 +1,5 @@
 ---
-title: "Organising Prior Knowledge as a List of Hypotheses"
+title: "Organising Prior Knowledge"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{priorknowledge}
