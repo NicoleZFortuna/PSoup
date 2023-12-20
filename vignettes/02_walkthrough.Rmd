@@ -203,38 +203,39 @@ You should view the model folder that you generate to run simulations as a recor
 Running a simulation screen can be done easily by using the `setupSims` function. This function will pull data objects from the model folder that you generated, and will simulate every row combination from each data object. It is possible to specify to only explore specific data objects. The only required decision to make is if both a `genotypeDef.RData` and `priorDef.RData` is available in the folder. The reason for this is that both of these objects are providing 'experimental' conditions for the modifiers of your model. 
 
 
-modifierPriorScreen(folder, n = 1000)
-load(paste0(folder, "/priorDef.RData"))
-priorDef
 
-boxplot(log(priorDef))
+<!-- modifierPriorScreen(folder, n = 1000) -->
+<!-- load(paste0(folder, "/priorDef.RData")) -->
+<!-- priorDef -->
+
+<!-- boxplot(log(priorDef)) -->
 
 
-priorSims <- setupSims(folder, report = T, priorScreen = T, tmax = 100)
-save(priorSims, file = paste0(folder, "/priorSims.RData"))
-load(paste0(folder, "/priorSims.RData"))
+<!-- priorSims <- setupSims(folder, report = T, priorScreen = T, tmax = 100) -->
+<!-- save(priorSims, file = paste0(folder, "/priorSims.RData")) -->
+<!-- load(paste0(folder, "/priorSims.RData")) -->
 
-fastPlot(priorSims$screen[[7]])
-unique(stabilityVector(priorSims))
+<!-- fastPlot(priorSims$screen[[7]]) -->
+<!-- unique(stabilityVector(priorSims)) -->
 
-stableNodes <- finalStates(priorSims$screen)
+<!-- stableNodes <- finalStates(priorSims$screen) -->
 
-boxplot(log(stableNodes), cex = 0.5, cex.axis = 0.5)
-abline(0,0, col = "red")
+<!-- boxplot(log(stableNodes), cex = 0.5, cex.axis = 0.5) -->
+<!-- abline(0,0, col = "red") -->
 
-plot(stableNodes$FB_P, stableNodes$InhibitGrowth_B, pch = 16, cex = 0.5, col = rgb(0,0,0,0.5))
-plot(stableNodes$FB_R, stableNodes$InhibitGrowth_B, pch = 16, cex = 0.5, col = rgb(0,0,0,0.5))
-plot(stableNodes$SL_R, stableNodes$InhibitGrowth_B, pch = 16, cex = 0.5, col = rgb(0,0,0,0.5))
-plot(stableNodes$SL_P, stableNodes$InhibitGrowth_B, pch = 16, cex = 0.5, col = rgb(0,0,0,0.5))
-plot(stableNodes$Perception_P, stableNodes$InhibitGrowth_B, pch = 16, cex = 0.5, col = rgb(0,0,0,0.5))
+<!-- plot(stableNodes$FB_P, stableNodes$InhibitGrowth_B, pch = 16, cex = 0.5, col = rgb(0,0,0,0.5)) -->
+<!-- plot(stableNodes$FB_R, stableNodes$InhibitGrowth_B, pch = 16, cex = 0.5, col = rgb(0,0,0,0.5)) -->
+<!-- plot(stableNodes$SL_R, stableNodes$InhibitGrowth_B, pch = 16, cex = 0.5, col = rgb(0,0,0,0.5)) -->
+<!-- plot(stableNodes$SL_P, stableNodes$InhibitGrowth_B, pch = 16, cex = 0.5, col = rgb(0,0,0,0.5)) -->
+<!-- plot(stableNodes$Perception_P, stableNodes$InhibitGrowth_B, pch = 16, cex = 0.5, col = rgb(0,0,0,0.5)) -->
 
-priorDef[which(stableNodes$SL_P == max(stableNodes$SL_P)), ]
+<!-- priorDef[which(stableNodes$SL_P == max(stableNodes$SL_P)), ] -->
 
-plot(stableNodes$SL_R, stableNodes$SL_S, pch = 16, cex = 0.5, col = rgb(0,0,0,0.5))
+<!-- plot(stableNodes$SL_R, stableNodes$SL_S, pch = 16, cex = 0.5, col = rgb(0,0,0,0.5)) -->
 
-decreasingBO <- stableNodes[order(stableNodes$InhibitGrowth_B), ]
+<!-- decreasingBO <- stableNodes[order(stableNodes$InhibitGrowth_B), ] -->
 
-plot.ts(decreasingBO[, c("InhibitGrowth_B", "FB_P", "FB_R", "SL_P", "SL_R", "Perception_P")])
+<!-- plot.ts(decreasingBO[, c("InhibitGrowth_B", "FB_P", "FB_R", "SL_P", "SL_R", "Perception_P")]) -->
 
 
 
