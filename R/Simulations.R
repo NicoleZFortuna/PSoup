@@ -25,9 +25,9 @@
 #'               determined by an outside supply. In this case, the value of the
 #'               node is supplied by the user and remains consistent throughout
 #'               the course of the simulation. The default value for this
-#'               argument is NULL. To specify nodes with an exogenous supply,
-#'               provide a named vector containing the values of the nodes, with
-#'               each vector member named after their respective node.
+#'               argument is FALSE. If set to TRUE, there must exist an exogenousDef
+#'               object in the model folder. This can be generated with the
+#'               exogenousScreen function.
 #' @param robustnessTest logical. Defaults to FALSE. Specifies if the nextStep
 #'               function being used is part of a network robustness check.
 #' @param altTopologyName default to NULL. If robustnessTest =TRUE, this argument
@@ -42,8 +42,8 @@ simulateNetwork <- function(folder,
                             genotype = NA,
                             startingValues = NA,
                             steadyThreshold = 4,
-                            exogenousSupply = NULL,
-                            robustnessTest =FALSE,
+                            exogenousSupply = FALSE,
+                            robustnessTest = FALSE,
                             altTopologyName = NULL) {
   # Checking if a meaningful delay has been provided
   if (delay == 1) {
@@ -78,6 +78,12 @@ simulateNetwork <- function(folder,
     stop("You have provided more than one condition. Consider using the setupSims function instead.")
   }
 
+  if (exogenousSupply == TRUE) {
+    load(paste0(folder, "/exogenousDef.RData"))
+  } else {
+    exogenousDef <- NULL
+  }
+
   # Run simulations
   if (is.na(maxStep)) {
     rowChunk <- 100
@@ -96,9 +102,9 @@ simulateNetwork <- function(folder,
                               gen = genotypeDef[1,], delay = delay)
 
     # If any node has an exogenous supply
-    if (!is.null(exogenousSupply)) {
+    if (!is.null(exogenousDef)) {
       # add the exogenous amount to the value calculated by nextStep
-      simDat[row, names(exogenousSupply)] <- simDat[row, names(exogenousSupply)] + unname(exogenousSupply)
+      simDat[row, names(exogenousDef)] <- simDat[row, names(exogenousDef)] + unname(exogenousDef)
     }
 
     # If reached steady state, return simDat
@@ -149,10 +155,9 @@ simulateNetwork <- function(folder,
 #'               determined by an outside supply. In this case, the value of the
 #'               node is supplied by the user and remains consistent throughout
 #'               the course of the simulation. The default value for this
-#'               argument is NULL. To specify nodes with an exogenous supply,
-#'               provide a data frame with column names corresponding to the
-#'               values of the nodes, with each vector member named after their
-#'               respective node.
+#'               argument is FALSE. If set to TRUE, there must exist an exogenousDef
+#'               object in the model folder. This can be generated with the
+#'               exogenousScreen function.
 #' @param priorScreen logical. Specifies if the function should collect
 #'               modifier values generated from generated prior distributions.
 #'               Default is set to FALSE.
@@ -161,6 +166,15 @@ simulateNetwork <- function(folder,
 #'               provided folder location upon completion.
 #' @param robustnessTest logical. Defaults to FALSE. Specifies if the nextStep
 #'               function being used is part of a network robustness check.
+#' @param genotypeBaseline logical. Defaults to FALSE. Specified if only the
+#'               first row of the genotype object should be used. If selected,
+#'               the output object name will reflect that decision. If
+#'               genotypeBaseline = TRUE and priorScreen = TRUE, a warning will
+#'               be thrown to the user and the priorScreen argument will take
+#'               precedence.
+#' @param nodestartBaseline logical. Defaults to FALSE. Specified if only the
+#'               first row of the nodestart object should be used. If selected,
+#'               the output object name will reflect that decision.
 #' @param altTopologyName default to NULL. If robustnessTest = TRUE, this argument
 #'               allows the user to keep the generated alternate nextStep function
 #'               with a specific name. If no name is provided, the alternate
@@ -172,12 +186,13 @@ setupSims <- function(folder,
                       delay = 2,
                       maxStep = 100,
                       steadyThreshold = 4,
-                      exogenousSupply = NULL,
-                      priorScreen =FALSE,
-                      saveOutput =FALSE,
-                      robustnessTest =FALSE,
-                      altTopologyName = NULL,
-                      report = FALSE) {
+                      exogenousSupply = FALSE,
+                      priorScreen = FALSE,
+                      saveOutput = FALSE,
+                      robustnessTest = FALSE,
+                      genotypeBaseline = FALSE,
+                      nodestartBaseline = FALSE,
+                      altTopologyName = NULL) {
   # loading parameter values
   if (priorScreen == TRUE) {
     if (!file.exists(paste0(folder, "/priorDef.RData"))) {
@@ -185,8 +200,18 @@ setupSims <- function(folder,
     }
     load(paste0(folder, "/priorDef.RData"))
     genotypeDef <- priorDef
+
+    if (genotypeBaseline == TRUE) {
+      warning("You cannot only run simulations with only the genetic baseline if running a prior screen. The genotypeBaseline argument has been set to FALSE.")
+      genotypeBaseline <- FALSE
+    }
   } else {
     load(paste0(folder, "/genotypeDef.RData"))
+
+    if (genotypeBaseline == TRUE) {
+      genotypeDef <- genotypeDef[1,]
+      genotypeDef[1,] <- 1
+    }
   }
 
   if (is.na(maxStep)) {
@@ -195,11 +220,22 @@ setupSims <- function(folder,
   }
 
   load(paste0(folder, "/nodestartDef.RData"))
+  if (nodestartBaseline == TRUE) {
+    nodestartDef <- nodestartDef[1,]
+    nodestartDef[1,] <- 1
+  }
+
+
+  if (exogenousSupply == TRUE) {
+    load(paste0(folder, "/exogenousDef.RData"))
+  } else {
+    exogenousDef <- NULL
+  }
 
   # Ensuring that the first row of any screening dataframes contain a wildtype condition in the first row
   nodestartDef    <- tidyScreen(nodestartDef, "nodestartDef")
   genotypeDef     <- tidyScreen(genotypeDef, "genotypeDef")
-  exogenousSupply <- tidyScreen(exogenousSupply, "exogenousSupply", exogenous = TRUE)
+  exogenousDef <- tidyScreen(exogenousDef, "exogenousDef", exogenous = TRUE)
 
   # Run simulations
   sims <- list()
@@ -207,9 +243,9 @@ setupSims <- function(folder,
   for (d in 1:nrow(nodestartDef)) {
     for (g in 1:nrow(genotypeDef)) {
       # creating a placeholder value sup so that can still use for loop when
-      # exogenousSupply == NULL
-      if (is.null(exogenousSupply)) {sup <- 1
-      } else {sup <- nrow(exogenousSupply)}
+      # exogenousDef == NULL
+      if (is.null(exogenousDef)) {sup <- 1
+      } else {sup <- nrow(exogenousDef)}
 
       for (ex in 1:sup) {
         simulation = simulateNetwork(folder = folder,
@@ -217,13 +253,13 @@ setupSims <- function(folder,
                                      maxStep = maxStep,
                                      genotype = genotypeDef[g, ],
                                      startingValues = nodestartDef[d, ],
-                                     exogenousSupply = if (is.null(exogenousSupply)) {NULL} else {exogenousSupply[ex, ]},
+                                     exogenousSupply = if (is.null(exogenousDef)) {NULL} else {exogenousDef[ex, ]},
                                      robustnessTest = robustnessTest,
                                      altTopologyName = altTopologyName)
 
         sims[[i]] <- list(scenario = list(genotype = genotypeDef[g, ],
                                           startingValues = nodestartDef[d, ],
-                                          exogenousSupply = if (is.null(exogenousSupply)) {NULL} else {exogenousSupply[ex, ]}),
+                                          exogenousSupply = if (is.null(exogenousDef)) {NULL} else {exogenousDef[ex, ]}),
                           simulation = simulation$simulation,
                           stable = simulation$stable)
 
@@ -238,10 +274,25 @@ setupSims <- function(folder,
                  "parameters" = c("maxStep" = maxStep, "delay" = delay),
                  "screen" = sims)
 
+  # Creating a string to inform which conditions were screened
+  outputName <- NULL
+  if (priorScreen == T) {
+    outputName <- "priorDef"
+  } else {
+    if (genotypeBaseline == FALSE) {
+      outputName <- "genotypeDef"
+    }
+  }
+  if (nodestartBaseline == FALSE) outputName <- paste0(outputName, "_nodestartDef")
+  if (exogenousSupply == TRUE) outputName <- paste0(outputName, "_exogenousDef")
+  if (is.null(outputName)) {
+    outputName <- "baseline"
+    warning("You have only simulated the baseline condition.")
+  }
+
   if (saveOutput == TRUE) {
     if (!is.null(altTopologyName)) altTopologyName <- paste0(altTopologyName, "_")
-    save(output,
-         file = paste0(folder, "/", altTopologyName, "allSims.RData"))
+    save(output, file = paste0(folder, "/", altTopologyName, outputName, ".RData"))
   }
 
   return(output)
@@ -376,10 +427,9 @@ randomStartScreen <- function(folder,
 #' @param screen2 a vector containing all the values to be tested for the
 #'                second listed node.
 #' @param folder the directory for the model folder in which to save the output
-#'        of this function. Only provide a directory if you want to save the
-#'        output.
+#'        of this function.
 #' @export
-exogenousScreen <- function(nodes, screen1, screen2, folder = NULL) {
+exogenousScreen <- function(nodes, screen1, screen2, folder) {
   # making sure that there is a condition where no exogenous hormone is provided
   if (!0 %in% screen1) {screen1 <- c(0, screen1)}
   if (!0 %in% screen1) {screen1 <- c(0, screen1)}
@@ -387,12 +437,7 @@ exogenousScreen <- function(nodes, screen1, screen2, folder = NULL) {
   exogenousDef <- expand.grid(screen1, screen2)
   colnames(exogenousDef) <- nodes
 
-  if (!is.null(folder)) {
-    save(exogenousDef, file = paste0(folder, "/exogenousDef.RData"))
-  } else {
-    exogenousDef
-  }
-  exogenousDef
+  save(exogenousDef, file = paste0(folder, "/exogenousDef.RData"))
 }
 
 #' A function to calculate the number of unique combinations of a vector

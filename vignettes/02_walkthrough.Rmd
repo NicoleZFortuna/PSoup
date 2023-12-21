@@ -22,8 +22,8 @@ library(PSoup)
 # run  buildDependentFiles.R to generate the files that will be used to produce
 # this article. Below are the directories to the generated files.
 
-folder1 = "Model1"
-folder2 = "Model2"
+folder1 = "vignettes/Model1"
+folder2 = "vignettes/Model2"
 ```
 
 This is a short tutorial to demonstrate how you can use PSoup to simulate network outcomes. Examples will use data that is included in this package.
@@ -58,7 +58,7 @@ Network objects can then be passed to a function called `buildModel` which will 
 
 ```{r, eval=FALSE}
 folder = "~/Desktop/Model"
-buildModel(PeaNetwork, folder, forceOverwrite = T)
+buildModel(PeaNetwork, folder, forceOverwrite = TRUE)
 ```
 
 Within the folder that you have built, there will be three objects. Two of these objects will be data frames specifying values to be fed to the model: one will give the genotypes and their baseline values, the second will give the starting node values for the simulation.
@@ -132,9 +132,9 @@ genotypeDef[3, 1:2] <- 0.5
 genotypeDef
 ```
 
-In the example above, the second row represents an 'experimental' condition where the function of RMS2 in the scion (shoot) has been knocked out. The third row represents a condition where the function of RMS1 has been reduced to half of its capacity in both the root, and the scion.
+In the example above, the second row represents an 'experimental' condition where the function of RMS2 in the scion (shoot) has been knocked out. The third row represents a condition where the function of RMS1 has been reduced to half of its capacity in both the root, and the scion. Once you have generated the specific experimental conditions that you want to test, you must save the `genotypeDef` object back into your model folder (for example with a line of code like `save(genotypeDef, file = paste0(folder, "/genotypeDef.RData"))`).
 
-In the case that you want to do an exhaustive search, the `genotypeScreen` is useful for automating the construction of the appropriate data frames. The output of this function will automatically overwrite the genotypeDef object in your folder.
+In the case that you want to do an exhaustive search, the `genotypeScreen` is useful for automating the construction of the appropriate data frames. The output of this function will automatically overwrite the genotypeDef object in your folder, so you will not need to explicitly save your genotypeDef object if you use this function.
 
 ```{r eval=FALSE}
 genotypeScreen(folder)
@@ -148,6 +148,10 @@ genotypeDef
 ```
 
 The `genotypeScreen` function will generate a data frame with combinations of up to however many mutations that you would like to explore, including the genotype expression values that you would like to use for your mutations. In the case that a gene is attached to multiple nodes in different compartments, you can choose whether to have differential expression in the different compartments. The default condition `graft = FALSE` indicates that all nodes modified by the same gene should be modified identically. To allow for differential expression in different compartments of the system, specify `graft = TRUE`. <span style="color:blue;">You can also specify if you would like for the function to output an excel file in addition to the data. The excel file will be empty, but will have row and column names that correspond to the generated data frame. This file can be filed with values that have been derived from the literature for the purpose of validating your model. You do not need to fill every value, as only the provided information will be used to validate the simulated data.</span>
+
+```{r, out.width="80%", dpi=300, fig.align = 'center'}
+fastPlot(simulation)
+```
 
 The sister function to `genotypeScreen` is `randomStartScreen`. This function will generate a data frame corresponding to the nodes of the network, with values indicating the value of the node at the start of the simulation. To use this function, you must provide the model folder path, as well as the number of restart values that you want to generate. In addition you can also indicate what the maximum and minimum values that you want for nodes. The default minimum is set to 0, while the default maximum value is 2. This function will pull values from a uniform distribution bound by these values.
 
@@ -204,7 +208,13 @@ You should view the model folder that you generate to run simulations as a recor
 
 ## Executing a simulation screen
 
-Running a simulation screen can be done easily by using the `setupSims` function. This function will pull data objects from the model folder that you generated, and will simulate every row combination from each data object. It is possible to specify to only explore specific data objects. The only required decision to make is if both a `genotypeDef.RData` and `priorDef.RData` is available in the folder. The reason for this is that both of these objects are providing 'experimental' conditions for the modifiers of your model. 
+Running a simulation screen can be done easily by using the `setupSims` function. This function will pull data objects from the model folder that you generated, and will simulate every row combination from each data object. Usually the user will not need to indicate which data objects to pull from, the only exception is if the user wants to perform a robustness check on the topology of the network. In which case, the user will need to have generated an `priorDef.RData` object in their model folder, and supply the argument `robustnessTest = FALSE` when using the `setupSims` function.
+
+In the above examples we have generated a series of objects that can be used to run simulations. A `genotypeDef` object representing a knockout screen for each of the genotypes represented in our originating diagram. A `nodestartDef` object representing random start values for nodes. A `priorDef` object which randomly assigns modifier values (genotype values) for the purpose of exploring how topology restricts the behaviour of the system. And finally an exogenous supply object that can be used to represent the addition of some substance to the system.
+
+We can start by 
+
+
 
 
 

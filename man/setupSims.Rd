@@ -10,12 +10,13 @@ setupSims(
   delay = 2,
   maxStep = 100,
   steadyThreshold = 4,
-  exogenousSupply = NULL,
+  exogenousSupply = FALSE,
   priorScreen = FALSE,
   saveOutput = FALSE,
   robustnessTest = FALSE,
-  altTopologyName = NULL,
-  report = FALSE
+  genotypeBaseline = FALSE,
+  nodestartBaseline = FALSE,
+  altTopologyName = NULL
 )
 }
 \arguments{
@@ -33,10 +34,9 @@ be passed for all nodes.}
 determined by an outside supply. In this case, the value of the
 node is supplied by the user and remains consistent throughout
 the course of the simulation. The default value for this
-argument is NULL. To specify nodes with an exogenous supply,
-provide a data frame with column names corresponding to the
-values of the nodes, with each vector member named after their
-respective node.}
+argument is FALSE. If set to TRUE, there must exist an exogenousDef
+object in the model folder. This can be generated with the
+exogenousScreen function.}
 
 \item{priorScreen}{logical. Specifies if the function should collect
 modifier values generated from generated prior distributions.
@@ -48,6 +48,17 @@ provided folder location upon completion.}
 
 \item{robustnessTest}{logical. Defaults to FALSE. Specifies if the nextStep
 function being used is part of a network robustness check.}
+
+\item{genotypeBaseline}{logical. Defaults to FALSE. Specified if only the
+first row of the genotype object should be used. If selected,
+the output object name will reflect that decision. If
+genotypeBaseline = TRUE and priorScreen = TRUE, a warning will
+be thrown to the user and the priorScreen argument will take
+precedence.}
+
+\item{nodestartBaseline}{logical. Defaults to FALSE. Specified if only the
+first row of the nodestart object should be used. If selected,
+the output object name will reflect that decision.}
 
 \item{altTopologyName}{default to NULL. If robustnessTest = TRUE, this argument
 allows the user to keep the generated alternate nextStep function

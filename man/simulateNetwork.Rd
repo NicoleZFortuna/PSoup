@@ -11,7 +11,7 @@ simulateNetwork(
   genotype = NA,
   startingValues = NA,
   steadyThreshold = 4,
-  exogenousSupply = NULL,
+  exogenousSupply = FALSE,
   robustnessTest = FALSE,
   altTopologyName = NULL
 )
@@ -41,9 +41,9 @@ be passed for all nodes.}
 determined by an outside supply. In this case, the value of the
 node is supplied by the user and remains consistent throughout
 the course of the simulation. The default value for this
-argument is NULL. To specify nodes with an exogenous supply,
-provide a named vector containing the values of the nodes, with
-each vector member named after their respective node.}
+argument is FALSE. If set to TRUE, there must exist an exogenousDef
+object in the model folder. This can be generated with the
+exogenousScreen function.}
 
 \item{robustnessTest}{logical. Defaults to FALSE. Specifies if the nextStep
 function being used is part of a network robustness check.}

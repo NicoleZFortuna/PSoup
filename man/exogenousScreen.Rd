@@ -6,7 +6,7 @@
 to be screened for two nodes. This function will also include the possibility
 of no exogenous values being provided in the form of NA.}
 \usage{
-exogenousScreen(nodes, screen1, screen2, folder = NULL)
+exogenousScreen(nodes, screen1, screen2, folder)
 }
 \arguments{
 \item{nodes}{a vector containing the names of two nodes of interest}
@@ -18,8 +18,7 @@ first listed node.}
 second listed node.}
 
 \item{folder}{the directory for the model folder in which to save the output
-of this function. Only provide a directory if you want to save the
-output.}
+of this function.}
 }
 \description{
 A function to generate all combinations of two vectors containing the values
