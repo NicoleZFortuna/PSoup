@@ -274,3 +274,26 @@ generateEdgeList <- function(network, keepAltSource = F,
 
   dat
 }
+
+#' a function to move the example .sbgn file into a folder of the users choice.
+#'
+#' @param folder a folder on the users computer. If the folder exists already
+#'        on the users computer, the file will be moved there, otherwise the
+#'        folder will be generated before moving the file to the specified
+#'        location.
+#' @details The function will return TRUE if the file has been placed in the
+#'        requested folder. If the file already exists in the specified
+#'        location, FALSE will be returned.
+#' @export
+
+getExampleDiagram <- function(folder, ...) {
+  location <- paste0(system.file(package = "PSoup"))
+  # check if folder exists, if not, create it
+  if (!dir.exists(folder)) {
+    dir.create(folder)
+  }
+
+  file.copy(from = paste0(location, "/DunAFgenotype.sbgn"),
+            to = paste0(folder, "/DunAFgenotype.sbgn"),
+            overwrite = FALSE, recursive = FALSE)
+}

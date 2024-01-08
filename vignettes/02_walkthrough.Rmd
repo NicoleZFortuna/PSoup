@@ -22,11 +22,11 @@ library(PSoup)
 # run  buildDependentFiles.R to generate the files that will be used to produce
 # this article. Below are the directories to the generated files.
 
-folder1 = "vignettes/Model1"
-folder2 = "vignettes/Model2"
+folder1 = "Model1"
+folder2 = "Model2"
 ```
 
-This is a short tutorial to demonstrate how you can use PSoup to simulate network outcomes. Examples will use data that is included in this package.
+This is a short tutorial to demonstrate how you can use PSoup to simulate network outcomes. Examples will use data that is included in this package so that you can follow along even without your own network.
 
 ## Importing a diagram
 
@@ -38,10 +38,19 @@ knitr::include_graphics("DunAFgenotype.jpg")
 ```
 </center>
 
-Once you are happy with your diagram, click `File` -> `Export` -> `SBGN-ML Plain`. This will generate a text file representation of your diagram using SBGN markdown language. You will then need to use the `convertSBGNdiagram` function to translate this text file into a Network object that is easy to use.
+Once you are happy with your diagram, click `File` -> `Export` -> `SBGN-ML Plain`. This will generate a text file representation of your diagram using SBGN markdown language. You will then need to use the `convertSBGNdiagram` function to translate this text file into a Network object that is easy to use. In the below example, the `getExampleDiagram` function has been created to give the user access to the .sbgn file contained in the PSoup package. It should only be used if the user wants to use the network displayed above. If you have your own diagram, ignore this function.
 
-```{r}
-PeaNetwork <- convertSBGNdiagram(file = "../data-raw/DunAFgenotype.sbgn", 
+```{r, eval=FALSE}
+# provide the directory for where the sbgn file will be saved as an argument
+getExampleDiagram("~/Desktop/Diagram")
+
+PeaNetwork <- convertSBGNdiagram(file = "~/Desktop/Diagram/DunAFgenotype.sbgn", 
+                                 networkName = "PeaNetwork")
+PeaNetwork
+```
+
+```{r, echo=FALSE}
+PeaNetwork <- convertSBGNdiagram(file = "../inst/DunAFgenotype.sbgn", 
                                  networkName = "PeaNetwork")
 PeaNetwork
 ```
@@ -71,6 +80,7 @@ load(paste0(folder, "/nodestartDef.RData"))
 ```
 
 ```{r echo = FALSE}
+getwd()
 load(paste0(folder1, "/genotypeDef.RData"))
 load(paste0(folder1, "/nodestartDef.RData"))
 load(paste0(folder1, "/simulation.RData"))
