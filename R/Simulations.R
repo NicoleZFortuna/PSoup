@@ -161,7 +161,7 @@ simulateNetwork <- function(folder,
 #' @param priorScreen logical. Specifies if the function should collect
 #'               modifier values generated from generated prior distributions.
 #'               Default is set to FALSE.
-#' @param saveOutput logical. Default set to FALSE. Indicates if the output of
+#' @param saveOutput logical. Default set to TRUE. Indicates if the output of
 #'               simulation screen should be automatically saved in the
 #'               provided folder location upon completion.
 #' @param robustnessTest logical. Defaults to FALSE. Specifies if the nextStep
@@ -188,7 +188,7 @@ setupSims <- function(folder,
                       steadyThreshold = 4,
                       exogenousSupply = FALSE,
                       priorScreen = FALSE,
-                      saveOutput = FALSE,
+                      saveOutput = TRUE,
                       robustnessTest = FALSE,
                       genotypeBaseline = FALSE,
                       nodestartBaseline = FALSE,
@@ -235,7 +235,7 @@ setupSims <- function(folder,
   # Ensuring that the first row of any screening dataframes contain a wildtype condition in the first row
   nodestartDef    <- tidyScreen(nodestartDef, "nodestartDef")
   genotypeDef     <- tidyScreen(genotypeDef, "genotypeDef")
-  exogenousDef <- tidyScreen(exogenousDef, "exogenousDef", exogenous = TRUE)
+  exogenousDef    <- tidyScreen(exogenousDef, "exogenousDef", exogenous = TRUE)
 
   # Run simulations
   sims <- list()
@@ -253,7 +253,7 @@ setupSims <- function(folder,
                                      maxStep = maxStep,
                                      genotype = genotypeDef[g, ],
                                      startingValues = nodestartDef[d, ],
-                                     exogenousSupply = if (is.null(exogenousDef)) {NULL} else {exogenousDef[ex, ]},
+                                     exogenousSupply = if (is.null(exogenousDef)) {FALSE} else {exogenousDef[ex, ]},
                                      robustnessTest = robustnessTest,
                                      altTopologyName = altTopologyName)
 
@@ -292,7 +292,7 @@ setupSims <- function(folder,
 
   if (saveOutput == TRUE) {
     if (!is.null(altTopologyName)) altTopologyName <- paste0(altTopologyName, "_")
-    save(output, file = paste0(folder, "/", altTopologyName, outputName, ".RData"))
+    save(output, file = paste0(folder, "/", altTopologyName, outputName, "_Sims.RData"))
   }
 
   return(output)
