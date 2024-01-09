@@ -2,7 +2,7 @@
 title: "Newt Editor Instructions"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{newtinstructions}
+  %\VignetteIndexEntry{Newt Editor Instructions}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

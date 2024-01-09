@@ -2,7 +2,7 @@
 title: "PSoup Walkthrough"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{walkthrough}
+  %\VignetteIndexEntry{PSoup Walkthrough}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

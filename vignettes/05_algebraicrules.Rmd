@@ -2,7 +2,7 @@
 title: "Algebraic Rules"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{algebraicrules}
+  %\VignetteIndexEntry{Algebraic Rules}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
