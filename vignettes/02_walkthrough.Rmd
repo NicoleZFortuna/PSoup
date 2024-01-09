@@ -22,8 +22,8 @@ library(PSoup)
 # run  buildDependentFiles.R to generate the files that will be used to produce
 # this article. Below are the directories to the generated files.
 
-folder1 = "vignettes/Model1"
-folder2 = "vignettes/Model2"
+folder1 = "Model1"
+folder2 = "Model2"
 ```
 
 This is a short tutorial to demonstrate how you can use PSoup to simulate network outcomes. Examples will use data that is included in this package.
@@ -58,7 +58,7 @@ Network objects can then be passed to a function called `buildModel` which will 
 
 ```{r, eval=FALSE}
 folder = "~/Desktop/Model"
-buildModel(PeaNetwork, folder, forceOverwrite = TRUE)
+buildModel(PeaNetwork, folder1, forceOverwrite = TRUE)
 ```
 
 Within the folder that you have built, there will be three objects. Two of these objects will be data frames specifying values to be fed to the model: one will give the genotypes and their baseline values, the second will give the starting node values for the simulation.
@@ -71,6 +71,7 @@ load(paste0(folder, "/nodestartDef.RData"))
 ```
 
 ```{r echo = FALSE}
+getwd()
 load(paste0(folder1, "/genotypeDef.RData"))
 load(paste0(folder1, "/nodestartDef.RData"))
 load(paste0(folder1, "/simulation.RData"))
@@ -210,9 +211,25 @@ You should view the model folder that you generate to run simulations as a recor
 
 Running a simulation screen can be done easily by using the `setupSims` function. This function will pull data objects from the model folder that you generated, and will simulate every row combination from each data object. Usually the user will not need to indicate which data objects to pull from, the only exception is if the user wants to perform a robustness check on the topology of the network. In which case, the user will need to have generated an `priorDef.RData` object in their model folder, and supply the argument `robustnessTest = FALSE` when using the `setupSims` function.
 
-In the above examples we have generated a series of objects that can be used to run simulations. A `genotypeDef` object representing a knockout screen for each of the genotypes represented in our originating diagram. A `nodestartDef` object representing random start values for nodes. A `priorDef` object which randomly assigns modifier values (genotype values) for the purpose of exploring how topology restricts the behaviour of the system. And finally an exogenous supply object that can be used to represent the addition of some substance to the system.
+In the above examples we have generated a series of objects that can be used to run simulations. A `genotypeDef` object representing a knockout screen for each of the genotypes represented in our originating diagram. A `nodestartDef` object representing random start values for nodes. A `priorDef` object which randomly assigns modifier values (genotype values) for the purpose of exploring how topology restricts the behaviour of the system. And finally an `exogenousDef` object that can be used to represent the addition of some substance to the system. Once you have generated all the object to run explorations, you can choose to explore either multiple of these objects at one time, or explore them independently. The only restriction is that you cannot explore both the `genotypeDef` and `priorDef` objects at the same time as they have different purposes. Given the selections that you make, the output simulations will be named to reflect those selections.
 
-We can start by 
+We can start by exploring the behaviour of the modifying genotype (modifier) values according to the screen that we automatically generated above.
+
+```{r eval = FALSE}
+setupSims(folder, nodestartBaseline = T)
+load(paste0(folder, "/genotypeDef_Sims.RData"))
+```
+
+```{r echo = FALSE}
+load(paste0(folder2, "/genotypeDef_Sims.RData"))
+```
+
+Lets quickly inspect the outcome of one of these simulations:
+
+```{r}
+fastPlot(output$screen[[6]])
+```
+
 
 
 
