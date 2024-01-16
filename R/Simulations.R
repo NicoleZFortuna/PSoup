@@ -78,8 +78,10 @@ simulateNetwork <- function(folder,
     stop("You have provided more than one condition. Consider using the setupSims function instead.")
   }
 
-  if (exogenousSupply == TRUE) {
-    load(paste0(folder, "/exogenousDef.RData"))
+  if (class(exogenousSupply) == "data.frame") {
+    exogenousDef <- exogenousSupply
+  } else if (exogenousSupply == TRUE) {
+    load(paste0(folder, "/exogenousDef.RData")) # should probably remove this condition
   } else {
     exogenousDef <- NULL
   }
@@ -161,9 +163,6 @@ simulateNetwork <- function(folder,
 #' @param priorScreen logical. Specifies if the function should collect
 #'               modifier values generated from generated prior distributions.
 #'               Default is set to FALSE.
-#' @param saveOutput logical. Default set to TRUE. Indicates if the output of
-#'               simulation screen should be automatically saved in the
-#'               provided folder location upon completion.
 #' @param robustnessTest logical. Defaults to FALSE. Specifies if the nextStep
 #'               function being used is part of a network robustness check.
 #' @param genotypeBaseline logical. Defaults to FALSE. Specified if only the
@@ -179,6 +178,9 @@ simulateNetwork <- function(folder,
 #'               allows the user to keep the generated alternate nextStep function
 #'               with a specific name. If no name is provided, the alternate
 #'               nextStep functions will be names nextStepAlt.R.
+#' @param saveOutput logical. Default set to TRUE. Indicates if the output of
+#'               simulation screen should be automatically saved in the
+#'               provided folder location upon completion.
 #' @importFrom stats runif
 #' @export
 
@@ -188,11 +190,11 @@ setupSims <- function(folder,
                       steadyThreshold = 4,
                       exogenousSupply = FALSE,
                       priorScreen = FALSE,
-                      saveOutput = TRUE,
                       robustnessTest = FALSE,
                       genotypeBaseline = FALSE,
                       nodestartBaseline = FALSE,
-                      altTopologyName = NULL) {
+                      altTopologyName = NULL,
+                      saveOutput = TRUE) {
   # loading parameter values
   if (priorScreen == TRUE) {
     if (!file.exists(paste0(folder, "/priorDef.RData"))) {
@@ -288,6 +290,11 @@ setupSims <- function(folder,
   if (is.null(outputName)) {
     outputName <- "baseline"
     warning("You have only simulated the baseline condition.")
+  }
+
+  # remove initial underscore if modifiers have been held at baseline
+  if (substring(outputName, 1, 1) == "_") {
+    outputName <- substring(outputName, 2)
   }
 
   if (saveOutput == TRUE) {
@@ -476,7 +483,7 @@ tidyScreen <- function(frame, name, exogenous = FALSE) {
   }
 
   if (!all(frame[1, ] == WT)) { # if the first row is not WT, search for WT rows
-    WTrow <- row.match(rep(WT, ncol(frame)), frame)
+    WTrow <- prodlim::row.match(rep(WT, ncol(frame)), frame)
 
     if (is.na(WTrow)) { # if there is no WT row, add an initial WT row
       frame <- rbind(rep(WT, ncol(frame)), frame)
