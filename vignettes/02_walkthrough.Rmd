@@ -67,7 +67,7 @@ Network objects can then be passed to a function called `buildModel` which will 
 
 ```{r, eval=FALSE}
 folder = "~/Desktop/Model"
-buildModel(PeaNetwork, folder1, forceOverwrite = TRUE)
+buildModel(PeaNetwork, folder, forceOverwrite = TRUE)
 ```
 
 Within the folder that you have built, there will be three objects. Two of these objects will be data frames specifying values to be fed to the model: one will give the genotypes and their baseline values, the second will give the starting node values for the simulation.
