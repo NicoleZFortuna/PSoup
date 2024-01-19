@@ -127,7 +127,7 @@ buildModel <- function(network,
       funcfile = paste0(folder, "/", altTopologyName, "_nextStepAlt.R")
     }
 
-    createORoverwriteFile(funcfile)
+    createORoverwriteFile(file = funcfile)
   }
 
   # save the originating network object
@@ -163,8 +163,8 @@ buildModel <- function(network,
     names(nodestartDef) = names(nodes)
     nodestartDef = as.data.frame(t(nodestartDef))
 
-    createORoverwriteFile(paste0(genfile, ".RData"))
-    createORoverwriteFile(paste0(nodefile, ".RData"))
+    createORoverwriteFile(genotypeDef, file = paste0(genfile, ".RData"))
+    createORoverwriteFile(nodestartDef, file = paste0(nodefile, ".RData"))
   }
 
   inhibition = c("inhibition", "sufficient inhibition", "necessary inhibition")
@@ -198,14 +198,23 @@ buildModel <- function(network,
 }
 
 #' a function to create a file, or overwrite a file if it already exists
+#' @param x some object
 #' @param file filepath for the file to be created.
 
-createORoverwriteFile <- function(file) {
+createORoverwriteFile <- function(x = NULL, file) {
   if (file.exists(file)) {
     file.remove(file)
-    file.create(file)
+    if (is.null(x)) {
+      file.create(file)
+    } else {
+      save(x, file = file)
+    }
   } else {
-    file.create(file)
+    if (is.null(x)) {
+      file.create(file)
+    } else {
+      save(x, file = file)
+    }
   }
 }
 
