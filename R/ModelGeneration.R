@@ -127,7 +127,7 @@ buildModel <- function(network,
       funcfile = paste0(folder, "/", altTopologyName, "_nextStepAlt.R")
     }
 
-    createORoverwriteFile(funcfile)
+    file.create(funcfile)
   }
 
   # save the originating network object
@@ -163,8 +163,11 @@ buildModel <- function(network,
     names(nodestartDef) = names(nodes)
     nodestartDef = as.data.frame(t(nodestartDef))
 
-    createORoverwriteFile(paste0(genfile, ".RData"))
-    createORoverwriteFile(paste0(nodefile, ".RData"))
+    if (file.exists(paste0(genfile, ".RData"))) file.remove(paste0(genfile, ".RData"))
+    save(genotypeDef, file = paste0(genfile, ".RData"))
+
+    if (file.exists(paste0(nodefile, ".RData"))) file.remove(paste0(nodefile, ".RData"))
+    save(nodestartDef, file = paste0(nodefile, ".RData"))
   }
 
   inhibition = c("inhibition", "sufficient inhibition", "necessary inhibition")
@@ -197,17 +200,6 @@ buildModel <- function(network,
   cat("}", file = funcfile, append = T)
 }
 
-#' a function to create a file, or overwrite a file if it already exists
-#' @param file filepath for the file to be created.
-
-createORoverwriteFile <- function(file) {
-  if (file.exists(file)) {
-    file.remove(file)
-    file.create(file)
-  } else {
-    file.create(file)
-  }
-}
 
 #' A function to generate a C script which will execute a simulation of the
 #' network given a starting condition.
