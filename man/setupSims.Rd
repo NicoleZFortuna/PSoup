@@ -12,11 +12,11 @@ setupSims(
   steadyThreshold = 4,
   exogenousSupply = FALSE,
   priorScreen = FALSE,
-  saveOutput = FALSE,
   robustnessTest = FALSE,
   genotypeBaseline = FALSE,
   nodestartBaseline = FALSE,
-  altTopologyName = NULL
+  altTopologyName = NULL,
+  saveOutput = TRUE
 )
 }
 \arguments{
@@ -42,10 +42,6 @@ exogenousScreen function.}
 modifier values generated from generated prior distributions.
 Default is set to FALSE.}
 
-\item{saveOutput}{logical. Default set to FALSE. Indicates if the output of
-simulation screen should be automatically saved in the
-provided folder location upon completion.}
-
 \item{robustnessTest}{logical. Defaults to FALSE. Specifies if the nextStep
 function being used is part of a network robustness check.}
 
@@ -64,6 +60,10 @@ the output object name will reflect that decision.}
 allows the user to keep the generated alternate nextStep function
 with a specific name. If no name is provided, the alternate
 nextStep functions will be names nextStepAlt.R.}
+
+\item{saveOutput}{logical. Default set to TRUE. Indicates if the output of
+simulation screen should be automatically saved in the
+provided folder location upon completion.}
 }
 \description{
 This function allows you to set up a variety of genotype and starting node

@@ -155,7 +155,7 @@ buildModel <- function(network,
                                                       substr(names(x@expression[which(x@expression == 1)]),
                                                              1, 1), sep = "_")), use.names = F)
 
-    genotypeDef = rep(1, length(genHolder))
+    genotypeDef = rep(1, length(genotypes))
     names(genotypeDef) = genHolder
     genotypeDef = as.data.frame(t(genotypeDef))
 
@@ -527,16 +527,17 @@ generateEquation <- function(node,
 
     # are there any necessary stimulants that are coregulators
     if (any(!is.na(node@inputs$Coregulator) & node@inputs$Influence == "necessary stimulation")) {
-      coregInput <- node@inputs[!is.na(node@inputs$Coregulator) & node@inputs$Influence == "necessary stimulation", -3]
+      coregInput <- node@inputs[!is.na(node@inputs$Coregulator) & node@inputs$Influence == "necessary stimulation", 1:2]
 
       # NEED TO EDIT COREGULATORS FUNCTION SO THAT IT CAN RETURN A NON CONCATENATED VECTOR FOR THE PURPOSE OF ADDING A FUNCTION
-      coreg <- coregulators(coregInput, language = language)
+      coreg <- coregulators(coregInput, returnNum = T, language = language,
+                            operator = node@inputs[!is.na(node@inputs$Coregulator) & node@inputs$Influence == "necessary stimulation", "Operator"])
 
       if (!is.null(necStimFunc)) {
-        paste0(necStimFunc, "(", coreg, ")", collapse = " * ")
+        necstimString = paste0(necStimFunc, "(", coreg$coreg, ")", collapse = " * ")
       }
 
-      necstimString = paste(necstimString, coreg, sep = " * ")
+      necstimString = paste(necstimString, coreg$coreg, collapse = " * ")
     }
     allModulations <- sprintf("(%s) * (%s)", allModulations, necstimString)
   }
@@ -657,6 +658,10 @@ differenceString <- function(string,
                              delays = NA,
                              takeProduct = FALSE,
                              language) {
+  if (length(delays) == 0) {
+    delays <- NA
+  }
+
   delays[delays != "delay" | is.na(delays)] = 1
 
   terms = c(" + ", " * ")
