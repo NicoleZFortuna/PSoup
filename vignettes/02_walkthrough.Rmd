@@ -176,7 +176,7 @@ nodestartDef
 
 ### Adding an exogenous supply to a system
 
-In addition to being able to modify the genes and node values of the system, it is also possible to supply an external source to a node. This external supply is constantly given throughout the course of the simulation, with the amount added at each timepoint to the native value in the simulation. An exogenous supply for a node can be specified by providing a named vector, or data frame to the `exogenousSupply` argument in either the `simulateNetwork` or `setupSims` functions. Where the name of the vector or columns correspond to a node in the network (only nodes for which an exogenous supply will be provided should be included).
+In addition to being able to modify the genes and node values of the system, it is also possible to supply an external source to a node. This external supply is constantly given throughout the course of the simulation, with the amount added at each timepoint to the native value in the simulation. An exogenous supply for a node can be specified by providing a named vector, or data frame to the `exogenousSupply` argument in the `simulateNetwork` function. Where the name of the vector or columns correspond to a node in the network (only nodes for which an exogenous supply will be provided should be included). If giving an exogenous supply to a series of simulations, an exogenousDef object will need to be generated and saved in the Model folder. Once this has been done, when calling the `setupSims` function, the `exogenousSupply` argument must be set to TRUE.
 
 It is possible to quickly set up a two dimensional screen of exogenous treatments to the system by using the `exogenousScreen` function.
 
