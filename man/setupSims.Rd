@@ -16,7 +16,8 @@ setupSims(
   genotypeBaseline = FALSE,
   nodestartBaseline = FALSE,
   altTopologyName = NULL,
-  saveOutput = TRUE
+  saveOutput = TRUE,
+  combinatorial = TRUE
 )
 }
 \arguments{
@@ -64,6 +65,19 @@ nextStep functions will be names nextStepAlt.R.}
 \item{saveOutput}{logical. Default set to TRUE. Indicates if the output of
 simulation screen should be automatically saved in the
 provided folder location upon completion.}
+
+\item{combinatorial}{logical. States if setupSims should simulate every
+combination of conditions that are being explored. If set to
+TRUE, every row from each set of explored conditions will be
+simulated against all rows from every other explored conditions
+(with the explored conditions relating to each data.frame that
+you have specified for setupSims to explore). If set to FALSE,
+it will be expected that all of the data.frames of conditions
+that have been passed to setupSims will have the same number of
+rows. In this case, each row will only be paired with the
+equivalent row of each data.frame. When this argument is set to
+FALSE, it is up to the user to make sure that all of the
+appropriate control conditions exist.}
 }
 \description{
 This function allows you to set up a variety of genotype and starting node
