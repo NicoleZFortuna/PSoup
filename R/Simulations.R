@@ -78,7 +78,7 @@ simulateNetwork <- function(folder,
     stop("You have provided more than one condition. Consider using the setupSims function instead.")
   }
 
-  if (class(exogenousSupply) == "data.frame") {
+  if (class(exogenousSupply) == "data.frame" | class(exogenousSupply) == "integer") {
     exogenousDef <- exogenousSupply
   } else if (exogenousSupply == TRUE) {
     load(paste0(folder, "/exogenousDef.RData")) # should probably remove this condition
@@ -181,6 +181,18 @@ simulateNetwork <- function(folder,
 #' @param saveOutput logical. Default set to TRUE. Indicates if the output of
 #'               simulation screen should be automatically saved in the
 #'               provided folder location upon completion.
+#' @param combinatorial logical. States if setupSims should simulate every
+#'               combination of conditions that are being explored. If set to
+#'               TRUE, every row from each set of explored conditions will be
+#'               simulated against all rows from every other explored conditions
+#'               (with the explored conditions relating to each data.frame that
+#'               you have specified for setupSims to explore). If set to FALSE,
+#'               it will be expected that all of the data.frames of conditions
+#'               that have been passed to setupSims will have the same number of
+#'               rows. In this case, each row will only be paired with the
+#'               equivalent row of each data.frame. When this argument is set to
+#'               FALSE, it is up to the user to make sure that all of the
+#'               appropriate control conditions exist.
 #' @importFrom stats runif
 #' @export
 
@@ -194,7 +206,8 @@ setupSims <- function(folder,
                       genotypeBaseline = FALSE,
                       nodestartBaseline = FALSE,
                       altTopologyName = NULL,
-                      saveOutput = TRUE) {
+                      saveOutput = TRUE,
+                      combinatorial = TRUE) {
   # loading parameter values
   if (priorScreen == TRUE) {
     if (!file.exists(paste0(folder, "/priorDef.RData"))) {
@@ -234,34 +247,83 @@ setupSims <- function(folder,
     exogenousDef <- NULL
   }
 
-  # Ensuring that the first row of any screening dataframes contain a wildtype condition in the first row
-  nodestartDef    <- tidyScreen(nodestartDef, "nodestartDef")
-  genotypeDef     <- tidyScreen(genotypeDef, "genotypeDef")
-  exogenousDef    <- tidyScreen(exogenousDef, "exogenousDef", exogenous = TRUE)
+  if (isTRUE(combinatorial)) {
+    # Ensuring that the first row of any screening dataframes contain a wildtype condition in the first row
+    nodestartDef    <- tidyScreen(nodestartDef, "nodestartDef")
+    genotypeDef     <- tidyScreen(genotypeDef, "genotypeDef")
+    exogenousDef    <- tidyScreen(exogenousDef, "exogenousDef", exogenous = TRUE)
+  } else {
+    sizeCheck <- c(nrow(nodestartDef), nrow(genotypeDef), nrow(exogenousDef)) # collecting number of conditions
+
+    if (any(!sizeCheck %in% c(1, max(sizeCheck)))) {
+      stop("Objects defining the conditions to be explored must have the same number of rows (excluding any conditions that are being maintained at baseline.")
+    }
+
+    if (nrow(nodestartDef) == 1) nodestartDef[2:max(sizeCheck), ] <- nodestartDef[1, ]
+    if (nrow(genotypeDef) == 1) genotypeDef[2:max(sizeCheck), ]   <- genotypeDef[1, ]
+    if (!is.null(exogenousDef)) {
+      if (nrow(exogenousDef) == 1) exogenousDef[2:max(sizeCheck), ]   <- exogenousDef[1, ]
+    }
+
+    if (is.null(exogenousDef)) { # checking if simulations will be run more than once
+      duplications <- duplicated(cbind(nodestartDef, genotypeDef))
+    } else {
+      duplications <- duplicated(cbind(nodestartDef, genotypeDef, exogenousDef))
+    }
+
+    nodestartDef <- nodestartDef[!duplications, ]
+    genotypeDef  <- genotypeDef[!duplications, ]
+    if (!is.null(exogenousDef)) {
+      if (ncol(exogenousDef) > 1) {
+        exogenousDef  <- exogenousDef[!duplications, ]
+      } else {
+        exNames <- colnames(exogenousDef)
+        exogenousDef  <- as.data.frame(exogenousDef[!duplications, ])
+        colnames(exogenousDef) <- exNames
+      }
+    }
+  }
 
   # Run simulations
   sims <- list()
   i = 1
   for (d in 1:nrow(nodestartDef)) {
-    for (g in 1:nrow(genotypeDef)) {
+    secondCounter <- if (isTRUE(combinatorial)) {1:nrow(genotypeDef)} else {d}
+    # if it is not a combinatorial solution, the g counter will take on the value of the d counter
+    for (g in secondCounter) {
       # creating a placeholder value sup so that can still use for loop when
       # exogenousDef == NULL
-      if (is.null(exogenousDef)) {sup <- 1
-      } else {sup <- nrow(exogenousDef)}
+      if (is.null(exogenousDef)) {
+        sup <- 1
+      } else {
+        if (isTRUE(combinatorial)) { # every combo of exogenous
+          sup <- 1:nrow(exogenousDef)
+        } else { # if it is not a combinatorial solution, the ex counter will take on the value of d
+          sup <- d
+        }
+      }
 
-      for (ex in 1:sup) {
+      for (ex in sup) {
+        if (is.null(exogenousDef)) {
+          exogenousCondition <- FALSE
+        } else {
+          exogenousCondition <- exogenousDef[ex, ]
+          if (ncol(exogenousDef) == 1) {
+            names(exogenousCondition) <- exNames
+          }
+        }
         simulation = simulateNetwork(folder = folder,
                                      delay = delay,
                                      maxStep = maxStep,
                                      genotype = genotypeDef[g, ],
                                      startingValues = nodestartDef[d, ],
-                                     exogenousSupply = if (is.null(exogenousDef)) {FALSE} else {exogenousDef[ex, ]},
+                                     exogenousSupply = exogenousCondition,
                                      robustnessTest = robustnessTest,
                                      altTopologyName = altTopologyName)
 
         sims[[i]] <- list(scenario = list(genotype = genotypeDef[g, ],
                                           startingValues = nodestartDef[d, ],
-                                          exogenousSupply = if (is.null(exogenousDef)) {NULL} else {exogenousDef[ex, ]}),
+                                          exogenousSupply = exogenousCondition),
                           simulation = simulation$simulation,
                           stable = simulation$stable)
 
