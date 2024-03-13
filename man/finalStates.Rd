@@ -2,8 +2,7 @@
 % Please edit documentation in R/plotting.R
 \name{finalStates}
 \alias{finalStates}
-\title{A function to pull the final states from a set of simulations and normalise
-against the wildtype (baseline).}
+\title{A function to pull the final states from a set of simulations.}
 \usage{
 finalStates(simulations)
 }
@@ -11,6 +10,5 @@ finalStates(simulations)
 \item{simulations}{a list containing the output of the setupSims function}
 }
 \description{
-A function to pull the final states from a set of simulations and normalise
-against the wildtype (baseline).
+A function to pull the final states from a set of simulations.
 }
