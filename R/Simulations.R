@@ -327,7 +327,12 @@ setupSims <- function(folder,
                           simulation = simulation$simulation,
                           stable = simulation$stable)
 
-        report(i, nrow(nodestartDef) * nrow(genotypeDef) * sup)
+        if (isTRUE(combinatorial)) {
+          report(i, nrow(nodestartDef) * nrow(genotypeDef) * length(sup))
+        } else {
+          report(i, nrow(nodestartDef))
+        }
+
 
         i = i + 1
       }
