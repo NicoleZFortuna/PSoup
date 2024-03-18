@@ -231,6 +231,8 @@ As a consequence of the above argument defaults, the default simulation is to ex
 
 The `robustnessTest` argument is something that can be explored only if a series of neighboring networks have been generated. Neighboring networks can be produced using the `exploreEdges` function. A future tutorial will be generated to explore why and how to test the robustness of the network.
 
+For the chosen combination of screens, the default behavior of PSoup is to simulate every combination of scenarios from each screen. However, if the user wants to run a defined set of simulations, this is possible by setting the following argument; `combinatorial = FALSE`. In this case, it is necessary for any screen that is not only expressing a single condition to have the same number of rows as the same index will be used to cycle through all screens. Therefore, each row in an explored screen will only be simulated agains the equivalent rows in all other explored screens. 
+
 We can start by exploring the behaviour of the modifying genotype (modifier) values according to the screen that we automatically generated above.
 
 ```{r eval = FALSE}
