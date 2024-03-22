@@ -155,7 +155,7 @@ buildModel <- function(network,
                                                       substr(names(x@expression[which(x@expression == 1)]),
                                                              1, 1), sep = "_")), use.names = F)
 
-    genotypeDef = rep(1, length(genotypes))
+    genotypeDef = rep(1, length(genHolder))
     names(genotypeDef) = genHolder
     genotypeDef = as.data.frame(t(genotypeDef))
 
