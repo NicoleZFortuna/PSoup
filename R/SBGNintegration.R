@@ -255,8 +255,8 @@ buildHormone <- function(nodeInfo, arcInfo, i, logicIndex, ids, nodesList, lang)
       logicOutputNode <- nodeInfo$name[match(arcInfo$target[arcInfo$source == lN],
                                              nodeInfo$id)]
       Influence <- arcInfo$influence[arcInfo$source == lN]
-      Coreg <- nodeInfo$name[match(arcInfo$source[arcInfo$target == lN & arcInfo$source != id],
-                                   nodeInfo$id)]
+      Coreg <- paste(nodeInfo$name[match(arcInfo$source[arcInfo$target == lN & arcInfo$source != id],
+                                   nodeInfo$id)], collapse = ", ")
 
       outNodes <- c(outNodes, logicOutputNode)
       outInfluence <- c(outInfluence, Influence)
@@ -332,3 +332,4 @@ languageConversion <- function(influenceFrame, language) {
   replace <- langConversion$PSoup[match(influenceFrame, langConversion[,column])]
   replace
 }
+
