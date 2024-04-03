@@ -193,6 +193,9 @@ simulateNetwork <- function(folder,
 #'               equivalent row of each data.frame. When this argument is set to
 #'               FALSE, it is up to the user to make sure that all of the
 #'               appropriate control conditions exist.
+#' @param preventDrop logical. Allows the user to override setupSims dropping
+#'               any repeated conditions. This will also prevent reorganisation
+#'               of conditions for clarity. Default is set to FALSE.
 #' @importFrom stats runif
 #' @export
 
@@ -207,7 +210,8 @@ setupSims <- function(folder,
                       nodestartBaseline = FALSE,
                       altTopologyName = NULL,
                       saveOutput = TRUE,
-                      combinatorial = TRUE) {
+                      combinatorial = TRUE,
+                      preventDrop = FALSE) {
   # loading parameter values
   if (priorScreen == TRUE) {
     if (!file.exists(paste0(folder, "/priorDef.RData"))) {
@@ -247,32 +251,49 @@ setupSims <- function(folder,
     exogenousDef <- NULL
   }
 
-  if (isTRUE(combinatorial)) {
-    # Ensuring that the first row of any screening dataframes contain a wildtype condition in the first row
-    nodestartDef    <- tidyScreen(nodestartDef, "nodestartDef")
-    genotypeDef     <- tidyScreen(genotypeDef, "genotypeDef")
-    exogenousDef    <- tidyScreen(exogenousDef, "exogenousDef", exogenous = TRUE)
-  } else {
-    sizeCheck <- c(nrow(nodestartDef), nrow(genotypeDef), nrow(exogenousDef)) # collecting number of conditions
-
-    if (any(!sizeCheck %in% c(1, max(sizeCheck)))) {
-      stop("Objects defining the conditions to be explored must have the same number of rows (excluding any conditions that are being maintained at baseline.")
-    }
-
-    if (nrow(nodestartDef) == 1) nodestartDef[2:max(sizeCheck), ] <- nodestartDef[1, ]
-    if (nrow(genotypeDef) == 1) genotypeDef[2:max(sizeCheck), ]   <- genotypeDef[1, ]
-    if (!is.null(exogenousDef)) {
-      if (nrow(exogenousDef) == 1) exogenousDef[2:max(sizeCheck), ]   <- exogenousDef[1, ]
-    }
-
-    if (is.null(exogenousDef)) { # checking if simulations will be run more than once
-      duplications <- duplicated(cbind(nodestartDef, genotypeDef))
+  if (isFALSE(preventDrop)) {
+    if (isTRUE(combinatorial)) {
+      # Ensuring that the first row of any screening dataframes contain a wildtype condition in the first row
+      nodestartDef    <- tidyScreen(nodestartDef, "nodestartDef")
+      genotypeDef     <- tidyScreen(genotypeDef, "genotypeDef")
+      exogenousDef    <- tidyScreen(exogenousDef, "exogenousDef", exogenous = TRUE)
     } else {
-      duplications <- duplicated(cbind(nodestartDef, genotypeDef, exogenousDef))
+      sizeCheck <- c(nrow(nodestartDef), nrow(genotypeDef), nrow(exogenousDef)) # collecting number of conditions
+
+      if (any(!sizeCheck %in% c(1, max(sizeCheck)))) {
+        stop("Objects defining the conditions to be explored must have the same number of rows (excluding any conditions that are being maintained at baseline.")
+      }
+
+      WT <- c(n = F, g = F, e = F) # To keep track if
+
+      if (nrow(nodestartDef) == 1) nodestartDef[2:max(sizeCheck), ] <- nodestartDef[1, ]; WT['n'] <- T
+      if (nrow(genotypeDef) == 1) genotypeDef[2:max(sizeCheck), ]   <- genotypeDef[1, ]; WT['g'] <- T
+      if (!is.null(exogenousDef)) {
+        if (nrow(exogenousDef) == 1) exogenousDef[2:max(sizeCheck), ]   <- exogenousDef[1, ]; WT['e'] <- T
+      }
+
+      if (is.null(exogenousDef)) { # checking if simulations will be run more than once
+        duplications <- duplicated(cbind(nodestartDef, genotypeDef))
+      } else {
+        duplications <- duplicated(cbind(nodestartDef, genotypeDef, exogenousDef))
+      }
+
+      if (any(duplications)) {
+        nodestartDef <- nodestartDef[!duplications, ]
+        genotypeDef  <- genotypeDef[!duplications, ]
+        exogenousDef <- exogenousDef[!duplications, ]
+
+        if (isTRUE(WT['n'])) save(nodestartDef, file = paste0(folder, "/nodestartDef.RData"))
+        if (isTRUE(WT['g'])) save(genotypeDef, file =  paste0(folder, "/genotypeDef.RData"))
+        if (isTRUE(WT['e'])) save(exogenousDef, file = paste0(folder, "/exogenousDef.RData"))
+
+        warning()
+        cat("The following conditions have been removed due to repetition: ",
+            paste0(which(duplications), collapse = ", "),
+            "\nThese rows have been removed from the objects contained in your model folder.")
+      }
     }
 
-    nodestartDef <- nodestartDef[!duplications, ]
-    genotypeDef  <- genotypeDef[!duplications, ]
     if (!is.null(exogenousDef)) {
       if (ncol(exogenousDef) > 1) {
         exogenousDef  <- exogenousDef[!duplications, ]

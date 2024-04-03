@@ -17,7 +17,8 @@ setupSims(
   nodestartBaseline = FALSE,
   altTopologyName = NULL,
   saveOutput = TRUE,
-  combinatorial = TRUE
+  combinatorial = TRUE,
+  preventDrop = FALSE
 )
 }
 \arguments{
@@ -78,6 +79,10 @@ rows. In this case, each row will only be paired with the
 equivalent row of each data.frame. When this argument is set to
 FALSE, it is up to the user to make sure that all of the
 appropriate control conditions exist.}
+
+\item{preventDrop}{logical. Allows the user to override setupSims dropping
+any repeated conditions. This will also prevent reorganisation
+of conditions for clarity. Default is set to FALSE.}
 }
 \description{
 This function allows you to set up a variety of genotype and starting node
