@@ -251,27 +251,38 @@ setupSims <- function(folder,
     exogenousDef <- NULL
   }
 
-  if (isFALSE(preventDrop)) {
-    if (isTRUE(combinatorial)) {
-      # Ensuring that the first row of any screening dataframes contain a wildtype condition in the first row
-      nodestartDef    <- tidyScreen(nodestartDef, "nodestartDef")
-      genotypeDef     <- tidyScreen(genotypeDef, "genotypeDef")
-      exogenousDef    <- tidyScreen(exogenousDef, "exogenousDef", exogenous = TRUE)
-    } else {
-      sizeCheck <- c(nrow(nodestartDef), nrow(genotypeDef), nrow(exogenousDef)) # collecting number of conditions
 
-      if (any(!sizeCheck %in% c(1, max(sizeCheck)))) {
-        stop("Objects defining the conditions to be explored must have the same number of rows (excluding any conditions that are being maintained at baseline.")
+  if (isTRUE(combinatorial)) {
+    # Ensuring that the first row of any screening dataframes contain a wildtype condition in the first row
+    nodestartDef    <- tidyScreen(nodestartDef, "nodestartDef")
+    genotypeDef     <- tidyScreen(genotypeDef, "genotypeDef")
+    exogenousDef    <- tidyScreen(exogenousDef, "exogenousDef", exogenous = TRUE)
+  } else {
+    sizeCheck <- c(nrow(nodestartDef), nrow(genotypeDef), nrow(exogenousDef)) # collecting number of conditions
+
+    if (any(!sizeCheck %in% c(1, max(sizeCheck)))) {
+      stop("Objects defining the conditions to be explored must have the same number of rows (excluding any conditions that are being maintained at baseline.")
+    }
+
+    WT <- c(n = F, g = F, e = F) # To keep track if
+
+    if (nrow(nodestartDef) == 1) nodestartDef[2:max(sizeCheck), ] <- nodestartDef[1, ]; WT['n'] <- T
+    if (nrow(genotypeDef) == 1) genotypeDef[2:max(sizeCheck), ]   <- genotypeDef[1, ]; WT['g'] <- T
+    if (!is.null(exogenousDef)) {
+      if (ncol(exogenousDef) == 1) { #
+        exNames <- colnames(exogenousDef)
       }
 
-      WT <- c(n = F, g = F, e = F) # To keep track if
+      if (nrow(exogenousDef) == 1) exogenousDef[2:max(sizeCheck), ]   <- exogenousDef[1, ]; WT['e'] <- T
 
-      if (nrow(nodestartDef) == 1) nodestartDef[2:max(sizeCheck), ] <- nodestartDef[1, ]; WT['n'] <- T
-      if (nrow(genotypeDef) == 1) genotypeDef[2:max(sizeCheck), ]   <- genotypeDef[1, ]; WT['g'] <- T
-      if (!is.null(exogenousDef)) {
-        if (nrow(exogenousDef) == 1) exogenousDef[2:max(sizeCheck), ]   <- exogenousDef[1, ]; WT['e'] <- T
+      if (ncol(exogenousDef) == 1) { #
+        exogenousDef  <- as.data.frame(exogenousDef)
+        colnames(exogenousDef) <- exNames
       }
+    }
 
+
+    if (isFALSE(preventDrop)) {
       if (is.null(exogenousDef)) { # checking if simulations will be run more than once
         duplications <- duplicated(cbind(nodestartDef, genotypeDef))
       } else {
@@ -279,28 +290,23 @@ setupSims <- function(folder,
       }
 
       if (any(duplications)) {
-        nodestartDef <- nodestartDef[!duplications, ]
-        genotypeDef  <- genotypeDef[!duplications, ]
-        exogenousDef <- exogenousDef[!duplications, ]
+        nodestartDef <- nodestartDef[-which(duplications), ]
+        genotypeDef  <- genotypeDef[-which(duplications), ]
+        if (ncol(exogenousDef) == 1) {
+          exogenousDef <- as.data.frame(exogenousDef[-which(duplications), ])
+          colnames(exogenousDef) <- exNames
+        } else {
+          exogenousDef <- exogenousDef[-which(duplications), ]
+        }
 
         if (isTRUE(WT['n'])) save(nodestartDef, file = paste0(folder, "/nodestartDef.RData"))
         if (isTRUE(WT['g'])) save(genotypeDef, file =  paste0(folder, "/genotypeDef.RData"))
         if (isTRUE(WT['e'])) save(exogenousDef, file = paste0(folder, "/exogenousDef.RData"))
 
-        warning()
-        cat("The following conditions have been removed due to repetition: ",
-            paste0(which(duplications), collapse = ", "),
-            "\nThese rows have been removed from the objects contained in your model folder.")
-      }
-    }
+        warning("The following conditions have been removed due to repetition: ",
+                paste0(which(duplications), collapse = ", "),
+                ". These rows have been removed from the objects contained in your model folder.")
 
-    if (!is.null(exogenousDef)) {
-      if (ncol(exogenousDef) > 1) {
-        exogenousDef  <- exogenousDef[!duplications, ]
-      } else {
-        exNames <- colnames(exogenousDef)
-        exogenousDef  <- as.data.frame(exogenousDef[!duplications, ])
-        colnames(exogenousDef) <- exNames
       }
     }
   }
