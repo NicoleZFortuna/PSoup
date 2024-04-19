@@ -31,8 +31,7 @@
 #'               input.
 #' @param language a string which indicates how the user wants the model
 #'               to be returned. The default is to create the model for
-#'               use in R ("R"). Users can also choose "C", in which case
-#'               a C script will be generated.
+#'               use in R ("R"). Users can also choose "C", or "C#".
 #' @param splitCompartment determines if the network will be split into
 #'               its separate compartments or maintained as a whole.
 #'               Separation of compartments should only be done if you
@@ -52,15 +51,28 @@
 #'               original Dun equations normalised such that WT conditions are
 #'               always 1. The Mike style creates mirrored stimulatory and
 #'               inhibitory effects.
-#' @param nesStimStyle the multiplicative effect taken on by necessary stimulants.
+#' @param necStimStyle the multiplicative effect taken on by necessary stimulants.
 #'               Can be "linear" (the default) or saturating. If saturating,
 #'               they can follow a standard "Michaelis-Menten" form, or a
 #'               "switch-like" form.
-#' @param nesStimFile the file directory containing a function for determining
-#'               the from for the multiplicative effect of a necessary stimulant.
-#'               This function should only have a single argument representing the
-#'               value of the necessary stimulant. If a file path is provided, the
-#'               nesStimStyle argument will be ignored.
+#' @param necStimFile the file directory containing a function for determining
+#'               the form for the multiplicative effect of a necessary stimulant.
+#'               If more than one form exists, this argument can be a vector of
+#'               pathways. If the user wants to use more than a single form, the
+#'               nesStimMap argument must be used. Default set to NULL, in which
+#'               case the necStimStyle will be applied to all necessary
+#'               stimulants.
+#' @param necStimMap if more than one form is to be used for necessary
+#'               stimulants, the user must indicate which form will be applied
+#'               to which necessary stimulant. Only the necessary stimulants
+#'               deviate from the necStimStyle need to be indicated. This
+#'               indication will be achieve by passing a data.frame with the
+#'               following columns: to, from, style, and threshold. to indicates the
+#'               downstream node for the necessary stimulant. from the origin
+#'               node, and style the name of the functional form for the
+#'               necessary stimulant. The threshold column contains boolean
+#'               values indicating the presence or absence of a threshold
+#'               parameter.
 #' @param saveNetwork logical. Defaults to TRUE. Indicates if the provided
 #'               network object should be saved in the generated folder.
 #' @param robustnessTest logical. Defaults to FALSE. Specifies if the nextStep
@@ -80,35 +92,36 @@ buildModel <- function(network,
                        maxStep = 100,
                        steadyThreshold = 4,
                        ruleStyle = "Dun",
-                       nesStimStyle = "Linear",
-                       nesStimFile = NULL,
+                       necStimStyle = "Linear",
+                       necStimFile = NULL,
+                       necStimMap = NULL,
                        saveNetwork = T,
                        robustnessTest = F,
                        altTopologyName = NULL) {
 
-  # determining the form that a necessary stimulant should take.
-  if (!is.null(nesStimFile)) {
-    # in the case that there is a user provided function
-    text <- readLines(file(nesStimFile))
-    functionName <- regmatches(text[1], regexpr("^.*?(?=[^A-Za-z0-9_])", text[1], perl = T))
-  } else if (!nesStimStyle == "Linear") {
-    if (nesStimStyle == "Michaelis-Menten") {
-      text <- readLines(file("./inst/nStim_MM"))
-    } else if (nesStimStyle == "switch-like") {
-      text <- readLines(file("./inst/nStim_sl"))
-    } else {
-      stop("No valid form for a necessary stimulation has been provided.")
-    }
-    functionName <- regmatches(text[1], regexpr("^.*?(?=[^A-Za-z0-9_])", text[1], perl = T))
+  # determining the forms that a necessary stimulant can take.
+  if (necStimStyle == "Michaelis-Menten") { necStimFile <- c(necStimFile, "./inst/nStim_MM")
+  } else if (necStimStyle == "switch-like") { necStimFile <- c(necStimFile, "./inst/nStim_sl")
   } else {
-    # in the case that the necessary stimulant has a linear form
-    functionName = NULL
+    if (!necStimStyle == "Linear") stop("An invalid necStimStyle has been chosen. Only 'linear', 'nStim_MM', or 'nStim_sl' are available as native functional forms.")
   }
 
+  if (is.data.frame(necStimMap) & any(necStimMap$style %in% c("nStim_sl", "nStim_MM"))) {
+    if ("nStim_sl" %in% necStimMap$style) { necStimFile <- c(necStimFile, "./inst/nStim_sl")
+    } else if ("nStim_MM" %in% necStimMap$style) { necStimFile <- c(necStimFile, "./inst/nStim_MM")}
+  }
+
+  necStimFile <- unique(necStimFile)
+
+  # collecting the functional forms and their names
+  functionText <- lapply(necStimFile, function(x) {readLines(file(x))})
+  functionName <- lapply(functionText, function(x) {regmatches(x[1], regexpr("^.*?(?=[^A-Za-z0-9_])", x[1], perl = T))})
+
   # calling other function if language is "C"
-  if (language == "C") {
+  if (language == "C" | language == "C#") {
     generateC(network, maxStep = maxStep, steadyThreshold = steadyThreshold,
-                          folder = folder, forceOverwrite = forceOverwrite)
+              folder = folder, forceOverwrite = forceOverwrite,
+              sharp = if (language == "C") {FALSE} else {TRUE})
     return(NULL)
   }
 
@@ -181,18 +194,25 @@ buildModel <- function(network,
 
   # Including a function to calculate the effects of a necessary stimulant in
   # in the case that the style is not linear and/or there is a provided function.
-  if (!(nesStimStyle == "Linear" & is.null(nesStimFile))) {
-    cat("\t# a function to define the effect of a necessary stimulant.\n", file = funcfile, append = T)
-    cat(paste0("\t", text), sep = "\n", file = funcfile, append = T)
-    cat("\n", file = funcfile, append = T)
+  if (!(necStimStyle == "Linear" & is.null(necStimFile))) {
+    cat("\t# functions to define the forms of a necessary stimulant.\n", file = funcfile, append = T)
+    for (i in 1:length(functionText)) {
+      cat(paste0("\t", functionText[[i]]), sep = "\n", file = funcfile, append = T)
+      cat("\n", file = funcfile, append = T)
+    }
   }
 
   for (i in 1:length(nodes)) {
+    eqNstimMap <- NULL
+    if (nodes[[i]]@name %in% necStimMap$to) {
+      inNecStim <- nodes[[i]]@inputs$Node[which(nodes[[i]]@inputs$Influence == "necessary stimulation")]
+      eqNstimMap <- data.frame(necInput = inNecStim, func = necStimMap$style[which(necStimMap$from %in% inNecStim)])
+    }
     equation <- generateEquation(nodes[[i]],
                                 genotypes,
                                 language = language,
                                 ruleStyle = ruleStyle,
-                                necStimFunc = functionName)
+                                necStimFunc = eqNstimMap)
     cat(paste0("\tdat$",nodes[[i]]@name, "[t] = ", equation, "\n"),
         file = funcfile, append = T)
   }
@@ -230,6 +250,8 @@ buildModel <- function(network,
 #' @param necStimFunc the name of the function to be applied to necessary
 #'               stimulants. The default is NULL, in which case no function will
 #'               be applied, ant therefore the form will be linear.
+#' @param sharp logical. Indicates if the code is being generated is C# rather
+#'               than C.
 #' @importFrom stringr str_remove
 
 generateC <- function(network,
@@ -238,7 +260,8 @@ generateC <- function(network,
                       folder = "./Model",
                       forceOverwrite = FALSE,
                       ruleStyle = "Dun",
-                      necStimFunc = NULL) {
+                      necStimFunc = NULL,
+                      sharp = FALSE) {
 
   # defining constants
   insertTMAX = maxStep
@@ -370,16 +393,20 @@ altSourceToStimulant <- function(hormones) {
 #' @param ruleStyle either "Dun", or "Mike". The Dun style resembles the original
 #'        Dun equations normalised such that WT conditions are always 1. The Mike
 #'        style creates mirrored stimulatory and inhibitory effects.
-#' @param necStimFunc the name of the function to be applied to necessary
-#'        stimulants. The default is NULL, in which case no function will be
-#'        applied, ant therefore the form will be linear.
+#' @param necStimFunc a data.frame containing the columns: necInput, and function.
+#'        The name of the function will be applied to the indicated necessary
+#'        stimulant. The default is NULL, in which case no function will be
+#'        applied to necessary stimulants, and therefore the form will be linear.
+#' @param threshold if the necStimFunc has a threshold, the argument name for
+#'        that threshold should be specified here.
 #' @importFrom methods is
 
 generateEquation <- function(node,
                              genotypes,
                              language,
                              ruleStyle = "Dun",
-                             necStimFunc = NULL) {
+                             necStimFunc = NULL,
+                             threshold = NULL) {
   inhibition = c("inhibition", "sufficient inhibition", "necessary inhibition")
   stimulation = c("stimulation", "sufficient stimulation", "necessary stimulation")
 
@@ -514,14 +541,23 @@ generateEquation <- function(node,
 
   if (any(node@inputs$Influence == "necessary stimulation")) {
     necstimString <- node@inputs$Node[node@inputs$Influence %in% "necessary stimulation" & is.na(node@inputs$Coregulator)]
+    if (length(necstimString) < nrow(necStimFunc)) {
+      necStimFuncNoCoreg <- rbind(necStimFunc, data.frame(necInput = necstimString[which(!necstimString %in% eqNstimMap$necInput)], func = NA))
+    }
     if (length(necstimString) > 0) {
       necstimString <- differenceString(necstimString,
                                         node@inputs$Operator[node@inputs$Operator == "delay" & node@inputs$Influence == "necessary stimulation"],
                                         takeProduct = if (length(necstimString) == 1) {NULL} else {T},
                                         language = language)
 
+
       if (!is.null(necStimFunc)) {
-        necstimString <- paste0(necStimFunc, "(", necstimString, ")", collapse = " * ")
+        a <- if (any(!is.na(necStimFunc$func))) {paste0(necStimFunc$func[!is.na(necStimFunc$func)],
+                                                        "(", necStimFunc$necInput[!is.na(necStimFunc$func)],
+                                                        ")", collapse = "*")} else {NULL}
+        b <- if (any(is.na(necStimFunc$func))) {paste0("(", necStimFunc$necInput[is.na(necStimFunc$func)],
+                                                       ")", collapse = "*")} else {NULL}
+        necstimString <- paste0(a, b, collapse = "*")
       }
     }
 
