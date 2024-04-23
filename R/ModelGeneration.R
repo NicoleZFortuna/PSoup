@@ -39,7 +39,7 @@
 #'               nodes of different compartments. As such, the default
 #'               has been set to FALSE. NOT YET FINISHED!
 #' @param maxStep this only needs to be specified in the case that language
-#'               has been set to "C". The maximum value that the simulation
+#'               has been set to "C/C#". The maximum value that the simulation
 #'               will be allowed to proceed. If the midpoint is reached, a
 #'               warning will be returned. The default value is set to 100.
 #' @param steadyThreshold this only needs to be specified in the case that
@@ -281,12 +281,28 @@ generateC <- function(network,
   geneList <- unname(unlist(sapply(network@objects$Genotypes, getGeneContainer)))
 
   # define node and gene names
-  insertSTRUCTNODENAMES <- paste0("float m", hormoneList, ";", collapse = "\n\t")
-  insertSTRUCTGENENAMES <- paste0("float m", geneList, ";", collapse = "\n\t")
+  if (isFALSE(sharp)) {
+    insertSTRUCTNODENAMES <- paste0("float m", hormoneList, ";", collapse = "\n\t")
+    insertSTRUCTGENENAMES <- paste0("float m", geneList, ";", collapse = "\n\t")
+  } else {
+    insertDATVALSdefinition <- paste0("public float m", hormoneList, ";", collapse = "\n\t")
+    insertDATVALSarguments <- paste0("float M", hormoneList, collapse = ", ")
+    insertDATVALSinternal <- paste0("m", hormoneList, " = M", hormoneList, ";", collapse = "\n\t\t")
+
+    insertGENEVALSdefinition <- paste0("public float m", geneList, ";", collapse = "\n\t")
+    insertGENEVALSarguments <- paste0("float M", geneList, collapse = ", ")
+    insertGENEVALSinternal <- paste0("m", geneList, " = M", geneList, ";", collapse = "\n\t\t")
+  }
 
   # create standard values for nodes and genes
-  insertDATVALS <- paste0("\tdat.m", hormoneList, " = 1;", collapse = "\n")
-  insertGENEVALS <- paste0("\tgen.m", geneList, " = 1;", collapse = "\n")
+  if (isFALSE(sharp)) {
+    insertDATVALS <- paste0("\tdat.m", hormoneList, " = 1;", collapse = "\n")
+    insertGENEVALS <- paste0("\tgen.m", geneList, " = 1;", collapse = "\n")
+  } else {
+    insertDATVALS <- paste0(rep(1, length(hormoneList)), "f", collapse = ", ")
+    insertGENEVALS <- paste0(rep(1, length(geneList)), "f", collapse = ", ")
+  }
+
 
   # define equations for nodes
   insertEQUATIONS <- rep(NA, length(network@objects$Hormones))
@@ -298,31 +314,57 @@ generateC <- function(network,
                                            necStimFunc = necStimFunc)
   }
 
-  insertEQUATIONS <- paste0("pDat->m", names(network@objects$Hormones), " = ",
-                            insertEQUATIONS, collapse = "\n\t")
+  insertEQUATIONS <- paste0(if(isFALSE(sharp)) {"pDat->m"} else {"dat.m"},
+                            names(network@objects$Hormones), " = ",
+                            insertEQUATIONS, collapse = "\n\t\t")
 
   # create chain to check if nodes have changed in the previous timestep
-  insertCOMPARISONCHAIN <- paste0(sprintf("fabs(oldDat.m%s - newDat.m%s) > THRESHOLD",
+  insertCOMPARISONCHAIN <- paste0(sprintf("%s(oldDat.m%s - newDat.m%s) > THRESHOLD",
+                                          if(isFALSE(sharp)) {"fabs"} else {"Math.Abs"},
                                           hormoneList, hormoneList),
-                                 collapse = "\n\t\t|| ")
+                                 collapse = "\n\t\t\t|| ")
 
-  insertFINALPRINT <- paste0('fprintf(stderr, "', hormoneList,
-                             ': %.6f, \\\\n\\\\t", dat.m', hormoneList, ')',
-                             collapse = ";\n\t")
+  if (isFALSE(sharp)) {
+    insertFINALPRINT <- paste0('fprintf(stderr, "', hormoneList,
+                               ': %.6f, \\\\n\\\\t", dat.m', hormoneList, ')',
+                               collapse = ";\n\t")
+  } else {
+    insertFINALPRINT <- paste0(sprintf('Console.WriteLine($"\\\\t%s: {finalVals.m%s:F6} \\\\n\\\\t");',
+                                hormoneList, hormoneList), collapse = ";\n\t\t")
+  }
 
-  text_main.c <- readLines(file("./inst/Cscaffold/main.c"))
-  text_psoup.c <- readLines(file("./inst/Cscaffold/psoup.c"))
-  text_psoup.h <- readLines(file("./inst/Cscaffold/psoup.h"))
+  if (isFALSE(sharp)) {
+    text_main.c <- readLines(file("./inst/Cscaffold/main.c"))
+    text_psoup.c <- readLines(file("./inst/Cscaffold/psoup.c"))
+    text_psoup.h <- readLines(file("./inst/Cscaffold/psoup.h"))
 
-  insertReplacements <- list("insertTMAX" = insertTMAX,
-                             "insertSTRUCTNODENAMES" = insertSTRUCTNODENAMES,
-                             "insertSTRUCTGENENAMES" = insertSTRUCTGENENAMES,
-                             "insertDATVALS" = insertDATVALS,
-                             "insertGENEVALS" = insertGENEVALS,
-                             "insertEQUATIONS" = insertEQUATIONS,
-                             "insertTHRESHOLD" = insertTHRESHOLD,
-                             "insertCOMPARISONCHAIN" = insertCOMPARISONCHAIN,
-                             "insertFINALPRINT" = insertFINALPRINT)
+    insertReplacements <- list("insertTMAX" = insertTMAX,
+                               "insertSTRUCTNODENAMES" = insertSTRUCTNODENAMES,
+                               "insertSTRUCTGENENAMES" = insertSTRUCTGENENAMES,
+                               "insertDATVALS" = insertDATVALS,
+                               "insertGENEVALS" = insertGENEVALS,
+                               "insertEQUATIONS" = insertEQUATIONS,
+                               "insertTHRESHOLD" = insertTHRESHOLD,
+                               "insertCOMPARISONCHAIN" = insertCOMPARISONCHAIN,
+                               "insertFINALPRINT" = insertFINALPRINT)
+  } else {
+    text_program.cs <- readLines(file("./inst/CsharpScaffold/program.cs"))
+
+    insertReplacements <- list("insertTMAX" = insertTMAX,
+                               "insertDATVALSdefinition" = insertDATVALSdefinition,
+                               "insertDATVALSarguments" = insertDATVALSarguments,
+                               "insertDATVALSinternal" = insertDATVALSinternal,
+                               "insertGENEVALSdefinition" = insertGENEVALSdefinition,
+                               "insertGENEVALSarguments" = insertGENEVALSarguments,
+                               "insertGENEVALSinternal" = insertGENEVALSinternal,
+                               "insertDATVALS" = insertDATVALS,
+                               "insertGENEVALS" = insertGENEVALS,
+                               "insertEQUATIONS" = insertEQUATIONS,
+                               "insertTHRESHOLD" = insertTHRESHOLD,
+                               "insertCOMPARISONCHAIN" = insertCOMPARISONCHAIN,
+                               "insertFINALPRINT" = insertFINALPRINT)
+  }
+
 
   # a function that will be supplied to sapply to simultaneously find the location
   # of all keywords
@@ -343,9 +385,13 @@ generateC <- function(network,
     text
   }
 
-  text_main.c <- replaceKeyWords(text_main.c, insertReplacements)
-  text_psoup.c <- replaceKeyWords(text_psoup.c, insertReplacements)
-  text_psoup.h <- replaceKeyWords(text_psoup.h, insertReplacements)
+  if (isFALSE(sharp)) {
+    text_main.c <- replaceKeyWords(text_main.c, insertReplacements)
+    text_psoup.c <- replaceKeyWords(text_psoup.c, insertReplacements)
+    text_psoup.h <- replaceKeyWords(text_psoup.h, insertReplacements)
+  } else {
+    text_program.cs <-replaceKeyWords(text_program.cs, insertReplacements)
+  }
 
   # a place to save the equations
   if (dir.exists(folder) & forceOverwrite == FALSE) {
@@ -366,9 +412,13 @@ generateC <- function(network,
     }
   }
 
-  writeCtoFile(text_main.c, paste0(folder, "/main.c"))
-  writeCtoFile(text_psoup.c, paste0(folder, "/psoup.c"))
-  writeCtoFile(text_psoup.h, paste0(folder, "/psoup.h"))
+  if (isFALSE(sharp)) {
+    writeCtoFile(text_main.c, paste0(folder, "/main.c"))
+    writeCtoFile(text_psoup.c, paste0(folder, "/psoup.c"))
+    writeCtoFile(text_psoup.h, paste0(folder, "/psoup.h"))
+  } else {
+    writeCtoFile(text_program.cs, paste0(folder, "/program.cs"))
+  }
 }
 
 #' A function to convert altSource inputs to stimulants.
@@ -541,9 +591,12 @@ generateEquation <- function(node,
 
   if (any(node@inputs$Influence == "necessary stimulation")) {
     necstimString <- node@inputs$Node[node@inputs$Influence %in% "necessary stimulation" & is.na(node@inputs$Coregulator)]
-    if (length(necstimString) < nrow(necStimFunc)) {
-      necStimFuncNoCoreg <- rbind(necStimFunc, data.frame(necInput = necstimString[which(!necstimString %in% eqNstimMap$necInput)], func = NA))
+    if (!is.null(necStimFunc)) {
+      if (length(necstimString) < nrow(necStimFunc)) {
+        necStimFuncNoCoreg <- rbind(necStimFunc, data.frame(necInput = necstimString[which(!necstimString %in% eqNstimMap$necInput)], func = NA))
+      }
     }
+
     if (length(necstimString) > 0) {
       necstimString <- differenceString(necstimString,
                                         node@inputs$Operator[node@inputs$Operator == "delay" & node@inputs$Influence == "necessary stimulation"],
