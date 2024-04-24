@@ -311,7 +311,8 @@ generateC <- function(network,
                                            genotypes = network@objects$Genotypes,
                                            language = "C",
                                            ruleStyle = ruleStyle,
-                                           necStimFunc = necStimFunc)
+                                           necStimFunc = necStimFunc,
+                                           sharp = sharp)
   }
 
   insertEQUATIONS <- paste0(if(isFALSE(sharp)) {"pDat->m"} else {"dat.m"},
@@ -449,6 +450,7 @@ altSourceToStimulant <- function(hormones) {
 #'        applied to necessary stimulants, and therefore the form will be linear.
 #' @param threshold if the necStimFunc has a threshold, the argument name for
 #'        that threshold should be specified here.
+#' @param sharp description
 #' @importFrom methods is
 
 generateEquation <- function(node,
@@ -456,7 +458,8 @@ generateEquation <- function(node,
                              language,
                              ruleStyle = "Dun",
                              necStimFunc = NULL,
-                             threshold = NULL) {
+                             threshold = NULL,
+                             sharp = FALSE) {
   inhibition = c("inhibition", "sufficient inhibition", "necessary inhibition")
   stimulation = c("stimulation", "sufficient stimulation", "necessary stimulation")
 
@@ -475,7 +478,8 @@ generateEquation <- function(node,
       coregInput <- node@inputs[!is.na(node@inputs$Coregulator) & node@inputs$Influence == "stimulation", 1:2]
 
       coreg <- coregulators(coregInput, returnNum = T, language = language,
-                            operator = node@inputs[!is.na(node@inputs$Coregulator) & node@inputs$Influence == "stimulation", "Operator"])
+                            operator = node@inputs[!is.na(node@inputs$Coregulator) & node@inputs$Influence == "stimulation", "Operator"],
+                            sharp = sharp)
 
       numStim <- numStim + coreg$num
       stimString <- paste0(c(stimString, coreg$coreg), collapse = " + ")
@@ -505,7 +509,8 @@ generateEquation <- function(node,
       coregInput <- node@inputs[!is.na(node@inputs$Coregulator) & node@inputs$Influence == "inhibition", 1:2]
 
       coreg <- coregulators(coregInput, returnNum = T, language = language,
-                            operator = node@inputs[!is.na(node@inputs$Coregulator) & node@inputs$Influence == "inhibition", "Operator"])
+                            operator = node@inputs[!is.na(node@inputs$Coregulator) & node@inputs$Influence == "inhibition", "Operator"],
+                            sharp = sharp)
 
       numInhib <- numInhib + coreg$num
       inhibString <- paste0(c(inhibString, coreg$coreg), collapse = " + ")
@@ -620,7 +625,8 @@ generateEquation <- function(node,
 
       # NEED TO EDIT COREGULATORS FUNCTION SO THAT IT CAN RETURN A NON CONCATENATED VECTOR FOR THE PURPOSE OF ADDING A FUNCTION
       coreg <- coregulators(coregInput, returnNum = T, language = language,
-                            operator = node@inputs[!is.na(node@inputs$Coregulator) & node@inputs$Influence == "necessary stimulation", "Operator"])
+                            operator = node@inputs[!is.na(node@inputs$Coregulator) & node@inputs$Influence == "necessary stimulation", "Operator"],
+                            sharp = sharp)
 
       if (!is.null(necStimFunc)) {
         necstimString = paste0(necStimFunc, "(", coreg$coreg, ")", collapse = " * ")
@@ -656,18 +662,20 @@ generateEquation <- function(node,
 #' once. Each modulator is given a temporal modifier. Sets of coregulators are
 #' summed.
 #'
-#' @param coreg a subsed of a the inputs of a hormone object. This subset
+#' @param coreg a subset of a the inputs of a hormone object. This subset
 #'        must all have the same modulating effect, and have coregulators
 #' @param returnNum return the number of unique coregulator sets. Default is
 #'        set to FALSE.
 #' @param language which programming language should the equation be generated in?
 #'        Can be either "R", or "C".
 #' @param operator which operator defines the coregulator, either "and" or "or".
+#' @param sharp description
 
 coregulators <- function(coreg,
                          returnNum = FALSE,
                          language,
-                         operator) {
+                         operator,
+                         sharp = FALSE) {
   coreg <- unname(as.matrix(coreg))
 
   split <- strsplit(coreg[,2], ", ") # Splitting apart lists of coregulators
@@ -706,13 +714,22 @@ coregulators <- function(coreg,
   operator    <- operator[firstApp]
 
   # perform the correct calculation depending on operator
-  # SO FAR ONLY FOR R!!!!
   for (i in 1:length(coregString)) {
     if (operator[i] == "and") {
       if (language == "R") {
         coregString[i] <- paste0("min(", coregString[i], ")")
       } else if (language == "C") {
-        coregString[i] <- paste0("getMin(", coregString[i], ")")
+        if (isFALSE(sharp)) {
+          coregString[i] <- paste0("getMin(", coregString[i], ")")
+        } else {
+          coregVector <- strsplit(coregString[i], ",")[[1]]
+          numCoreg <- length(coregVector)
+          coregString[i] <- paste0(paste0(rep("Math.Min(", numCoreg - 1),
+                                          coregVector[-numCoreg], collapse = ", "),
+                                   ", ", coregVector[numCoreg], paste0(rep(")", numCoreg - 1),
+                                                                       collapse = ""))
+
+        }
       }
     } else if (operator[i] == "or") {
       if (language == "R") {
