@@ -8,11 +8,12 @@ nature of edge types.}
 exploreEdges(
   startingNetwork,
   folder,
+  runSim = TRUE,
   maxStep = 100,
   steadyThreshold = 4,
   ruleStyle = "Dun",
-  nesStimStyle = "Michaelis-Menten",
-  nesStimFile = NULL,
+  necStimStyle = "Michaelis-Menten",
+  necStimFile = NULL,
   exogenousSupply = NULL,
   priorScreen = FALSE,
   saveNetwork = TRUE,
@@ -25,6 +26,17 @@ to be tested}
 
 \item{folder}{the directory containing the original nextStep function built
 on the original network}
+
+\item{runSim}{default set to TRUE. Specifies if the user wants to automatically
+run simulations across the alternative networks generated to
+compare their behaviour. If TRUE, the user must provide objects
+defining the simulations to be run (eg. a genotypeDef object).
+including the nextStep.R file. This can be done by running the
+buildModel function on the original network, and defining the
+simulation conditions before running this function. If runSim is
+set to FALSE, there is no need to run the buildModel function
+as all objects for the starting network will be build by this
+function.}
 
 \item{maxStep}{the maximum number of steps that you want to simulate for. Will
 terminate simulation when steady state is reached, unless maxStep is
@@ -40,16 +52,16 @@ original Dun equations normalised such that WT conditions are
 always 1. The Mike style creates mirrored stimulatory and
 inhibitory effects.}
 
-\item{nesStimStyle}{the multiplicative effect taken on by necessary stimulants.
+\item{necStimStyle}{the multiplicative effect taken on by necessary stimulants.
 Can be "linear" (the default) or saturating. If saturating,
 they can follow a standard "Michaelis-Menten" form, or a
 "switch-like" form.}
 
-\item{nesStimFile}{the file directory containing a function for determining
+\item{necStimFile}{the file directory containing a function for determining
 the from for the multiplicative effect of a necessary stimulant.
 This function should only have a single argument representing the
 value of the necessary stimulant. If a file path is provided, the
-nesStimStyle argument will be ignored.}
+necStimStyle argument will be ignored.}
 
 \item{exogenousSupply}{specifies if the value of a node (or nodes) is
 determined by an outside supply. In this case, the value of the
@@ -71,6 +83,10 @@ only the outputs to simulations that have not achieved stability
 will be saved.}
 }
 \description{
-A function to test how network behavior changes in response to changing the
-nature of edge types.
+This function builds alternative network objects and
+their corresponding nextStep files. Alternate networks are build by one by
+one modifying the nature of edges. Specifically stimulations and inhibitions
+(necessary stimulations are left as is). These alternate networks can then
+be the basis of simulations designed to compare network behaviour, however
+this feature can be turned off.
 }
