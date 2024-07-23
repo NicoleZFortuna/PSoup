@@ -240,6 +240,7 @@ restoreBaseModel <- function() {
 #' @param keepNecessaryStimulant default set to FALSE.
 #'        Specify if you want to distinguish necessary
 #'        stimulants from stimulants.
+#' @export
 
 generateEdgeList <- function(network, keepAltSource = F,
                              keepNecessaryStimulant = F) {
@@ -271,6 +272,32 @@ generateEdgeList <- function(network, keepAltSource = F,
   if (keepNecessaryStimulant == F) {
     dat$Influence[dat$Influence == "necessary stimulation"] <- "stimulation"
   }
+
+  dat
+}
+
+#' a function to map the genes that effect nodes in a network
+#'
+#' @param network and object of class network
+#' @export
+
+generateGeneToNodeList <- function(network) {
+  get <- function(x) {
+    influence <- x@influence$Node
+    got <- data.frame(Modifier = rep(x@name, length(influence)),
+                      Node = influence)
+    got
+  }
+
+  # collect wanted info all at once
+  frames <- lapply(network@objects$Genotypes,
+                   FUN = function(x) get(x))
+
+  # merge info into single data frame
+  dat <- do.call("rbind", frames)
+
+  # remove unwanted rownames
+  rownames(dat) = NULL
 
   dat
 }
