@@ -81,6 +81,10 @@
 #'               allows the user to keep the generated alternate nextStep function
 #'               with a specific name. If no name is provided, the alternate
 #'               nextStep functions will be names nextStepAlt.R.
+#' @param exogenous default set to TRUE. This argument allows you to tailor the
+#'               construction of a model in either C or C#. If TRUE, the generated
+#'               code will allow for an exogenous supply to be added to the model.
+#'
 #' @export
 
 buildModel <- function(network,
@@ -97,7 +101,8 @@ buildModel <- function(network,
                        necStimMap = NULL,
                        saveNetwork = T,
                        robustnessTest = F,
-                       altTopologyName = NULL) {
+                       altTopologyName = NULL,
+                       exogenous = TRUE) {
 
   # determining the forms that a necessary stimulant can take.
   if (necStimStyle == "Michaelis-Menten") { necStimFile <- c(necStimFile, "./inst/nStim_MM")
@@ -121,7 +126,8 @@ buildModel <- function(network,
   if (language == "C" | language == "C#") {
     generateC(network, maxStep = maxStep, steadyThreshold = steadyThreshold,
               folder = folder, forceOverwrite = forceOverwrite,
-              sharp = if (language == "C") {FALSE} else {TRUE})
+              sharp = if (language == "C") {FALSE} else {TRUE},
+              exogenous = exogenous)
     return(NULL)
   }
 
@@ -252,6 +258,9 @@ buildModel <- function(network,
 #'               be applied, ant therefore the form will be linear.
 #' @param sharp logical. Indicates if the code is being generated is C# rather
 #'               than C.
+#' @param exogenous default set to TRUE. This argument allows you to tailor the
+#'               construction of a model in either C or C#. If TRUE, the generated
+#'               code will allow for an exogenous supply to be added to the model.
 #' @importFrom stringr str_remove
 
 generateC <- function(network,
@@ -261,7 +270,8 @@ generateC <- function(network,
                       forceOverwrite = FALSE,
                       ruleStyle = "Dun",
                       necStimFunc = NULL,
-                      sharp = FALSE) {
+                      sharp = FALSE,
+                      exogenous = TRUE) {
 
   # defining constants
   insertTMAX = maxStep
@@ -270,6 +280,21 @@ generateC <- function(network,
   # change altSources to stimulations
   network@objects$Hormones <- altSourceToStimulant(network@objects$Hormones)
   hormonesWcompartment <- sub("\\.", "_", names(network@objects$Hormones))
+
+  # create exogenous supply object if needed
+  if (isFALSE(exogenous)) {
+    insertEXOdefinition <- ""
+    insertEXOargument   <- ""
+    insertEXOobject   <- ""
+    insertEXOtype <- ""
+    insertEXOmainDef <- "\n"
+  } else {
+    insertEXOdefinition <- "\npublic struct ExoVals\n{\n\tinsertDATVALSdefinition\n\n\tpublic ExoVals(insertDATVALSarguments)\n\t{\n\t\tinsertDATVALSinternal\n\t}\n}\n"
+    insertEXOargument   <- ", ExoVals exo"
+    insertEXOobject   <- ", exo"
+    insertEXOtype <- ", exoVals"
+    insertEXOmainDef <- "\n\t\tExoVals exoVals = new ExoVals(insertEXOVALS);\n"
+  }
 
   # function to append container info to hormone and genotype names
   getGeneContainer <- function(x) {
@@ -301,6 +326,7 @@ generateC <- function(network,
   } else {
     insertDATVALS <- paste0(rep(1, length(hormoneList)), "f", collapse = ", ")
     insertGENEVALS <- paste0(rep(1, length(geneList)), "f", collapse = ", ")
+    insertEXOVALS <- paste0(rep(0, length(hormoneList)), "f", collapse = ", ")
   }
 
 
@@ -312,7 +338,8 @@ generateC <- function(network,
                                            language = "C",
                                            ruleStyle = ruleStyle,
                                            necStimFunc = necStimFunc,
-                                           sharp = sharp)
+                                           sharp = sharp,
+                                           exogenous = exogenous)
   }
 
   insertEQUATIONS <- paste0(if(isFALSE(sharp)) {"pDat->m"} else {"dat.m"},
@@ -352,6 +379,8 @@ generateC <- function(network,
     text_program.cs <- readLines(file("./inst/CsharpScaffold/program.cs"))
 
     insertReplacements <- list("insertTMAX" = insertTMAX,
+                               "insertEXOdefinition" = insertEXOdefinition,
+                               "insertEXOmainDef" = insertEXOmainDef,
                                "insertDATVALSdefinition" = insertDATVALSdefinition,
                                "insertDATVALSarguments" = insertDATVALSarguments,
                                "insertDATVALSinternal" = insertDATVALSinternal,
@@ -360,6 +389,10 @@ generateC <- function(network,
                                "insertGENEVALSinternal" = insertGENEVALSinternal,
                                "insertDATVALS" = insertDATVALS,
                                "insertGENEVALS" = insertGENEVALS,
+                               "insertEXOVALS" = insertEXOVALS,
+                               "insertEXOargument" = insertEXOargument,
+                               "insertEXOobject" = insertEXOobject,
+                               "insertEXOtype" = insertEXOtype,
                                "insertEQUATIONS" = insertEQUATIONS,
                                "insertTHRESHOLD" = insertTHRESHOLD,
                                "insertCOMPARISONCHAIN" = insertCOMPARISONCHAIN,
@@ -459,7 +492,8 @@ generateEquation <- function(node,
                              ruleStyle = "Dun",
                              necStimFunc = NULL,
                              threshold = NULL,
-                             sharp = FALSE) {
+                             sharp = FALSE,
+                             exogenous = TRUE) {
   inhibition = c("inhibition", "sufficient inhibition", "necessary inhibition")
   stimulation = c("stimulation", "sufficient stimulation", "necessary stimulation")
 
@@ -647,6 +681,12 @@ generateEquation <- function(node,
     }
 
     allModulations <- sprintf("%s + %s", paste0(altString, collapse = " + "), allModulations)
+  }
+
+  if (isTRUE(exogenous)) {
+    if (language == "C" | language == "C#") {
+      allModulations <- paste0(allModulations, " + exo.m", node@name)
+    }
   }
 
   if (language == "C") {

@@ -12,6 +12,7 @@ simulateNetwork(
   startingValues = NA,
   steadyThreshold = 4,
   exogenousSupply = FALSE,
+  necStimThreshold = NULL,
   robustnessTest = FALSE,
   altTopologyName = NULL
 )
@@ -44,6 +45,17 @@ the course of the simulation. The default value for this
 argument is FALSE. If set to TRUE, there must exist an exogenousDef
 object in the model folder. This can be generated with the
 exogenousScreen function.}
+
+\item{necStimThreshold}{if the form of any necessary stimulant contains a
+threshold, the user must indicate said threshold and to which
+form the threshold will be applied. This
+indication will be achieved by passing a data.frame with the
+following columns: to, from, style, and threshold. to indicates
+the downstream node for the necessary stimulant. from the origin
+node, and style the name of the functional form for the
+necessary stimulant. The threshold column contains the
+values of the threshold parameter. Information only needs to
+be provided for cases where a threshold applies.}
 
 \item{robustnessTest}{logical. Defaults to FALSE. Specifies if the nextStep
 function being used is part of a network robustness check.}

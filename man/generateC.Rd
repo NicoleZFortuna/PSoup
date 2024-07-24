@@ -12,7 +12,9 @@ generateC(
   folder = "./Model",
   forceOverwrite = FALSE,
   ruleStyle = "Dun",
-  necStimFunc = NULL
+  necStimFunc = NULL,
+  sharp = FALSE,
+  exogenous = TRUE
 )
 }
 \arguments{
@@ -48,6 +50,13 @@ inhibitory effects.}
 \item{necStimFunc}{the name of the function to be applied to necessary
 stimulants. The default is NULL, in which case no function will
 be applied, ant therefore the form will be linear.}
+
+\item{sharp}{logical. Indicates if the code is being generated is C# rather
+than C.}
+
+\item{exogenous}{default set to TRUE. This argument allows you to tailor the
+construction of a model in either C or C#. If TRUE, the generated
+code will allow for an exogenous supply to be added to the model.}
 }
 \description{
 A function to generate a C script which will execute a simulation of the

@@ -9,7 +9,10 @@ generateEquation(
   genotypes,
   language,
   ruleStyle = "Dun",
-  necStimFunc = NULL
+  necStimFunc = NULL,
+  threshold = NULL,
+  sharp = FALSE,
+  exogenous = TRUE
 )
 }
 \arguments{
@@ -24,9 +27,15 @@ Can be either "R", or "C".}
 Dun equations normalised such that WT conditions are always 1. The Mike
 style creates mirrored stimulatory and inhibitory effects.}
 
-\item{necStimFunc}{the name of the function to be applied to necessary
-stimulants. The default is NULL, in which case no function will be
-applied, ant therefore the form will be linear.}
+\item{necStimFunc}{a data.frame containing the columns: necInput, and function.
+The name of the function will be applied to the indicated necessary
+stimulant. The default is NULL, in which case no function will be
+applied to necessary stimulants, and therefore the form will be linear.}
+
+\item{threshold}{if the necStimFunc has a threshold, the argument name for
+that threshold should be specified here.}
+
+\item{sharp}{description}
 }
 \description{
 A function to generate an equation for a specific node
