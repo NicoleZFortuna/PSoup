@@ -15,6 +15,7 @@ setupSims(
   robustnessTest = FALSE,
   genotypeBaseline = FALSE,
   nodestartBaseline = FALSE,
+  necStimThreshold = NULL,
   altTopologyName = NULL,
   saveOutput = TRUE,
   combinatorial = TRUE,
@@ -57,6 +58,17 @@ precedence.}
 \item{nodestartBaseline}{logical. Defaults to FALSE. Specified if only the
 first row of the nodestart object should be used. If selected,
 the output object name will reflect that decision.}
+
+\item{necStimThreshold}{if the form of any necessary stimulant contains a
+threshold, the user must indicate said threshold and to which
+form the threshold will be applied. This
+indication will be achieved by passing a data.frame with the
+following columns: to, from, style, and threshold. to indicates
+the downstream node for the necessary stimulant. from the origin
+node, and style the name of the functional form for the
+necessary stimulant. The threshold column contains the
+values of the threshold parameter. Information only needs to
+be provided for cases where a threshold applies.}
 
 \item{altTopologyName}{default to NULL. If robustnessTest = TRUE, this argument
 allows the user to keep the generated alternate nextStep function

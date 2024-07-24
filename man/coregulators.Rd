@@ -4,10 +4,10 @@
 \alias{coregulators}
 \title{A function that creates a string with coregulators multiplied together}
 \usage{
-coregulators(coreg, returnNum = FALSE, language, operator)
+coregulators(coreg, returnNum = FALSE, language, operator, sharp = FALSE)
 }
 \arguments{
-\item{coreg}{a subsed of a the inputs of a hormone object. This subset
+\item{coreg}{a subset of a the inputs of a hormone object. This subset
 must all have the same modulating effect, and have coregulators}
 
 \item{returnNum}{return the number of unique coregulator sets. Default is
@@ -17,6 +17,8 @@ set to FALSE.}
 Can be either "R", or "C".}
 
 \item{operator}{which operator defines the coregulator, either "and" or "or".}
+
+\item{sharp}{description}
 }
 \description{
 Coregulators are sorted so that their multiplications are only represented

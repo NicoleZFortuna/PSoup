@@ -23,13 +23,13 @@ public struct GeneVals
         insertGENEVALSinternal
     }
 }
-
+insertEXOdefinition
 class Program
 {
     const int TMAX = insertTMAX;
     const float THRESHOLD = insertTHRESHOLDf;
 
-    static NodeVals StepNext(GeneVals gen, NodeVals dat)
+    static NodeVals StepNext(GeneVals gen, NodeVals datinsertEXOargument)
     {
         NodeVals oldDat = dat; /* NodeVals object to store the previous timestep. */
 
@@ -48,7 +48,7 @@ class Program
         return true;
     }
 
-    static NodeVals CalculateVals(GeneVals gen, NodeVals dat)
+    static NodeVals CalculateVals(GeneVals gen, NodeVals datinsertEXOargument)
     {
         NodeVals oldDat = dat; /* NodeVals object to store the previous timestep. */
         NodeVals newDat = dat;
@@ -60,7 +60,7 @@ class Program
         {
             oldDat = newDat;
             /* Calculating out values from old values */
-            newDat = StepNext(gen, oldDat);
+            newDat = StepNext(gen, oldDatinsertEXOobject);
 
             /* If stability has been reached, break new of while loop */
             if (pTime > 0 && CheckSame(oldDat, newDat))
@@ -91,8 +91,8 @@ class Program
         NodeVals finalVals = nodeVals;
 
         GeneVals geneVals = new GeneVals(insertGENEVALS);
-
-        finalVals = CalculateVals(geneVals, nodeVals);
+        insertEXOmainDef
+        finalVals = CalculateVals(geneVals, nodeValsinsertEXOtype);
 
         insertFINALPRINT;
     }

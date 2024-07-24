@@ -14,11 +14,13 @@ buildModel(
   maxStep = 100,
   steadyThreshold = 4,
   ruleStyle = "Dun",
-  nesStimStyle = "Linear",
-  nesStimFile = NULL,
+  necStimStyle = "Linear",
+  necStimFile = NULL,
+  necStimMap = NULL,
   saveNetwork = T,
   robustnessTest = F,
-  altTopologyName = NULL
+  altTopologyName = NULL,
+  exogenous = TRUE
 )
 }
 \arguments{
@@ -48,8 +50,7 @@ input.}
 
 \item{language}{a string which indicates how the user wants the model
 to be returned. The default is to create the model for
-use in R ("R"). Users can also choose "C", in which case
-a C script will be generated.}
+use in R ("R"). Users can also choose "C", or "C#".}
 
 \item{splitCompartment}{determines if the network will be split into
 its separate compartments or maintained as a whole.
@@ -59,7 +60,7 @@ nodes of different compartments. As such, the default
 has been set to FALSE. NOT YET FINISHED!}
 
 \item{maxStep}{this only needs to be specified in the case that language
-has been set to "C". The maximum value that the simulation
+has been set to "C/C#". The maximum value that the simulation
 will be allowed to proceed. If the midpoint is reached, a
 warning will be returned. The default value is set to 100.}
 
@@ -74,16 +75,30 @@ original Dun equations normalised such that WT conditions are
 always 1. The Mike style creates mirrored stimulatory and
 inhibitory effects.}
 
-\item{nesStimStyle}{the multiplicative effect taken on by necessary stimulants.
+\item{necStimStyle}{the multiplicative effect taken on by necessary stimulants.
 Can be "linear" (the default) or saturating. If saturating,
 they can follow a standard "Michaelis-Menten" form, or a
 "switch-like" form.}
 
-\item{nesStimFile}{the file directory containing a function for determining
-the from for the multiplicative effect of a necessary stimulant.
-This function should only have a single argument representing the
-value of the necessary stimulant. If a file path is provided, the
-nesStimStyle argument will be ignored.}
+\item{necStimFile}{the file directory containing a function for determining
+the form for the multiplicative effect of a necessary stimulant.
+If more than one form exists, this argument can be a vector of
+pathways. If the user wants to use more than a single form, the
+nesStimMap argument must be used. Default set to NULL, in which
+case the necStimStyle will be applied to all necessary
+stimulants.}
+
+\item{necStimMap}{if more than one form is to be used for necessary
+stimulants, the user must indicate which form will be applied
+to which necessary stimulant. Only the necessary stimulants
+deviate from the necStimStyle need to be indicated. This
+indication will be achieve by passing a data.frame with the
+following columns: to, from, style, and threshold. to indicates the
+downstream node for the necessary stimulant. from the origin
+node, and style the name of the functional form for the
+necessary stimulant. The threshold column contains boolean
+values indicating the presence or absence of a threshold
+parameter.}
 
 \item{saveNetwork}{logical. Defaults to TRUE. Indicates if the provided
 network object should be saved in the generated folder.}
@@ -95,6 +110,10 @@ function being built is part of a network robustness check.}
 allows the user to keep the generated alternate nextStep function
 with a specific name. If no name is provided, the alternate
 nextStep functions will be names nextStepAlt.R.}
+
+\item{exogenous}{default set to TRUE. This argument allows you to tailor the
+construction of a model in either C or C#. If TRUE, the generated
+code will allow for an exogenous supply to be added to the model.}
 }
 \description{
 This function is used to define the script that is needed to simulate the
