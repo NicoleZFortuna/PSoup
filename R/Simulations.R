@@ -69,7 +69,11 @@ simulateNetwork <- function(folder,
   if (robustnessTest == FALSE) {
     source(paste0(folder, "/nextStep.R"), local = TRUE)
   } else {
-    source(paste0(folder, "/", altTopologyName, "_nextStepAlt.R"))
+    if (is.null(altTopologyName) | altTopologyName == "" | altTopologyName == "nextStep.R") {
+      source(paste0(folder, "/nextStep.R"), local = TRUE)
+    } else {
+      source(paste0(folder, "/", altTopologyName, "_nextStepAlt.R"))
+    }
   }
 
 
@@ -89,7 +93,10 @@ simulateNetwork <- function(folder,
     stop("You have provided more than one condition. Consider using the setupSims function instead.")
   }
 
-  if (class(exogenousSupply) == "data.frame" | class(exogenousSupply) == "integer") {
+  if (is.null(exogenousSupply)) {
+    exogenousDef <- NULL
+    exogenousSupply <- FALSE
+  } else if (class(exogenousSupply) == "data.frame" | class(exogenousSupply) == "integer") {
     exogenousDef <- exogenousSupply
   } else if (exogenousSupply == TRUE) {
     load(paste0(folder, "/exogenousDef.RData")) # should probably remove this condition
@@ -266,8 +273,10 @@ setupSims <- function(folder,
     nodestartDef[1,] <- 1
   }
 
-
-  if (exogenousSupply == TRUE) {
+  if (is.null(exogenousSupply)) {
+    exogenousDef <- NULL
+    exogenousSupply <- FALSE
+  } else if (exogenousSupply == TRUE) {
     load(paste0(folder, "/exogenousDef.RData"))
   } else {
     exogenousDef <- NULL

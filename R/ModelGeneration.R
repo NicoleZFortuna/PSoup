@@ -143,7 +143,11 @@ buildModel <- function(network,
     if (robustnessTest == F) {
       funcfile = paste0(folder, "/nextStep.R")
     } else {
-      funcfile = paste0(folder, "/", altTopologyName, "_nextStepAlt.R")
+      if (is.null(altTopologyName) | altTopologyName == "") {
+        funcfile = paste0(folder, "/nextStep.R")
+      } else {
+        funcfile = paste0(folder, "/", altTopologyName, "_nextStepAlt.R")
+      }
     }
 
     file.create(funcfile)
