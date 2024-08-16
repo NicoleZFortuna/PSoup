@@ -32,6 +32,7 @@ SBGN-AF syntax | Algorithmic rule
 ![](diagramRules/necStim.png){width=80%} | $B[t] = 1*A[t-1]$
 ![](diagramRules/d.png){width=80%} | $D[t] = \frac{2*A[t-1]}{1 + B[t-1]}*C[t-1]*d$
 
+Need to insert an example diagram with the corresponding equations.
 
 ### Alternative algorithmic rules
 

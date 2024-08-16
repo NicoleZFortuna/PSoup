@@ -12,6 +12,9 @@
 #'        to be tested
 #' @param folder the directory containing the original nextStep function built
 #'        on the original network
+#' @param excludeEdge a data.frame with the column names Origin and Destination.
+#'        This data.frame indicates edges that you want to remain unchanged.
+#'        Default is set to NULL.
 #' @param runSim default set to TRUE. Specifies if the user wants to automatically
 #'             run simulations across the alternative networks generated to
 #'             compare their behaviour. If TRUE, the user must provide objects
@@ -74,6 +77,7 @@
 
 exploreEdges <- function(startingNetwork,
                          folder,
+                         excludeEdge = NULL,
                          runSim = TRUE,
                          maxStep = 100,
                          steadyThreshold = 4,

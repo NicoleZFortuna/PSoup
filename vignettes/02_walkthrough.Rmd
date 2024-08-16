@@ -38,12 +38,13 @@ knitr::include_graphics("DunAFgenotype.jpg")
 ```
 </center>
 
-Once you are happy with your diagram, click `File` -> `Export` -> `SBGN-ML Plain`. This will generate a text file representation of your diagram using SBGN markdown language. You will then need to use the `convertSBGNdiagram` function to translate this text file into a Network object that is easy to use. In the below example, the `getExampleDiagram` function has been created to give the user access to the .sbgn file contained in the PSoup package. It should only be used if the user wants to use the network displayed above. If you have your own diagram, ignore this function.
+Once you are happy with your diagram, click `File` -> `Export` -> `SBGN-ML Plain`. This will generate a text file representation of your diagram using SBGN markdown language. You will then need to use the `convertSBGNdiagram` function to translate this text file into a Network object that is easy to use. To use the `convertSBGNdiagram` function, you will need to provide two arguments. The first is the file path for the .sbgn file that describes your diagram, the second argument asks you to provide a name for your network.
+
+To trial using this function, first use the below code to import the native PSoup network. This function will save the DunAFgenotype.sbgn file in a location of your choosing. This function only exists to allow the user to interact with the sbgn file for the network displayed above. You will not need to use this function if you have your own diagram.
+
+Using the provided sbgn file, we can generate a network object as demonstrated below.
 
 ```{r, eval=FALSE}
-# provide the directory for where the sbgn file will be saved as an argument
-getExampleDiagram("~/Desktop/Diagram")
-
 PeaNetwork <- convertSBGNdiagram(file = "~/Desktop/Diagram/DunAFgenotype.sbgn", 
                                  networkName = "PeaNetwork")
 PeaNetwork
@@ -75,7 +76,10 @@ Within the folder that you have built, there will be three objects. Two of these
 To access the information, all you need to do is load the files into the local environment:
 
 ```{r eval = FALSE}
+# To access the genotype definition object
 load(paste0(folder, "/genotypeDef.RData"))
+
+# To access the starting node value definition object
 load(paste0(folder, "/nodestartDef.RData"))
 ```
 
