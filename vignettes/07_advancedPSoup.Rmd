@@ -1,0 +1,23 @@
+---
+title: "Advanced PSoup"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Advanced PSoup}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(PSoup)
+```
+
+## The nextStep file
+
+In addition, it provides an opportunity for the user to modify the equations if they wish to do so. This is a potentially a dangerous thing to attempt as it is possible to introduce errors or bugs into the simulations. If the user decides to modify the code, they will be responsible for creating usable functions. In addition, the user should be wary that by modifying the code, that they may be creating runaway dynamics that cause simulations to never reach stability. Even if this is the case, the `maxStep` argument will prevent the simulation from running for infinitely. An additional fail safe, is that if any of the nodes reaches infinity (`Inf`), the simulation will be terminated and an error generated to inform the user.

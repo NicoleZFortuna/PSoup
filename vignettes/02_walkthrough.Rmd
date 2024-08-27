@@ -42,9 +42,15 @@ Once you are happy with your diagram, click `File` -> `Export` -> `SBGN-ML Plain
 
 To trial using this function, first use the below code to import the native PSoup network. This function will save the DunAFgenotype.sbgn file in a location of your choosing. This function only exists to allow the user to interact with the sbgn file for the network displayed above. You will not need to use this function if you have your own diagram.
 
-Using the provided sbgn file, we can generate a network object as demonstrated below.
+```{r, eval=FALSE}
+# create a folder for the example diagram to be saved in
+getExampleDiagram(folder = "~/Desktop/Diagram")
+```
+
+The above function will generate a Diagram folder in your Desktop within which the DunAFgenotype.sbgn file will be saved. Using the provided sbgn file, we can generate a network object as demonstrated below.
 
 ```{r, eval=FALSE}
+# create a PSoup network object
 PeaNetwork <- convertSBGNdiagram(file = "~/Desktop/Diagram/DunAFgenotype.sbgn", 
                                  networkName = "PeaNetwork")
 PeaNetwork
@@ -56,7 +62,7 @@ PeaNetwork <- convertSBGNdiagram(file = "../inst/DunAFgenotype.sbgn",
 PeaNetwork
 ```
 
-The above network object is natively available in the PSoup package, and can therefore be called directly:
+Note that the hormone objects each have an extension indicating in which compartment they are in the diagram. The above network object is also natively available in the PSoup package, and can therefore be called directly:
 
 ```{r}
 peaNetwork
@@ -64,11 +70,14 @@ peaNetwork
 
 ## Generating a model from a diagram
 
-Network objects can then be passed to a function called `buildModel` which will generate all the information that is required to create a mathematical description of your network. You will need to provide a directory pathway for your model information to be stored in. If there already exists a folder of the specified name, this function will not overwrite the folder unless requested to do so (you would need to pass an additional argument `forceOverwrite = TRUE` to the buildModel function.)
+Network objects can be passed to a function called `buildModel` which will generate all the information that is required to create a mathematical description of your network. You will need to provide a directory pathway for your model information to be stored in. This folder will be used to define your simulations, as well as hold your simulation results. If there already exists a folder of the specified name, this function will not overwrite the folder unless requested to do so (you would need to pass an additional argument `forceOverwrite = TRUE` to the buildModel function.).
 
 ```{r, eval=FALSE}
+# define the location that all simulation material will be saved
 folder = "~/Desktop/Model"
-buildModel(PeaNetwork, folder, forceOverwrite = TRUE)
+
+# generate files necessary to run simulations
+buildModel(network = PeaNetwork, folder = folder, forceOverwrite = TRUE)
 ```
 
 Within the folder that you have built, there will be three objects. Two of these objects will be data frames specifying values to be fed to the model: one will give the genotypes and their baseline values, the second will give the starting node values for the simulation.
@@ -106,11 +115,9 @@ knitr::include_graphics("buildModelOutput.png")
 ```
 </center>
 
-This function is what will be doing most of the work when running simulations of the network. This function is what calculates the node values at each step. It contains a series of difference equations (a discrete version of a differential equation) which are the mathematical description of the information contained in the diagram.
+This function is what will be doing most of the work when running simulations of the network, as it calculates the node values at each step. It contains a series of difference equations (a discrete version of a differential equation) which are the mathematical description of the information contained in the diagram. This function has been provided as a script accessible to the user in order to make the translation of the provided diagram transparent to the user. For more information on the nextStep function, view the 'Advanced PSoup' article.
 
-This function has been provided as a script accessible to the user in order to make the translation of the provided diagram transparent to the user. In addition, it provides an opportunity for the user to modify the equations if they wish to do so. This is a potentially a dangerous thing to attempt as it is possible to introduce errors or bugs into the simulations. If the user decides to modify the code, they will be responsible for creating usable functions. In addition, the user should be wary that by modifying the code, that they may be creating runaway dynamics that cause simulations to never reach stability. Even if this is the case, the `maxStep` argument will prevent the simulation from running for infinitely. An additional fail safe, is that if any of the nodes reaches infinity (`Inf`), the simulation will be terminated and an error generated to inform the user.
-
-Once these three data objects have been created in your specified folder, the path directory of this folder can be provided as input to run simulations. If we want to run a single simulation, we can call the `simulateNetwork` function.
+Once these three data objects have been created in your specified folder, the path directory of this folder can be provided as input to run simulations. If we want to run a single simulation, we can call the `simulateNetwork` function. You will notice that there is a maxStep argument. This exists to prevent the simulation running indefinitely in the case that the model does not find a stable state. The simulation will also terminate in the case that one of the nodes runs off to infinity (`Inf`).
 
 ```{r eval=FALSE}
 simulation <- simulateNetwork(folder, maxStep = 100) 
@@ -120,9 +127,6 @@ head(simulation)
 ```{r echo=FALSE}
 head(simulation)
 ```
-
-
-As the folder contains all of our genotype information, node starting values, as well as the script for the `nextStep` function, all the information to run the simulation is available. The simulation will run until the system reaches stability, unless one of the exceptions listed above occurs.
 
 To quickly inspect the outcome of a simulation, the `fastPlot` function can be called as below. As the genotypeDef and nodestartDef data frames in our model folder only contain the baseline condition, the system is already at stability, and therefore the plot shows no change. Note that in the plot below that the node values have been log transformed. The `fastPlot` function has an argument `logTransform` which by default is set to     `TRUE`. This transformation makes it easier to discern the releative differences for positive and negative changes in the system. If you would like to see the true node values, set this argument to `FALSE`. This function is useful to make a quick diagnosis of the system. To make high quality plots, use existing R plotting tools.
 
@@ -180,17 +184,25 @@ save(genotypeDef, file = paste0(folder, "/genotypeDef.RData"))
 
 ***
 > **NOTE: Using Excel to define your experimental conditons**
-
+>
 > In the case that you are uncomfortable interacting with a data.frame via R, you can export the data.frame as a csv object. Once you are happy with the conditions that you want to simulate, you must convert your csv object back into a data.frame, and save it as demonstrated above. **Keep in mind that you must not modify the column names!**
 
-***
+> First create an Excel readable file from the genotypeDef object in order to preserve the original column names:
 
-```{r}
+```{r, eval=FALSE}
 # create a file that can be opened in Excel
-write.csv(genotypeDef, row.names = F, file = paste0(folder, "/genotypeDef.csv"))
+library("xlsx") # install if you do not have this package
+write.xlsx(genotypeDef, row.names = F, file = paste0(folder, "/genotypeDef.xlsx"))
 ```
 
+> In Excel, add a row of 1s for every condition that you want to test. Then modify values to corespond to the conditions that you want to test, with each row representing one 'experimental condition'. Leave the first row as 1s. Once you are happy with the simulations that you want to run, save your Excel file. You will need to load the updated Excel file in to R, so that you can save is as an R data.frame.
 
+```{r, eval=FALSE}
+# create a file that can be opened in Excel
+genotypeDef <- read.xlsx(file = paste0(folder, "/genotypeDef.xlsx"), sheetIndex = 1)
+save(genotypeDef, file = paste0(folder, "/genotypeDef.RData"))
+```
+***
 
 In the case that you want to do an exhaustive search, the `genotypeScreen` is useful for automating the construction of the appropriate data frames. The output of this function will automatically overwrite the genotypeDef object in your folder, so you will not need to explicitly save your genotypeDef object if you use this function.
 
@@ -224,9 +236,12 @@ nodestartDef
 
 ### Adding an exogenous supply to a system
 
-In addition to being able to modify the genes and node values of the system, it is also possible to supply an external source to a node. This external supply is constantly given throughout the course of the simulation, with the amount added at each timepoint to the native value in the simulation. An exogenous supply for a node can be specified by providing a named vector, or data frame to the `exogenousSupply` argument in the `simulateNetwork` function. Where the name of the vector or columns correspond to a node in the network (only nodes for which an exogenous supply will be provided should be included). If giving an exogenous supply to a series of simulations, an exogenousDef object will need to be generated and saved in the Model folder. Once this has been done, when calling the `setupSims` function, the `exogenousSupply` argument must be set to TRUE.
+In addition to being able to modify the genes and node values of the system, it is also possible to supply an external source to a node. This external supply is constantly given throughout the course of the simulation, with the amount added at each step to the native value in the simulation. An exogenous supply for a node can be specified by providing a data frame to the `exogenousSupply` argument in the `simulateNetwork` function. Where the name of columns correspond to a node in the network (only nodes for which an exogenous supply will be provided should be included). If giving an exogenous supply to a series of simulations, an exogenousDef object will need to be generated and saved in the Model folder. Once this has been done, when calling the `setupSims` function, the `exogenousSupply` argument must be set to TRUE if you would like to include an exogenousSupply.
 
-It is possible to quickly set up a two dimensional screen of exogenous treatments to the system by using the `exogenousScreen` function.
+***
+> **NOTE: Using Excel to define your experimental conditons**
+>
+> It is possible to quickly set up a full screen of two exogenous treatments to the system by using the `exogenousScreen` function.
 
 ```{r eval=FALSE}
 exogenousScreen(c("Strigolactone_S", "Cytokinin_R"), 
@@ -242,10 +257,11 @@ exogenousDef
 load(paste0(folder2, "/exogenousDef.RData"))
 exogenousDef
 ```
+***
 
 ### Set up a screen of priors from a distribution
 
-There is one more useful function when it comes to setting up a set of conditions to be simulated. The function `modifierPriorScreen` is designed to generate a data frame containing modifier values that have been pulled from a prior distribution of values. As of now, only a log normal distribution can be used, but more distributions may be added in the future. The argument `priorDistribution` is automatically set to `"rlnorm"` which indicates that all modifier values should be pulled from a log normal distribution. It is possible to instead provide a vector named after the modifiers. In this case you can indicate if certain nodes should maintain a particular value, while others have values pulled from a distribution. You can choose the number of experimental conditions with generated modifier values with the argument `n`. Note that the data frame produced from this function is called `priorDef` rather than `genotypeDef`. This is to recognise that use of the `modifierPriorScreen` function is associated with running a robustness check on the topology of the network.
+There is one more useful function when it comes to setting up a set of conditions to be simulated. The function `modifierPriorScreen` is designed to generate a data frame containing modifier values that have been pulled from a prior distribution of values. As of now, either a log normal distribution, or a uniform distribution can be used. The argument `priorDistribution` is automatically set to `"logNormal"` which indicates that all modifier values should be pulled from a log normal distribution. This must be changed to `"uniform"` for a uniform distribution. 
 
 ```{r eval=FALSE}
 modifierPriorScreen(folder, n = 5)
@@ -259,7 +275,31 @@ load(paste0(folder2, "/priorDef.RData"))
 priorDef
 ```
 
-You should view the model folder that you generate to run simulations as a record. You can generate a variety of different screens, not all of which you need to explore at the same time. When generating screens of parameter values, those screens can be saved in the folder for record keeping. They can also be accessed by simulation functions so that they do not need to be passed to the function manually.
+It is possible to instead provide a vector named after the modifiers. In this case you can indicate if certain nodes should maintain a particular value, while others have values pulled from a distribution. You can choose the number of experimental conditions with generated modifier values with the argument `n`. Note that the data frame produced from this function is called `priorDef` rather than `genotypeDef`. This is to reflect that use of the `modifierPriorScreen` function is associated with running a robustness check on the topology of the network, rather than testing particular scenarios.
+
+```{r}
+# establish a vector to hold either values or a type of prior
+screen = rep(1, ncol(genotypeDef)) # at first all values are 1
+names(screen) <- colnames(genotypeDef)
+
+# amend values as desired
+screen['RMS1_R'] <- 'uniform'
+screen['RMS5_R'] <- 'logNormal'
+screen['RMS5_S'] <- 2
+
+screen
+```
+
+```{r, eval=FALSE}
+modifierPriorScreen(folder, n=5, priorDistribution = screen)
+
+load(paste0(folder, "/priorDef.RData"))
+priorDef
+```
+
+```{r, echo=FALSE}
+modifierPriorScreen("~/Desktop/PersonalPackages/HormoneModel/PSoup/vignettes/Model1", savePriors = FALSE, n=5, priorDistribution = screen)
+```
 
 ## Executing a simulation screen
 

@@ -644,7 +644,7 @@ tidyScreen <- function(frame, name, exogenous = FALSE) {
 #' @param n the number of simulations for which a set of priors will be generated.
 #' @param returnVals logical. If the output should be returned to the user.
 #' @param minVal default set to 0. The minimum starting value for a node.
-#' @param maxVal default set to NULL. The maximum starting value for a node.
+#' @param maxVal default set to 2. The maximum starting value for a node.
 #' @importFrom stats rlnorm
 #' @export
 
@@ -653,7 +653,7 @@ modifierPriorScreen <- function(folder,
                                 n,
                                 returnVals =FALSE,
                                 minVal = 0,
-                                maxVal = NULL,
+                                maxVal = 2,
                                 savePriors = T) {
   # checking user inputs
   if ("uniform" %in% priorDistribution & minVal < 0) {
@@ -704,7 +704,7 @@ modifierPriorScreen <- function(folder,
 
   if (savePriors == TRUE) save(priorDef, file = paste0(folder, "/priorDef.RData"))
 
-  if (returnVals == TRUE) return(priorDef)
+  if (savePriors == FALSE) return(priorDef)
 }
 
 

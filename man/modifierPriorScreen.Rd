@@ -11,7 +11,7 @@ modifierPriorScreen(
   n,
   returnVals = FALSE,
   minVal = 0,
-  maxVal = NULL,
+  maxVal = 2,
   savePriors = T
 )
 }
@@ -35,7 +35,7 @@ maxVal arguments.}
 
 \item{minVal}{default set to 0. The minimum starting value for a node.}
 
-\item{maxVal}{default set to NULL. The maximum starting value for a node.}
+\item{maxVal}{default set to 2. The maximum starting value for a node.}
 }
 \description{
 A function to generate a screen of modifier conditions based on a set of
