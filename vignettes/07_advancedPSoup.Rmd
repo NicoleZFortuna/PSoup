@@ -21,3 +21,45 @@ library(PSoup)
 ## The nextStep file
 
 In addition, it provides an opportunity for the user to modify the equations if they wish to do so. This is a potentially a dangerous thing to attempt as it is possible to introduce errors or bugs into the simulations. If the user decides to modify the code, they will be responsible for creating usable functions. In addition, the user should be wary that by modifying the code, that they may be creating runaway dynamics that cause simulations to never reach stability. Even if this is the case, the `maxStep` argument will prevent the simulation from running for infinitely. An additional fail safe, is that if any of the nodes reaches infinity (`Inf`), the simulation will be terminated and an error generated to inform the user.
+
+### Set up a screen of priors from a distribution
+
+There is one more useful function when it comes to setting up a set of conditions to be simulated. The function `modifierPriorScreen` is designed to generate a data frame containing modifier values that have been pulled from a prior distribution of values. As of now, either a log normal distribution, or a uniform distribution can be used. The argument `priorDistribution` is automatically set to `"logNormal"` which indicates that all modifier values should be pulled from a log normal distribution. This must be changed to `"uniform"` for a uniform distribution. 
+
+```{r eval=FALSE}
+modifierPriorScreen(folder, n = 5)
+
+load(paste0(folder, "/priorDef.RData"))
+priorDef
+```
+
+```{r echo=FALSE}
+load(paste0(folder2, "/priorDef.RData"))
+priorDef
+```
+
+It is possible to instead provide a vector named after the modifiers. In this case you can indicate if certain nodes should maintain a particular value, while others have values pulled from a distribution. You can choose the number of experimental conditions with generated modifier values with the argument `n`. Note that the data frame produced from this function is called `priorDef` rather than `genotypeDef`. This is to reflect that use of the `modifierPriorScreen` function is associated with running a robustness check on the topology of the network, rather than testing particular scenarios.
+
+```{r}
+# establish a vector to hold either values or a type of prior
+screen = rep(1, ncol(genotypeDef)) # at first all values are 1
+names(screen) <- colnames(genotypeDef)
+
+# amend values as desired
+screen['RMS1_R'] <- 'uniform'
+screen['RMS5_R'] <- 'logNormal'
+screen['RMS5_S'] <- 2
+
+screen
+```
+
+```{r, eval=FALSE}
+modifierPriorScreen(folder, n=5, priorDistribution = screen)
+
+load(paste0(folder, "/priorDef.RData"))
+priorDef
+```
+
+```{r, echo=FALSE}
+modifierPriorScreen("~/Desktop/PersonalPackages/HormoneModel/PSoup/vignettes/Model1", savePriors = FALSE, n=5, priorDistribution = screen)
+```

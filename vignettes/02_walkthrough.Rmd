@@ -142,8 +142,8 @@ If there are a few specific conditions that you want to test, you can simply add
 The code block below creates a 2nd and 3rd row, and assigns the value 1 to all available locations. When identifying a particular location in a data.frame like your genotypeDef object you can use square brackets to identify the rows and columns (`frameName[rows, columns]`). You can use this syntax even to expand the data.frame outside of its original scope like below.
 
 ```{r}
-# add additional rows filled with the baseline value one
-genotypeDef[2:3, ] <- 1 # 2:4 is equivalent to c(2, 3)
+# add additional rows filled with the baseline value 1
+genotypeDef[2:3, ] <- 1 # 2:3 is equivalent to c(2, 3). The empty column space indicates that all columns are selected
 
 genotypeDef
 ```
@@ -156,12 +156,12 @@ genotypeDef[2, 2] <- 0 # changing the value of the 2nd row, 2nd column to 0
 
 genotypeDef
 ```
-Another method is to specify the column that you want to change using $, and then just indicating the row index
+Another method is to specify the column that you want to change using `frameName$columnName`, and then just indicating the row index
 
 ```{r}
 # specify mutant conditions in the additional rows
-genotypeDef$RMS1_R[3] <- 0 # changing the value of the 3nd row, 'RMS1_R' column to 0
-genotypeDef$RMS1_S[3] <- 0 # changing the value of the 3nd row, 'RMS1_S' column to 0
+genotypeDef$RMS1_R[3] <- 0 # changing the value of the 'RMS1_R' column, 3rd index to 0
+genotypeDef$RMS1_S[3] <- 0 # changing the value of the 'RMS1_S' column, 3rd index to 0
 
 genotypeDef
 ```
@@ -178,16 +178,16 @@ genotypeDef
 In the example above, the second row represents an 'experimental' condition where the function of RMS2 in the scion (shoot) has been knocked out. The third row represents a condition where the function of RMS1 has been reduced to half of its capacity in both the root, and the scion. Once you have generated the specific experimental conditions that you want to test, you must save the `genotypeDef` object back into your model folder.
 
 ```{r, eval=FALSE}
-# save modified genotypeDef object so that it can be used 
+# save modified genotypeDef object so that it can be used for simulations
 save(genotypeDef, file = paste0(folder, "/genotypeDef.RData"))
 ```
 
+<details>
+<summary>**NOTE: Using Excel to define your experimental conditons**</summary>
 ***
-> **NOTE: Using Excel to define your experimental conditons**
->
-> In the case that you are uncomfortable interacting with a data.frame via R, you can export the data.frame as a csv object. Once you are happy with the conditions that you want to simulate, you must convert your csv object back into a data.frame, and save it as demonstrated above. **Keep in mind that you must not modify the column names!**
+In the case that you are uncomfortable interacting with a data frame via R, you can export the data frame as an excel. Once you are happy with the conditions that you want to simulate, you must convert your xlsx object back into a data frame, and save it. **Keep in mind that you must not modify the column names!**
 
-> First create an Excel readable file from the genotypeDef object in order to preserve the original column names:
+First create an Excel readable file from the genotypeDef object in order to preserve the original column names:
 
 ```{r, eval=FALSE}
 # create a file that can be opened in Excel
@@ -195,16 +195,22 @@ library("xlsx") # install if you do not have this package
 write.xlsx(genotypeDef, row.names = F, file = paste0(folder, "/genotypeDef.xlsx"))
 ```
 
-> In Excel, add a row of 1s for every condition that you want to test. Then modify values to corespond to the conditions that you want to test, with each row representing one 'experimental condition'. Leave the first row as 1s. Once you are happy with the simulations that you want to run, save your Excel file. You will need to load the updated Excel file in to R, so that you can save is as an R data.frame.
+In Excel, add a row of 1s for every condition that you want to test. Then modify values to correspond to the conditions that you want to test, with each row representing one 'experimental condition'. Leave the first row as 1s. Once you are happy with the simulations that you want to run, save your Excel file. You will need to load the updated Excel file in to R, so that you can save is as an R data frame (overwriting the original file created by buildModel).
 
 ```{r, eval=FALSE}
 # create a file that can be opened in Excel
 genotypeDef <- read.xlsx(file = paste0(folder, "/genotypeDef.xlsx"), sheetIndex = 1)
 save(genotypeDef, file = paste0(folder, "/genotypeDef.RData"))
 ```
-***
 
-In the case that you want to do an exhaustive search, the `genotypeScreen` is useful for automating the construction of the appropriate data frames. The output of this function will automatically overwrite the genotypeDef object in your folder, so you will not need to explicitly save your genotypeDef object if you use this function.
+This same process can be applied to any of the files that PSoup used to define simulations to be run.
+
+***
+</details>
+
+In the case that you want to do an exhaustive search of specifically knockout mutations, the `genotypeScreen` function is useful for automating the construction of the appropriate data frames. The output of this function will automatically overwrite the genotypeDef object in your folder, so you will not need to explicitly save your genotypeDef object if you use this function.
+
+The default behaviour of this function will create a knockout mutation for each of the genes (modifiers) in the system, one at a time (regardless of if they appear in multiple compartments). 
 
 ```{r eval=FALSE}
 genotypeScreen(folder)
@@ -218,8 +224,8 @@ load(paste0(folder2, "/genotypeDef.RData"))
 genotypeDef 
 ```
 
-The `genotypeScreen` function will generate a data frame with combinations of up to however many mutations that you would like to explore, including the genotype expression values that you would like to use for your mutations. In the case that a gene is attached to multiple nodes in different compartments, you can choose whether to have differential expression in the different compartments. The default condition `graft = FALSE` indicates that all nodes modified by the same gene should be modified identically. To allow for differential expression in different compartments of the system, specify `graft = TRUE`. <span style="color:blue;">You can also specify if you would like for the function to output an excel file in addition to the data. The excel file will be empty, but will have row and column names that correspond to the generated data frame. This file can be filed with values that have been derived from the literature for the purpose of validating your model. You do not need to fill every value, as only the provided information will be used to validate the simulated data.</span>
-
+The `genotypeScreen` function can generate a data frame with combinations of up to however many mutations that you would like to explore, including the genotype expression values that you would like to use for your mutations. In the case that a gene is attached to multiple nodes in different compartments, you can choose whether to have differential expression in the different compartments. The default condition `graft = FALSE` indicates that all nodes modified by the same gene should be modified identically. To allow for differential expression in different compartments of the system, include the argument `graft = TRUE` (eg `genotypeScreen(folder, graft = TRUE) )`.
+ 
 The sister function to `genotypeScreen` is `randomStartScreen`. This function will generate a data frame corresponding to the nodes of the network, with values indicating the value of the node at the start of the simulation. To use this function, you must provide the model folder path, as well as the number of restart values that you want to generate. In addition you can also indicate what the maximum and minimum values that you want for nodes. The default minimum is set to 0, while the default maximum value is 2. This function will pull values from a uniform distribution bound by these values.
 
 ```{r eval=FALSE}
@@ -234,14 +240,30 @@ load(paste0(folder2, "/nodestartDef.RData"))
 nodestartDef 
 ```
 
+The `modifierPriorScreen` function allows you to do something similar for defining modifier values. You can learn about this function in the 'Advanced PSoup' article. `modifierPriorScreen` allows for flexibility in defining the distributions of modifier values. This functionality was designed with the idea of being able to test the robustness of the network structure and so has not been included in this walk through.
+
 ### Adding an exogenous supply to a system
 
-In addition to being able to modify the genes and node values of the system, it is also possible to supply an external source to a node. This external supply is constantly given throughout the course of the simulation, with the amount added at each step to the native value in the simulation. An exogenous supply for a node can be specified by providing a data frame to the `exogenousSupply` argument in the `simulateNetwork` function. Where the name of columns correspond to a node in the network (only nodes for which an exogenous supply will be provided should be included). If giving an exogenous supply to a series of simulations, an exogenousDef object will need to be generated and saved in the Model folder. Once this has been done, when calling the `setupSims` function, the `exogenousSupply` argument must be set to TRUE if you would like to include an exogenousSupply.
+In addition to being able to modify the genes and node values of the system, it is also possible to supply an external source to a node. This external supply is constantly given throughout the course of the simulation, with the amount added at each step to the native value in the simulation. An exogenous supply for a node can be specified by providing a data frame to the `exogenousSupply` argument in the `simulateNetwork` function. Where the name of columns correspond to a node in the network (only nodes for which an exogenous supply will be provided need be included). If giving an exogenous supply to a series of simulations, an exogenousDef object will need to be generated and saved in the Model folder. Once this has been done, when calling the `setupSims` function, the `exogenousSupply` argument must be set to TRUE if you would like to include an exogenousSupply.
 
+There does not exist an automatic way to create the exogenousDef object. You can either define the object yourself, or you can 'cheat' by using the `nodestartDef` object to quickly initiate an object that you can manipulate into an `exogenousDef` object. This can be done because both the `exogenousDef` and `nodestartDef` objects are defining values that relate to nodes, and therefore their column names are defined in the same way. **NOTE that the 'exogenousDef' object defines how much will be supplied to each node, therefore 0 means nothing will be added.**.
+
+```{r}
+# assign the first row of the nodestartDef to exogenousDef
+exogenousDef <- nodestartDef[1, ]
+
+# assign the value 0 to all locations
+exogenousDef[1, ] <- 0
+
+exogenousDef
+```
+
+From this starting `exogenousDef` object, you can add rows to define different conditions to be simulated. Specific values can be modified in the same way as was described above for the genotypeDef object.
+
+<details>
+<summary>**NOTE: Creating a screen of exogenous supply conditions**</summary>
 ***
-> **NOTE: Using Excel to define your experimental conditons**
->
-> It is possible to quickly set up a full screen of two exogenous treatments to the system by using the `exogenousScreen` function.
+It is possible to quickly set up a full screen of two exogenous treatments to the system by using the `exogenousScreen` function.
 
 ```{r eval=FALSE}
 exogenousScreen(c("Strigolactone_S", "Cytokinin_R"), 
@@ -258,48 +280,7 @@ load(paste0(folder2, "/exogenousDef.RData"))
 exogenousDef
 ```
 ***
-
-### Set up a screen of priors from a distribution
-
-There is one more useful function when it comes to setting up a set of conditions to be simulated. The function `modifierPriorScreen` is designed to generate a data frame containing modifier values that have been pulled from a prior distribution of values. As of now, either a log normal distribution, or a uniform distribution can be used. The argument `priorDistribution` is automatically set to `"logNormal"` which indicates that all modifier values should be pulled from a log normal distribution. This must be changed to `"uniform"` for a uniform distribution. 
-
-```{r eval=FALSE}
-modifierPriorScreen(folder, n = 5)
-
-load(paste0(folder, "/priorDef.RData"))
-priorDef
-```
-
-```{r echo=FALSE}
-load(paste0(folder2, "/priorDef.RData"))
-priorDef
-```
-
-It is possible to instead provide a vector named after the modifiers. In this case you can indicate if certain nodes should maintain a particular value, while others have values pulled from a distribution. You can choose the number of experimental conditions with generated modifier values with the argument `n`. Note that the data frame produced from this function is called `priorDef` rather than `genotypeDef`. This is to reflect that use of the `modifierPriorScreen` function is associated with running a robustness check on the topology of the network, rather than testing particular scenarios.
-
-```{r}
-# establish a vector to hold either values or a type of prior
-screen = rep(1, ncol(genotypeDef)) # at first all values are 1
-names(screen) <- colnames(genotypeDef)
-
-# amend values as desired
-screen['RMS1_R'] <- 'uniform'
-screen['RMS5_R'] <- 'logNormal'
-screen['RMS5_S'] <- 2
-
-screen
-```
-
-```{r, eval=FALSE}
-modifierPriorScreen(folder, n=5, priorDistribution = screen)
-
-load(paste0(folder, "/priorDef.RData"))
-priorDef
-```
-
-```{r, echo=FALSE}
-modifierPriorScreen("~/Desktop/PersonalPackages/HormoneModel/PSoup/vignettes/Model1", savePriors = FALSE, n=5, priorDistribution = screen)
-```
+</details>
 
 ## Executing a simulation screen
 
@@ -311,15 +292,17 @@ There are a number of arguments that can be used to specify the types of screens
 | - | ---- |
 | exogenousSupply | Specifies if the `exogenousDef.RData` object should be imported in order to explore how the exogenous supply of resources affect the functioning of the network. |
 | priorScreen | Specifies if the `priorDef.RData` should be imported in place of the `genotypeDef.RData` in order to explore how modifiers influence the functioning of the system when drawn from a prior distribution. |
-| robustnessTest | Indicates if the simulation being conducted is exploring the behaviour of neighboring network configurations. |
+| robustnessTest | Indicates if the simulation being conducted is exploring the behaviour of neighboring network configurations. The consequences of this argument can be found in the 'Advanced PSoup' article. |
 | genotypeBaseline | Specifies if only the baseline condition for modifiers should be explored regardless of the number of rows contained in the `genotypeDef` object. |
 | nodestartBaseline | Specifies if only the baseline condition for starting node values should be explored regardless of the number of rows contained in the `nodestartDef` object. |
+| saveOutput | Indicates if the simulation output should be saved in the Model folder automatically. |
+| combinatorial | In the case that multiple simulation condition objects are being explored, this states if every combination of conditions will be explored. If set to FALSE, every condition object will need to have the same number of rows (unless only the baseline condition is listed). In this instance, only corresponding rows will be simulated together. |
 
-As a consequence of the above argument defaults, the default simulation is to explore every combination or rows contained in the `genotypeDef` and `nodestartDef` objects. From there, the choice can be made to also explore every combination of exogenously supplied resource as well, or to replace the curated `genotypeDef` object with the randomly generated `priorDef` object. Given what the user wants to explore at the time the `genotypeDef` and `nodestartDef` objects can be restricted to the first (baseline) row.
+I know this looks very confusing, but we will go through some examples of how this works. 
 
-The `robustnessTest` argument is something that can be explored only if a series of neighboring networks have been generated. Neighboring networks can be produced using the `exploreEdges` function. A future tutorial will be generated to explore why and how to test the robustness of the network.
+As a consequence of the above argument defaults, the base simulation is to explore every combination or rows contained in the `genotypeDef` and `nodestartDef` objects. From there, the choice can be made to also explore every combination of exogenously supplied resource as well, or to replace the curated `genotypeDef` object with the randomly generated `priorDef` object. Given what the user wants to explore at the time, the `genotypeDef` and `nodestartDef` objects can be restricted to only the first (baseline) row being considered.
 
-For the chosen combination of screens, the default behavior of PSoup is to simulate every combination of scenarios from each screen. However, if the user wants to run a defined set of simulations, this is possible by setting the following argument; `combinatorial = FALSE`. In this case, it is necessary for any screen that is not only expressing a single condition to have the same number of rows as the same index will be used to cycle through all screens. Therefore, each row in an explored screen will only be simulated agains the equivalent rows in all other explored screens. 
+For the chosen combination of condition objects (eg genotypeDef/nodestartDef objects), the default behavior of PSoup is to simulate every combination of scenarios from each object. However, if the user wants to run a defined set of simulations, this is possible by setting the following argument; `combinatorial = FALSE`. In this case, it is necessary for any screen that is not only expressing a single condition to have the same number of rows as the same index will be used to cycle through all screens. Therefore, each row in an explored screen will only be simulated against the equivalent rows in all other explored screens. 
 
 We can start by exploring the behaviour of the modifying genotype (modifier) values according to the screen that we automatically generated above.
 
@@ -331,6 +314,29 @@ load(paste0(folder, "/genotypeDef_Sims.RData"))
 ```{r echo = FALSE}
 load(paste0(folder2, "/genotypeDef_Sims.RData"))
 ```
+
+Loading the file makes available an `output` object which contains all simulations that were performed, including any relevant information regarding the conditions under which the simulation was conducted.
+
+```{r}
+# quickly check the types of information contained within the output
+summary(output)
+```
+
+To see the location of where the simulations were saved you can call `output$modelFolder`. This will return the path directory.
+
+To see general parameters that have been applied to all siimulations, you can inspect the parameters. This will tell you how much delay was applied if you used one, and what the maxStep value was.
+
+```{r}
+output$parameters
+```
+
+The more interesting item to inspect is the screen. From the summary we can see that it contains 6 lists. These are the 6 simulations that we ran. Each simulation can be accessed by using the double brackets (`[[index]]`).
+
+```{r}
+# inspecting the first simulation object
+output$screen[[1]]
+```
+
 
 Lets quickly inspect the outcome of one of these simulations:
 
