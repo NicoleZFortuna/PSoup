@@ -208,10 +208,66 @@ stabilityVector <- function(allSim) {
   } else if (all(!stableSims)) {
     print("All simulations failed to reached stability.")
   } else {
-    print(paste0("The following simulations did not reach stability: ", paste0(which(stableSims == F), collapse = ", ")))
+    print(paste0("The following simulations did not reach stability: ",
+                 paste0(which(stableSims == F), collapse = ", ")))
   }
 
   return(stableSims)
+}
+
+#' A function to report any deviation from the baseline for simulations
+#'
+#' @param sims either the full output list returned by setupSims, in which case
+#'             the deviations of the full simulations will be returned.
+#'             Otherwise, if only a single simulation is provided (in the form
+#'             output$screen[[index]]), the deviation of that specific simulation
+#'             condition will be returned.
+#' @param returnName logical. Default set to FALSE. Returns a vector of string
+#'             names for the conditions if set to TRUE.
+#' @export
+reportCondition <- function(sims, returnName = FALSE) {
+
+  getPerturbation <- function(x) {
+    gen <- x$scenario$genotype[which(x$scenario$genotype != 1)]
+    if (dim(gen)[2] == 0) gen <- NULL
+
+    nod <- x$scenario$startingValues[which(x$scenario$startingValues != 1)]
+    if (dim(nod)[2] == 0) nod <- NULL
+
+    exo <- x$scenario$exogenousSupply[which(x$scenario$exogenousSupply != 1)]
+    if (!is.null(exo)) {if (dim(exo)[2] == 0) exo <- NULL}
+
+    return(list(genotype = gen, startingValues = nod, exogenousSupply = exo))
+  }
+
+  if ("scenario" %in% names(sims)) {
+    pertub <- getPerturbation(sims)
+  } else {
+    pertub <- lapply(sims$screen,
+                     FUN = function(x) getPerturbation(x))
+  }
+
+  if (returnName == T) {
+    makeName <- function(x) {
+      gen = paste(names(x$genotype), x$genotype, sep = "-", collapse = ".")
+      nod = paste(names(x$startingValues), x$startingValues, sep = "-", collapse = ".")
+      exo = paste(names(x$exogenousSupply), x$exogenousSupply, sep = "-", collapse = ".")
+
+      return(paste(gen, nod, exo, collapse = ", "))
+    }
+
+    if ("scenario" %in% names(sims)) {
+      condName <- makeName(pertub)
+    } else {
+      condName <- lapply(pertub,
+                       FUN = function(x) makeName(x))
+    }
+
+    return(list(conditionReport = pertub, conditionName = condName))
+  } else {
+    return(pertub)
+  }
+
 }
 
 # validityCheck

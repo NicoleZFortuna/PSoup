@@ -44,6 +44,11 @@
 #'               allows the user to keep the generated alternate nextStep function
 #'               with a specific name. If no name is provided, the alternate
 #'               nextStep functions will be names nextStepAlt.R.
+#' @param reduceSize logical. Default set to FALSE. This argument is used to
+#'               minimise the size of simulation output. If set to TRUE, only
+#'               the final values of the simulation will be returned if the
+#'               simulation reached stability. If the simulation was not able to
+#'               reach stability, the full output of the simulation will be returned.
 #' @export
 
 simulateNetwork <- function(folder,
@@ -55,7 +60,8 @@ simulateNetwork <- function(folder,
                             exogenousSupply = FALSE,
                             necStimThreshold = NULL,
                             robustnessTest = FALSE,
-                            altTopologyName = NULL) {
+                            altTopologyName = NULL,
+                            reduceSize = FALSE) {
   # Checking if a meaningful delay has been provided
   if (delay == 1) {
     warning("You have selected a delay of 1 which is functionaly equivalent to
@@ -129,7 +135,12 @@ simulateNetwork <- function(folder,
 
     # If reached steady state, return simDat
     if(all(round(simDat[row,], steadyThreshold) == round(simDat[row - 1,], steadyThreshold))) {
-      simDat = simDat[delay:row, ]
+      if (reduceSize == TRUE) {
+        simDat = simDat[row, ]
+      } else {
+        simDat = simDat[delay:row, ]
+      }
+
       return(list(simulation = simDat, stable = TRUE))
     }
 
@@ -224,6 +235,11 @@ simulateNetwork <- function(folder,
 #' @param preventDrop logical. Allows the user to override setupSims dropping
 #'               any repeated conditions. This will also prevent reorganisation
 #'               of conditions for clarity. Default is set to FALSE.
+#' @param reduceSize logical. Default set to FALSE. This argument is used to
+#'               minimise the size of simulation output. If set to TRUE, only
+#'               the final values of the simulation will be returned if the
+#'               simulation reached stability. If the simulation was not able to
+#'               reach stability, the full output of the simulation will be returned.
 #' @importFrom stats runif
 #' @export
 
@@ -240,7 +256,8 @@ setupSims <- function(folder,
                       altTopologyName = NULL,
                       saveOutput = TRUE,
                       combinatorial = TRUE,
-                      preventDrop = FALSE) {
+                      preventDrop = FALSE,
+                      reduceSize = FALSE) {
   # loading parameter values
   if (priorScreen == TRUE) {
     if (!file.exists(paste0(folder, "/priorDef.RData"))) {
@@ -377,7 +394,8 @@ setupSims <- function(folder,
                                      startingValues = nodestartDef[d, ],
                                      exogenousSupply = exogenousCondition,
                                      robustnessTest = robustnessTest,
-                                     altTopologyName = altTopologyName)
+                                     altTopologyName = altTopologyName,
+                                     reduceSize = reduceSize)
 
         sims[[i]] <- list(scenario = list(genotype = genotypeDef[g, ],
                                           startingValues = nodestartDef[d, ],

@@ -19,7 +19,8 @@ setupSims(
   altTopologyName = NULL,
   saveOutput = TRUE,
   combinatorial = TRUE,
-  preventDrop = FALSE
+  preventDrop = FALSE,
+  reduceSize = FALSE
 )
 }
 \arguments{
@@ -95,6 +96,12 @@ appropriate control conditions exist.}
 \item{preventDrop}{logical. Allows the user to override setupSims dropping
 any repeated conditions. This will also prevent reorganisation
 of conditions for clarity. Default is set to FALSE.}
+
+\item{reduceSize}{logical. Default set to FALSE. This argument is used to
+minimise the size of simulation output. If set to TRUE, only
+the final values of the simulation will be returned if the
+simulation reached stability. If the simulation was not able to
+reach stability, the full output of the simulation will be returned.}
 }
 \description{
 This function allows you to set up a variety of genotype and starting node

@@ -14,7 +14,8 @@ simulateNetwork(
   exogenousSupply = FALSE,
   necStimThreshold = NULL,
   robustnessTest = FALSE,
-  altTopologyName = NULL
+  altTopologyName = NULL,
+  reduceSize = FALSE
 )
 }
 \arguments{
@@ -64,6 +65,12 @@ function being used is part of a network robustness check.}
 allows the user to keep the generated alternate nextStep function
 with a specific name. If no name is provided, the alternate
 nextStep functions will be names nextStepAlt.R.}
+
+\item{reduceSize}{logical. Default set to FALSE. This argument is used to
+minimise the size of simulation output. If set to TRUE, only
+the final values of the simulation will be returned if the
+simulation reached stability. If the simulation was not able to
+reach stability, the full output of the simulation will be returned.}
 }
 \description{
 Takes the output folder of the buildNetwork function and uses it to run a

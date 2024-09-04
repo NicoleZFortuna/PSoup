@@ -304,6 +304,8 @@ As a consequence of the above argument defaults, the base simulation is to explo
 
 For the chosen combination of condition objects (eg genotypeDef/nodestartDef objects), the default behavior of PSoup is to simulate every combination of scenarios from each object. However, if the user wants to run a defined set of simulations, this is possible by setting the following argument; `combinatorial = FALSE`. In this case, it is necessary for any screen that is not only expressing a single condition to have the same number of rows as the same index will be used to cycle through all screens. Therefore, each row in an explored screen will only be simulated against the equivalent rows in all other explored screens. 
 
+### Only exploring the influence of modifiers
+
 We can start by exploring the behaviour of the modifying genotype (modifier) values according to the screen that we automatically generated above.
 
 ```{r eval = FALSE}
@@ -324,7 +326,7 @@ summary(output)
 
 To see the location of where the simulations were saved you can call `output$modelFolder`. This will return the path directory.
 
-To see general parameters that have been applied to all siimulations, you can inspect the parameters. This will tell you how much delay was applied if you used one, and what the maxStep value was.
+To see general parameters that have been applied to all simulations, you can inspect the parameters. This will tell you how much delay was applied if you used one, and what the maxStep value was.
 
 ```{r}
 output$parameters
@@ -333,16 +335,67 @@ output$parameters
 The more interesting item to inspect is the screen. From the summary we can see that it contains 6 lists. These are the 6 simulations that we ran. Each simulation can be accessed by using the double brackets (`[[index]]`).
 
 ```{r}
-# inspecting the first simulation object
-output$screen[[1]]
+# quickly check the types of information contained within the first simulation object
+summary(output$screen[[1]])
 ```
 
+You can see that a particuler simulation object contains three types of information. It contains the scenario used to run the simulation, the simulation itself, and a value which indicates if the simulation achieved stability before the maxStep value was reached.
 
-Lets quickly inspect the outcome of one of these simulations:
+The scenario information tells you the genotype (modifier), the starting node values, and what has been exogenously supplied (if there was an exogenous supply).
+
+```{r}
+output$screen[[1]]$scenario
+```
+
+The simulation information will show the through time calculations of the node values, which in this case will not have changed as the first simulation represents the baseline condition without perturbations.
+
+```{r}
+output$screen[[1]]$simulation
+```
+
+Finally, the stable value is useful for seeing if stability had been achieved without manually checking. In the baseline case, stability will always be achieved, as the simulation starts off as stable.
+
+```{r}
+output$screen[[1]]$stable
+```
+
+It is possible to quickly check all of the simulation in an output object at once to see if any of them did not achieve stability. In this case, all simulations reached stability.
+
+```{r}
+# return a vector indicating if each simulation managed to reach stability
+stabilityVector(output)
+```
+
+So far, we have only looked at the baseline conditon as the output is much smaller. But we can use the above to inspect any of the screens within output. For these more complicated simulations, it can be nice to visually inspect what is going on. Lets quickly inspect the outcome of the last simulation:
 
 ```{r, out.width="90%", dpi=300, fig.align = 'center'}
+# use fastPlot to quickly view the progression of a simulation
 fastPlot(output$screen[[6]])
 ```
+
+As you can see in the above figure, even if the starting values of the system are different to that of the baseline, if the modifier values are held at baseline the system stabilised to the baseline condition.
+
+To see the simulation condition that was run we can call:
+
+```{r}
+output$screen[[6]]$scenario
+```
+
+This can be a bit clunky, and contains a lot of information that we do not care about. In reality, all we want to know are the values that differ from the baseline. The function `reportCondition()` can help us with this.
+
+```{r}
+reportCondition(output$screen[[6]])
+```
+
+This function can also return a string description of the condition that was run:
+
+```{r}
+reportCondition(output$screen[[6]], returnName = T)[2]
+```
+
+Depending on the number of conditions that have been modified, the string name of the condition may be unwieldy. 
+
+### Only exploring the influence of the starting node values
 
 Next we can explore the influence of the starting node values in isolation.
 
@@ -358,10 +411,18 @@ load(paste0(folder2, "/nodestartDef_Sims.RData"))
 Lets quickly inspect the outcome of one of these simulations:
 
 ```{r, out.width="90%", dpi=300, fig.align = 'center'}
+reportCondition(output$screen[[2]], returnName = T)[2]
+
 fastPlot(output$screen[[2]])
 ```
 
-As you can see in the above figure, even if the starting values of the system are different to that of the baseline, if the modifier values are held at baseline the system stabilised to the baseline condition.
+You can even use this function to provide a string description of the condition that was run.
+
+```{r}
+reportCondition(output$screen[[2]])
+```
+
+### Only exploring the influence of an exogenous supply
 
 If we want to explore the effects of providing an exogenous supply of resources in a baseline wildtype condition, we can do the following.
 
@@ -377,8 +438,12 @@ load(paste0(folder2, "/exogenousDef_Sims.RData"))
 Lets quickly inspect the outcome of one of these simulations:
 
 ```{r, out.width="90%", dpi=300, fig.align = 'center'}
+reportCondition(output$screen[[2]])
+
 fastPlot(output$screen[[2]])
 ```
+
+### Exploring modifiers pulled from a prior distribution
 
 The final screen condition is that of taking prior distributions of the modifiers, here we are keeping all other possibilities as baseline.
 
@@ -394,6 +459,8 @@ load(paste0(folder2, "/priorDef_Sims.RData"))
 Lets quickly inspect the outcome of one of these simulations:
 
 ```{r, out.width="90%", dpi=300, fig.align = 'center'}
+#reportCondition(output$screen[[2]], returnName = T)[2]
+
 fastPlot(output$screen[[2]])
 ```
 
