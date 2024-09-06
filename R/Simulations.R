@@ -416,34 +416,6 @@ setupSims <- function(folder,
 
   stopCluster(cl)
 
-  # for (i in 1:nrow(INDEX)) {
-  #   if (is.null(exogenousDef)) {
-  #     exogenousCondition <- FALSE
-  #   } else {
-  #     exogenousCondition <- exogenousDef[INDEX$ex[i], ]
-  #     if (ncol(exogenousDef) == 1) {
-  #       names(exogenousCondition) <- exNames
-  #     }
-  #   }
-  #   simulation = simulateNetwork(folder = folder,
-  #                                delay = delay,
-  #                                maxStep = maxStep,
-  #                                genotype = genotypeDef[INDEX$g[i], ],
-  #                                startingValues = nodestartDef[INDEX$d[i], ],
-  #                                exogenousSupply = exogenousCondition,
-  #                                robustnessTest = robustnessTest,
-  #                                altTopologyName = altTopologyName,
-  #                                reduceSize = reduceSize)
-  #
-  #   sims[[i]] <- list(scenario = list(genotype = genotypeDef[INDEX$g[i], ],
-  #                                     startingValues = nodestartDef[INDEX$d[i], ],
-  #                                     exogenousSupply = exogenousCondition),
-  #                     simulation = simulation$simulation,
-  #                     stable = simulation$stable)
-  #
-  #   report(i, nrow(nodestartDef))
-  # }
-
   output <- list("modelFolder" = folder,
                  "parameters" = c("maxStep" = maxStep, "delay" = delay),
                  "screen" = sims)
