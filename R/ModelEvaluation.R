@@ -222,10 +222,8 @@ stabilityVector <- function(allSim) {
 #'             Otherwise, if only a single simulation is provided (in the form
 #'             output$screen[[index]]), the deviation of that specific simulation
 #'             condition will be returned.
-#' @param returnName logical. Default set to FALSE. Returns a vector of string
-#'             names for the conditions if set to TRUE.
 #' @export
-reportCondition <- function(sims, returnName = FALSE) {
+reportCondition <- function(sims) {
 
   getPerturbation <- function(x) {
     gen <- x$scenario$genotype[which(x$scenario$genotype != 1)]
@@ -234,7 +232,7 @@ reportCondition <- function(sims, returnName = FALSE) {
     nod <- x$scenario$startingValues[which(x$scenario$startingValues != 1)]
     if (dim(nod)[2] == 0) nod <- NULL
 
-    exo <- x$scenario$exogenousSupply[which(x$scenario$exogenousSupply != 1)]
+    exo <- x$scenario$exogenousSupply[which(x$scenario$exogenousSupply != 0)]
     if (!is.null(exo)) {if (dim(exo)[2] == 0) exo <- NULL}
 
     return(list(genotype = gen, startingValues = nod, exogenousSupply = exo))
@@ -247,26 +245,28 @@ reportCondition <- function(sims, returnName = FALSE) {
                      FUN = function(x) getPerturbation(x))
   }
 
-  if (returnName == T) {
-    makeName <- function(x) {
-      gen = paste(names(x$genotype), x$genotype, sep = "-", collapse = ".")
-      nod = paste(names(x$startingValues), x$startingValues, sep = "-", collapse = ".")
-      exo = paste(names(x$exogenousSupply), x$exogenousSupply, sep = "-", collapse = ".")
+  # if (returnName == T) {
+  #   makeName <- function(x) {
+  #     gen = paste(names(x$genotype), x$genotype, sep = "-", collapse = ".")
+  #     nod = paste(names(x$startingValues), x$startingValues, sep = "-", collapse = ".")
+  #     exo = paste(names(x$exogenousSupply), x$exogenousSupply, sep = "-", collapse = ".")
+  #
+  #     return(paste(gen, nod, exo, collapse = ", "))
+  #   }
+  #
+  #   if ("scenario" %in% names(sims)) {
+  #     condName <- makeName(pertub)
+  #   } else {
+  #     condName <- lapply(pertub,
+  #                      FUN = function(x) makeName(x))
+  #   }
+  #
+  #   return(list(conditionReport = pertub, conditionName = condName))
+  # } else {
+  #   return(pertub)
+  # }
 
-      return(paste(gen, nod, exo, collapse = ", "))
-    }
-
-    if ("scenario" %in% names(sims)) {
-      condName <- makeName(pertub)
-    } else {
-      condName <- lapply(pertub,
-                       FUN = function(x) makeName(x))
-    }
-
-    return(list(conditionReport = pertub, conditionName = condName))
-  } else {
-    return(pertub)
-  }
+  return(pertub)
 
 }
 
