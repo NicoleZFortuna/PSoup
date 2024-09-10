@@ -252,7 +252,7 @@ simulateNetwork <- function(folder,
 #' @importFrom foreach foreach
 #' @importFrom parallel makeCluster
 #' @importFrom doParallel registerDoParallel
-#' @importFrom stopCluster registerDoParallel
+#' @importFrom parallel stopCluster
 #' @export
 
 setupSims <- function(folder,
@@ -742,31 +742,4 @@ report <- function(x, r) {
     i <- which(x == thresh)
     cat(paste0("\r", names(i), " of simulations are complete."))
   }
-}
-
-#' A function to parallelise replicates for simulations and return them in list form
-#' Based on the mcreplicate function of the Rethinking package by Richard McElreath.
-#'
-#' @param n number of replicates
-#' @param expr the expression to be replicates
-#' @param refresh ???
-#' @param mc.cores the number of cores across which the replicates will be split
-#' @importFrom parallel mclapply
-#' @export
-
-ParReplicate <- function (n, expr, refresh = 0.1, mc.cores = 2) {
-  show_progress <- function(i) {
-    intervaln <- floor(n * refresh)
-    if (floor(i/intervaln) == i/intervaln) {
-      cat(paste("[", i, "/", n, "]\r"))
-    }
-  }
-  result <- parallel::mclapply(1:n, eval.parent(substitute(function(i,
-                                                                    ...) {
-    if (refresh > 0) show_progress(i)
-    expr
-  })), mc.cores = mc.cores)
-  if (refresh > 0)
-    cat("\n")
-  result
 }

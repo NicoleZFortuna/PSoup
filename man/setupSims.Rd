@@ -20,7 +20,8 @@ setupSims(
   saveOutput = TRUE,
   combinatorial = TRUE,
   preventDrop = FALSE,
-  reduceSize = FALSE
+  reduceSize = FALSE,
+  nCores = 1
 )
 }
 \arguments{
@@ -102,6 +103,15 @@ minimise the size of simulation output. If set to TRUE, only
 the final values of the simulation will be returned if the
 simulation reached stability. If the simulation was not able to
 reach stability, the full output of the simulation will be returned.}
+
+\item{nCores}{the number of cores to be used to run simulations. The default
+is set to 1, in which case simulations will be run sequentially
+on a singe core. If greater than 1, simulations will be run in
+parallel across the number of cores indicated. You can check
+the number of cores on your system with the function
+detectCores() from the parallel package. It is recommended that
+the maximum number of cores that you chose is at lease one less
+than the number returned by detectCores().}
 }
 \description{
 This function allows you to set up a variety of genotype and starting node

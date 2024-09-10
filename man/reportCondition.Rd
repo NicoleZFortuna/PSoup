@@ -4,7 +4,7 @@
 \alias{reportCondition}
 \title{A function to report any deviation from the baseline for simulations}
 \usage{
-reportCondition(sims, returnName = FALSE)
+reportCondition(sims)
 }
 \arguments{
 \item{sims}{either the full output list returned by setupSims, in which case
@@ -12,9 +12,6 @@ the deviations of the full simulations will be returned.
 Otherwise, if only a single simulation is provided (in the form
 output$screen[[index]]), the deviation of that specific simulation
 condition will be returned.}
-
-\item{returnName}{logical. Default set to FALSE. Returns a vector of string
-names for the conditions if set to TRUE.}
 }
 \description{
 A function to report any deviation from the baseline for simulations
