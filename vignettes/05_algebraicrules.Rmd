@@ -29,11 +29,15 @@ SBGN-AF syntax | Algorithmic rule
 --- | -
 ![](diagramRules/stimulation.png){width=80%} | $B[t] = A[t-1]$
 ![](diagramRules/inhibition.png){width=80%} | $B[t] = \frac{2}{1 + A[t-1]}$
-![](diagramRules/necStim.png){width=80%} | $B[t] = 1*A[t-1]$
-![](diagramRules/d.png){width=80%} | $D[t] = \frac{2*A[t-1]}{1 + B[t-1]}*C[t-1]*d$
-
-Need to insert an example diagram with the corresponding equations.
-
-### Alternative algorithmic rules
+![](diagramRules/necStim.png){width=80%} | $B[t] = 1*f(A[t-1])$
+![](diagramRules/d.png){width=80%} | $D[t] = \frac{2*A[t-1]}{1 + B[t-1]}*f(C[t-1])*d$
 
 ### Modifications to the functional forms of necessary stimulants
+
+The influence of a necessary stimulant is defined by the user, which is applied as some function of the necessary stimulant (`f(necStim)`). The default function is simply linear. In this case, a necessary stimulant will behave in the same was as a modifier. Users can choose to instead use a form that is either step-like, or based on Michaelis-Menten dynamics.
+
+```{r, echo=FALSE, out.width="80%", fig.cap="Figure 1. A depiction on how different forms for necessary stimulants can effect their downstream impact."}
+knitr::include_graphics("nStimForms.png")
+```
+
+Note that in all cases, when the value of the necessary stimulant is 1, the chosen form has no effect.

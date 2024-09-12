@@ -35,7 +35,11 @@ applied to necessary stimulants, and therefore the form will be linear.}
 \item{threshold}{if the necStimFunc has a threshold, the argument name for
 that threshold should be specified here.}
 
-\item{sharp}{description}
+\item{sharp}{this argument is used in conjunction with the language argument.
+If language = "C", provide a logical value as to whether it is C# or not.}
+
+\item{exogenous}{logical. Specifies if the equation should include an
+exogenous supply term.}
 }
 \description{
 A function to generate an equation for a specific node

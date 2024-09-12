@@ -3,7 +3,7 @@
 #' This function is not designed to produce high quality plots. It is simply to
 #' quickly inspect the progression of a simulation.
 #'
-#' @param simData the output of a single simulation.
+#' @param sim the output of a single simulation.
 #' @param logTransform defaults to TRUE. Indicates if the data should be log
 #'        transformed.
 #' @param removeBaseline defualts to TRUE Indicates if nodes that have remained
@@ -102,11 +102,6 @@ finalStates <- function(simulations) {
 #' @param data a data.frame containing the outcome of a set of simulations. The
 #'        first row should contain the wild type condition.
 #' @param node a string showing which node data will be plotted.
-#' @param cols specifies the colours that will be used to plot node values
-#'        over time. Can accept colour palettes from the viridis package.
-#'        Colours can be individually selected and provided as a vector
-#'        of the same length as the nodes that you wish to plot. If no
-#'        value is provided will use the viridis palette as default.
 #' @param bioData a matrix containing the biological data corresponding to the
 #'        simulated data.
 #' @importFrom graphics barplot

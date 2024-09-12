@@ -487,7 +487,10 @@ altSourceToStimulant <- function(hormones) {
 #'        applied to necessary stimulants, and therefore the form will be linear.
 #' @param threshold if the necStimFunc has a threshold, the argument name for
 #'        that threshold should be specified here.
-#' @param sharp description
+#' @param sharp this argument is used in conjunction with the language argument.
+#'        If language = "C", provide a logical value as to whether it is C# or not.
+#' @param exogenous logical. Specifies if the equation should include an
+#'        exogenous supply term.
 #' @importFrom methods is
 
 generateEquation <- function(node,
@@ -636,7 +639,7 @@ generateEquation <- function(node,
     necstimString <- node@inputs$Node[node@inputs$Influence %in% "necessary stimulation" & is.na(node@inputs$Coregulator)]
     if (!is.null(necStimFunc)) {
       if (length(necstimString) < nrow(necStimFunc)) {
-        necStimFuncNoCoreg <- rbind(necStimFunc, data.frame(necInput = necstimString[which(!necstimString %in% eqNstimMap$necInput)], func = NA))
+        necStimFuncNoCoreg <- rbind(necStimFunc, data.frame(necInput = necstimString[which(!necstimString %in% necStimFunc$necInput)], func = NA))
       }
     }
 
@@ -713,7 +716,8 @@ generateEquation <- function(node,
 #' @param language which programming language should the equation be generated in?
 #'        Can be either "R", or "C".
 #' @param operator which operator defines the coregulator, either "and" or "or".
-#' @param sharp description
+#' @param sharp this argument is used in conjunction with the language argument.
+#'        If language = "C", provide a logical value as to whether it is C# or not.
 
 coregulators <- function(coreg,
                          returnNum = FALSE,

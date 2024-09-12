@@ -7,20 +7,23 @@ Description: This package builds networks of interacting hormones to predict bra
     pea based on genotypic inputs.
 Depends: R (>= 4.1),
     xml2 (>= 1.3.3),
-    ggplot2
-License: GPL-2
-Encoding: UTF-8
-LazyData: true
-Imports: 
+    ggplot2,
     methods,
-    prodlim,
+    stats,
+    utils,
+    prodlim (>= 2024.06.25),
     stringr,
     reshape2,
     parallel,
-    foreach,
-    doParallel
+    parallelly,
+    foreach (>= 1.5.2),
+    doParallel (>= 1.0.17)
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
 RoxygenNote: 7.3.2
 Suggests: 
     knitr,
     rmarkdown
 VignetteBuilder: knitr
+URL: https://nicolezfortuna.github.io/PSoup/

@@ -102,7 +102,7 @@ simulateNetwork <- function(folder,
   if (is.null(exogenousSupply)) {
     exogenousDef <- NULL
     exogenousSupply <- FALSE
-  } else if (class(exogenousSupply) == "data.frame" | class(exogenousSupply) == "integer") {
+  } else if (is(exogenousSupply, "data.frame") | is(exogenousSupply, "integer")) {
     exogenousDef <- exogenousSupply
   } else if (exogenousSupply == TRUE) {
     load(paste0(folder, "/exogenousDef.RData")) # should probably remove this condition
@@ -250,9 +250,11 @@ simulateNetwork <- function(folder,
 #'               than the number returned by detectCores().
 #' @importFrom stats runif
 #' @importFrom foreach foreach
+#' @importFrom foreach %dopar%
 #' @importFrom parallel makeCluster
 #' @importFrom doParallel registerDoParallel
 #' @importFrom parallel stopCluster
+#'
 #' @export
 
 setupSims <- function(folder,

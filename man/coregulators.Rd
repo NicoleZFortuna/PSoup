@@ -18,7 +18,8 @@ Can be either "R", or "C".}
 
 \item{operator}{which operator defines the coregulator, either "and" or "or".}
 
-\item{sharp}{description}
+\item{sharp}{this argument is used in conjunction with the language argument.
+If language = "C", provide a logical value as to whether it is C# or not.}
 }
 \description{
 Coregulators are sorted so that their multiplications are only represented

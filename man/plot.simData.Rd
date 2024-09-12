@@ -14,12 +14,6 @@ first row should contain the wild type condition.}
 
 \item{bioData}{a matrix containing the biological data corresponding to the
 simulated data.}
-
-\item{cols}{specifies the colours that will be used to plot node values
-over time. Can accept colour palettes from the viridis package.
-Colours can be individually selected and provided as a vector
-of the same length as the nodes that you wish to plot. If no
-value is provided will use the viridis palette as default.}
 }
 \description{
 This function allows you to quickly plot the outcome of different simulations.
