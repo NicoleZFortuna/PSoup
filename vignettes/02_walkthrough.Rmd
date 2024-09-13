@@ -57,6 +57,7 @@ PeaNetwork
 ```
 
 ```{r, echo=FALSE}
+load("../Data/peaNetwork.RData")
 peaNetwork
 ```
 
