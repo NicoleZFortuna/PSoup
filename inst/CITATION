@@ -1,0 +1,9 @@
+bibentry(
+  "Manual",
+  title = "PSoup: A Package That Translates Network Diagrams Into A Mathematical Model And Runs Simulations",
+  author = "Nicole Fortuna, Christine Beveridge",
+  organization = "ARC Centre of Excellence for Plant Success in Nature and Agriculture",
+  address = "The University of Queensland, Australia",
+  year = 2024,
+  url = "https://github.com/NicoleZFortuna/PSoup",
+)

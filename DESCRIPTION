@@ -2,7 +2,9 @@ Package: PSoup
 Type: Package
 Title: A Package That Translates Network Diagrams Into A Mathematical Model And Runs Simulations
 Version: 0.1.0
-Authors@R: person("Nicole", "Fortuna", email = "n.fortuna@uq.edu.au", role = c("aut", "cre"))
+Authors@R: c(person("Nicole", "Fortuna", email = "n.fortuna@uq.edu.au", role = c("aut", "cre")), 
+             person("Christine", "Beveridge", email = "c.beveridge@uq.edu.au", role = c("cph", "aut")),
+             person("ARC Centre of Excellence for Plant Success in Nature and Agriculture", role = c("fnd", "aut")))
 Description: This package builds networks of interacting hormones to predict branching outcomes in
     pea based on genotypic inputs.
 Depends: R (>= 4.1),
