@@ -57,9 +57,7 @@ PeaNetwork
 ```
 
 ```{r, echo=FALSE}
-PeaNetwork <- convertSBGNdiagram(file = "../inst/DunAFgenotype.sbgn", 
-                                 networkName = "PeaNetwork")
-PeaNetwork
+peaNetwork
 ```
 
 Note that the hormone objects each have an underscore with wither 'R' or 'S', indicating in which compartment they are in the diagram ('Rootstock' and 'Shoot' in this case). 
