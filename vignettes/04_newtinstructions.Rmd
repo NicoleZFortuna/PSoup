@@ -16,9 +16,9 @@ knitr::opts_chunk$set(
 
 ### Building a diagram using the Newt editor
 
-Once a set of hypotheses have been constructed, they can used to generate a diagram to be given to PSoup. Diagrams must be constructed using the SBGN-AF language to be readable by PSoup. [newteditor.org](https://newteditor.org/) is a good tool to construct such a diagram as it is easy to use and entirely online. For a detailed guide on how to use the Newt editor, see their tutorials page ([Newt tutorials](https://newteditor.org/tutorials.html)). This section will give you the essentials. Once on the newt editor page, click the Launch newt button to gain access to the display.
+Once a set of hypotheses have been constructed, they can used to generate a diagram. Diagrams must be constructed using the SBGN-AF language to be readable by PSoup. [newteditor.org](https://newteditor.org/) is a good tool to construct such a diagram as it is easy to use and entirely online. For a detailed guide on how to use the Newt editor, see their tutorials page ([Newt tutorials](https://newteditor.org/tutorials.html)). This section will give you the essentials. Once on the newt editor page, click the Launch newt button to gain access to the UI.
 
-The first thing to do once in the Newt editor is to specify the type of diagram to be produced. This will ensure that if an illegal symbol for the SBGN-AF language is used, that a warning will be produced.  To do so, click on the Map tab on the right of the screen. From the Type dropdown menu, select AF.
+The first thing to do once in the Newt editor is to specify the type of diagram to be produced. This will ensure that if an illegal symbol for the SBGN-AF language is used, that a warning will be produced.  To do so, click on the 'Map' tab on the right of the screen. From the 'Type' dropdown menu, select AF.
 
 <center>
 ```{r, echo=FALSE, out.width="50%", fig.cap="Figure 1. Specify map type."}
@@ -26,7 +26,7 @@ knitr::include_graphics("NewtFigs/SpecifyMapTab.png")
 ```
 </center>
 
-Once the correct Map type has been specified, open the correct palette of symbols on the Palette tab. Open the Activity Flow drop down, and collapse the other options so there is no confusion. Hover the curser over the different symbols to check what type they are. Always start building diagrams by initiating the compartments to be used. If your network is not organised within compartments, PSoup will not be able to translate the diagram. When adding nodes, do so within their container so that the node will be anchored to the container. To use a node symbol, click on it, then click inside the relevant compartment. The position of the node can be modified by dragging it. Compartments will adjust their size to suit the positioning of nodes. To add an edge, select your desired edge, click on the origin node and drag the cursor to the destination node before releasing. To add a node with a modifier, select the Macromolecule node (indicated with blue square). Double click a symbol to insert more than one of that type at a time.
+Once the correct Map type has been specified, open the correct palette of symbols on the 'Palette' tab (Figure 2). Open the 'Activity Flow' drop down, and collapse the other options so there is no confusion. Hover the curser over the different symbols to check what type they are. Always start building diagrams by initiating the compartments to be used. If your network is not organised within compartments, PSoup will not be able to translate the diagram (it is perfectly fine to only have one compartment). When adding nodes, do so within their container so that the node will be anchored to the container. To use a node symbol, click on it within the 'Palette' tab, then click inside the relevant compartment. The position of the node can be modified by dragging it. Compartments will adjust their size to suit the positioning of nodes. To add an edge, select your desired edge within the 'Palette' tab, click on the origin node and drag the cursor to the destination node before releasing. To add a node with a modifier, select the 'Macromolecule' node (indicated with blue square). Double click a symbol to insert more than one of that type in a row.
 
 <center>
 ```{r, echo=FALSE, out.width="50%", fig.cap="Figure 2. Specify palette type."}
@@ -34,7 +34,7 @@ knitr::include_graphics("NewtFigs/SpecifyPaletteTab.png")
 ```
 </center>
 
-To name and change the appearance of an object, select the object, which will automatically open the Object tab. Here a label can be provided, the size changed, colours selected, and a label for an attached modifier provided in the Unit of Information box if required. All objects must be named, including nodes, compartments, modifiers, and submaps. Be careful that when you name objects, that the name does not contain any spaces or special characters that R could confuse as an operator. If you would like to use more than one word, it is recommended that you utilise either camel or snake case (eg. anExample, or an_example respectively).
+To name and change the appearance of an object, select the object. This will automatically open the 'Object' tab (Figure 3). Here a label can be provided, the size changed, colours selected, and a label for any attached modifier can be given in the 'Unit of Information' box if available. All objects must be named, including nodes, compartments, modifiers, and submaps. Be careful that when you name objects, that the name does not contain any spaces or special characters that R could confuse as an operator. If you would like to use more than one word, it is recommended that you utilise either camel or snake case (eg. anExample, or an_example respectively).
 
 <center>
 ```{r, echo=FALSE, out.width="50%", fig.cap="Figure 3. Modify object."}
@@ -44,7 +44,7 @@ knitr::include_graphics("NewtFigs/ManipulateObject.png")
 
 You can use submaps to have the option of hiding portions of network complexity. Like a compartment, you must first add the submap (to an existing compartment), before defining the nodes that exist within it. It is possible to nest submaps within submaps if you so choose. Submaps can be collapsed and expanded by pressing the – or + sign within the submap.
 
-If submaps are added to the diagram, Newt must be prevented from rearranging nodes when submaps are collapsed and expanded. This can be done in the Map tab in the Arrangement dropdown. Make sure that the options associated with complexity management are unchecked. Otherwise, any clarity of arrangement will be lost.
+If submaps are added to the diagram, Newt must be prevented from rearranging nodes when submaps are collapsed and expanded. This can be done in the 'Map' tab in the Arrangement dropdown (Figure 4). Make sure that the options associated with complexity management are unchecked. Otherwise, any clarity of arrangement will be lost.
 
 <center>
 ```{r, echo=FALSE, out.width="50%", fig.cap="Figure 4. Network arrangement."}
@@ -52,7 +52,7 @@ knitr::include_graphics("NewtFigs/SpecifyArrangementTab.png")
 ```
 </center>
 
-Once the diagram is completed, it can be exported in a variety of formats. The format that will be readable to PSoup is an SBGN text file. You can create this by selecting File -> Export -> SBGN-ML Plain. This format can be provided back to a Newt editor in the future for modification, however it will have lost any additional colouring provided to the diagram. It is recommend that a .nwt version of the diagram is kept which will maintain these elements so that both topological and stylistic elements of the diagram can be changed in the future. To do this, export the diagram as a NWT 0.3 file rather than SBGN-ML Plain. An SBGN-ML Plain diagram can always be produced from a starting NWT 0.3 file. To export as an image, select File -> Export as Image and then choose the image extension that is desired.
+Once the diagram is completed, it can be exported in a variety of formats. The format that will be readable to PSoup is an SBGN text file. You can create this by selecting 'File' -> 'Export' -> 'SBGN-ML Plain'. This format can be provided back to a Newt editor in the future for modification, however it will have lost any additional colouring provided to the diagram. It is recommend that a .nwt version of the diagram is saved. This will maintain these elements so that both topological and stylistic elements of the diagram can be changed in the future. You can choose to export the diagram as a NWT 0.3 file rather than SBGN-ML Plain. An SBGN-ML Plain diagram can always be produced from a starting NWT 0.3 file. To export as an image, select 'File' -> 'Export as Image' and then choose the image extension that is desired.
 
 <center>
 ```{r, echo=FALSE, out.width="50%", fig.cap="Figure 5. Export SBGN text file."}
