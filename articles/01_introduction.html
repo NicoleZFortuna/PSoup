@@ -79,7 +79,7 @@ change in a system in response to perturbations.</p>
 <li>Describe the prior knowledge of the system as a series of
 statements.</li>
 <li>Record the starting conditions and outcomes of experiments.</li>
-<li>Translate statements into a diagram.</li>
+<li>Translate the prior knowledge statements into a diagram.</li>
 <li>Convert the diagram into a computational model.</li>
 <li>Test if the computational model recapitulates experimental
 outcomes.</li>
@@ -97,25 +97,25 @@ baseline under different conditions.</p>
 <p>A benefit of PSoup is that it allows users who may not be comfortable
 with mathematics to dabble with simulations. Even so, PSoup is
 completely transparent in regard to how the diagrammatic description of
-the system has been translated into a series of equations by generating
-an R script which defines the function (called <code>nextStep</code>)
-which calculates the values of nodes for each timestep. By allowing
-access to this function, PSoup gives the possibility for the user to
-manually change aspects of the mathematical description of the system if
-they wish to do so. However, given the philosophy behind PSoup’s
-construction, such modification is not actively encouraged.</p>
+the system has been translated into a series of equations. It does this
+by generating an R script which defines a function (called
+<code>nextStep</code>) which calculates the values of nodes for each
+simulation step. By allowing access to this function, PSoup gives the
+possibility for the user to manually change aspects of the mathematical
+description of the system if they wish to do so. However, given the
+philosophy behind PSoup’s construction, such modification is not
+actively encouraged.</p>
 <p>A consequence of the topological approach taken by PSoup, is that
 this style of modelling is qualitative as opposed to quantitative. It is
-concerned with predicting the direction of change rather than the amount
-of change. To do this, the values of nodes are normalised such that they
-are expressed in relation to some system baseline (often the wild type
-when describing biological systems), which is expressed as having the
-value 1. Simulations are run until the system reaches stability, at
-which point the node of interest can be checked for its new value. Given
-that there are no coefficients used in this style of modelling, the
-through time information for the simulations are not biologically
-meaningful. The only information of interest is the value of nodes at
-steady state.</p>
+concerned with predicting the direction of change rather than the exact
+amount of change. To do this, the values of nodes are normalised such
+that they are expressed in relation to some system baseline (often the
+wild type when describing biological systems), which is defined as 1.
+Simulations are run until the system reaches stability, at which point
+the node of interest can be checked for its new value. Given that there
+are no coefficients used in this style of modelling, the through time
+information for the simulations are not biologically meaningful. The
+only information of interest is the value of nodes at steady state.</p>
 </div>
   </main>
 </div>

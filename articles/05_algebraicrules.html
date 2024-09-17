@@ -70,13 +70,14 @@
 <div class="section level3">
 <h3 id="default-algorithmic-rule-set">Default algorithmic rule set<a class="anchor" aria-label="anchor" href="#default-algorithmic-rule-set"></a>
 </h3>
-<p>There are several ‘components’ that can contribute to the building of
-an equation. These components must be considered in a particular order
-to build a correct equation. See Table 3 for the different components
-that can contribute and the order in which they are considered when
+<p>There are several types of information that can contribute to the
+building of an equation. These types of information will be considered
+in a particular order to build an equation acording to the algorithmic
+rules. See the first Table for the different components that can
+contribute, as well as the order in which they are considered when
 building an equation. Equations do not necessarily need to include every
-one of these components. An example of how incoming edge information can
-be used to generate a difference equation can be seen in Figure 1.</p>
+one of these components. An example of how incoming edge types can be
+used to generate a difference equation can be seen in Figure 1.</p>
 <table class="table">
 <colgroup>
 <col width="28%">
@@ -97,12 +98,14 @@ be used to generate a difference equation can be seen in Figure 1.</p>
 <tr class="even">
 <td>2</td>
 <td>Inhibitor</td>
-<td>2 divided by the sum of one and the average of the inhibitors</td>
+<td>The number of inhibitors plus 1, divided by the sum of inhibitors
+plus 1</td>
 </tr>
 <tr class="odd">
 <td>3</td>
 <td>Necessary stimulant</td>
-<td>Multiplication against above influences</td>
+<td>A function of the necessary stimulant multiplied against the above
+influences</td>
 </tr>
 <tr class="even">
 <td>4</td>
@@ -139,6 +142,23 @@ be used to generate a difference equation can be seen in Figure 1.</p>
 </tr>
 </tbody>
 </table>
+<p>Here is an example of a diagram showing a simplified diagram of the
+branching network in plants.</p>
+<div class="figure">
+<img src="diagramRules/BerthelootRecreation.png" alt="Figure 1. Simple branching network." width="80%"><p class="caption">
+Figure 1. Simple branching network.
+</p>
+</div>
+<p>Using the above algorithmic rules, this diagram would be translated
+into the following set of equations.</p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>u</mi><mi>x</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mi>A</mi><mi>u</mi><msup><mi>x</mi><mrow><mi>m</mi><mi>o</mi><mi>d</mi></mrow></msup></mrow><annotation encoding="application/x-tex">Aux[t] = Aux^{mod}</annotation></semantics></math></p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mi>L</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mi>A</mi><mi>u</mi><mi>x</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow><mo>*</mo><mi>S</mi><msup><mi>L</mi><mrow><mi>m</mi><mi>o</mi><mi>d</mi></mrow></msup></mrow><annotation encoding="application/x-tex">SL[t] = Aux[t-1] * SL^{mod}</annotation></semantics></math></p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mi>u</mi><mi>c</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mi>S</mi><mi>u</mi><msup><mi>c</mi><mrow><mi>m</mi><mi>o</mi><mi>d</mi></mrow></msup></mrow><annotation encoding="application/x-tex">Suc[t] = Suc^{mod}</annotation></semantics></math></p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mi>K</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mi>S</mi><mi>u</mi><mi>c</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow><mo>*</mo><mfrac><mn>2</mn><mrow><mn>1</mn><mo>+</mo><mi>A</mi><mi>u</mi><mi>x</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow></mrow></mfrac><mo>*</mo><mi>C</mi><msup><mi>K</mi><mrow><mi>m</mi><mi>o</mi><mi>d</mi></mrow></msup></mrow><annotation encoding="application/x-tex">CK[t] = Suc[t-1] * \frac{2}{1 + Aux[t-1]} * CK^{mod}</annotation></semantics></math></p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mi>S</mi><mi>L</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow><mo>*</mo><mfrac><mn>2</mn><mrow><mn>1</mn><mo>+</mo><mi>S</mi><mi>u</mi><mi>c</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow></mrow></mfrac></mrow><annotation encoding="application/x-tex">I[t] = SL[t-1] * \frac{2}{1 + Suc[t-1]}</annotation></semantics></math></p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mi>O</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mfrac><mrow><mi>C</mi><mi>K</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow><mo>+</mo><mi>S</mi><mi>u</mi><mi>c</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow></mrow><mn>2</mn></mfrac><mo>*</mo><mfrac><mn>2</mn><mrow><mn>1</mn><mo>+</mo><mi>I</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow></mrow></mfrac></mrow><annotation encoding="application/x-tex">BO[t] = \frac{CK[t-1] + Suc[t-1]}{2} * \frac{2}{1 + I[t-1]}</annotation></semantics></math></p>
+<p>The above example includes neither necessary stimulants, nor any
+exogenous supplies.</p>
 </div>
 <div class="section level3">
 <h3 id="modifications-to-the-functional-forms-of-necessary-stimulants">Modifications to the functional forms of necessary stimulants<a class="anchor" aria-label="anchor" href="#modifications-to-the-functional-forms-of-necessary-stimulants"></a>
@@ -156,7 +176,29 @@ can effect their downstream impact.
 </p>
 </div>
 <p>Note that in all cases, when the value of the necessary stimulant is
-1, the chosen form has no effect.</p>
+1, the chosen form has no effect. Changing the functional form of a
+necessary stimulant has the greatest impact at low values for the
+necessary stimulant. The biological interpretation of the step-like
+functional form for example is that even a tiny supply of the necessary
+stimulant is required to induce a rapid response in the system.</p>
+<p>Like a modifier, the necessary stimulant term will be multiplied
+against the other terms in the equations.</p>
+</div>
+<div class="section level3">
+<h3 id="adding-an-exogenous-supply">Adding an exogenous supply<a class="anchor" aria-label="anchor" href="#adding-an-exogenous-supply"></a>
+</h3>
+<p>One more term that can be added to equations is that of an exogenous
+supply. The exogenous supply term is the only one that does not have a
+direct representation in the SBGN diagram. Instead, you can indicate
+when you use the <code>buildModel</code> function if you want the
+equations to include an exogenous term by supplying the argument
+<code>exogenous = TRUE</code>. This is the default argument for the
+equation as it allows the most flexibility down the line. This argument
+can be changed to FALSE if you decide that you do not want to use an
+exogenous supply, and would rather have simpler looking equations.</p>
+<p>The exogenous supply behaves as a static addition term in the
+equation. Whatever supply that you have chosen to provide, will be a
+final addition to the equation.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

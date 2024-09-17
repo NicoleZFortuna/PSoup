@@ -70,10 +70,22 @@
 <div class="section level3">
 <h3 id="hypotheses">What is prior knowledge?<a class="anchor" aria-label="anchor" href="#hypotheses"></a>
 </h3>
-<div class="section level4">
-<h4 id="tips-for-hypothesis-organisation">Tips for hypothesis organisation<a class="anchor" aria-label="anchor" href="#tips-for-hypothesis-organisation"></a>
-</h4>
-</div>
+<p>Prior knowledge consists of the knowledge that exists in the
+scientific literature regarding the behaviour of the system. This
+relates to the components of the system (nodes), the interactions
+between components, the directionality and type of influence (edges).
+Scientific literature can also contain information relating to the rate
+at which information travels in the system, but the availibility and
+quaility of these estimates can vary wildly. Given that the style of
+modelling performed by PSoup is based on the structure of the
+developmental network, without reference to coefficients, this type of
+information is not included in the prior knowledge collected for
+developing a PSoup model.</p>
+<p>Prior knowledge can be orgainised into a series of statements that
+will ultimately be used to construct a diagrammatic representation of
+the system. To give support for the network as you have constructed it,
+you can attribute references to either the statements themselves or to
+the edges of the network diagram.</p>
 </div>
 <div class="section level3">
 <h3 id="language-for-model-construction">Language for model construction<a class="anchor" aria-label="anchor" href="#language-for-model-construction"></a>
@@ -81,19 +93,19 @@
 <div class="section level4">
 <h4 id="model-language-nodes-and-edges">Model language: Nodes and Edges<a class="anchor" aria-label="anchor" href="#model-language-nodes-and-edges"></a>
 </h4>
-<p>Nodes and edges represent our beliefs regarding how plants integrate
-information to make decisions. Nodes represent a kind of information
-used by the plant to make developmental decisions. This can include
-internal hormones, or externally sourced inputs such as light, or
+<p>Nodes and edges represent our beliefs regarding how a system
+integrates information to make decisions. Nodes represent a kind of
+information or componant within the system. This can include internal
+hormones, signals, or externally sourced inputs such as light, or
 nitrogen. Each node type will be expressed as a value relative to some
-baseline 1. Often, this baseline will represent the wild-type of a plant
-under ideal environmental conditions.</p>
+baseline 1. Often, this baseline will represent the wild-type of a
+biological system under ideal environmental conditions.</p>
 <p>Edges represent the directionality of influence, as well as the
-influence type between nodes. Edges describe how the plant uses the
+influence type, between nodes. Edges describe how a system uses the
 information contained in nodes to make decisions.</p>
 <p>Nodes will be represented by nouns as they represent something that
-the plant can use as a signal. Edges will be represented by verbs as
-they describe the influence of a node on downstream nodes.</p>
+can be used as a signal. Edges will be represented by verbs as they
+describe the influence of an upstream node on downstream nodes.</p>
 </div>
 <div class="section level4">
 <h4 id="model-language-modifiers">Model language: Modifiers<a class="anchor" aria-label="anchor" href="#model-language-modifiers"></a>
@@ -121,40 +133,40 @@ tested.</p>
 <h4 id="model-language-compartments">Model language: Compartments<a class="anchor" aria-label="anchor" href="#model-language-compartments"></a>
 </h4>
 <p>Compartments are useful in that they can help define locations of
-influence in the network. They have very little influence on the
-progression of a simulation as they do not change the behaviour of
-either nodes or edges. However, they are useful when there are multiple
-sources of production for a node, and for allowing the differential
-expression of modifiers within different locations of the system. For
-example, the hormone Strigolactone is produced in both the root and
-shoot of the plant. By creating root and shoot compartments, a
-Strigolactone node can be defined in both the compartments without
-otherwise being distinguished from each other. PSoup will automatically
-treat the two nodes as separate entities while maintaining clarity for
-the user. Compartments also facilitate the case when modifiers are
-differentially expressed in different locations of a biological system.
-If a modifier is attached to nodes in different compartments, the user
-will be able to specify different values for each compartment. This is
-useful, for example, in the case that the user is trying to replicate
-the conditions of a grafting experiment where a gene is knocked out in
-one location but not in the other.</p>
+influence in the network. They have no influence on the progression of a
+simulation as they do not change the behaviour of either nodes or edges.
+However, they are useful when there are multiple sources of production
+for a node, and for allowing the differential expression of modifiers
+within different locations of the system. For example, the hormone
+Strigolactone is produced in both the root and shoot of the plant. By
+creating root and shoot compartments, a Strigolactone node can be
+defined in both the compartments without otherwise being distinguished
+from each other. PSoup will automatically treat the two nodes as
+separate entities while maintaining clarity for the user. Compartments
+also facilitate the case when modifiers are differentially expressed in
+different locations of a biological system. If a modifier is attached to
+nodes in different compartments, the user will be able to specify
+different values for each compartment. This is useful, for example, in
+the case that the user is trying to replicate the conditions of a
+grafting experiment where a gene is knocked out in one location but not
+in the other.</p>
 </div>
 <div class="section level4">
 <h4 id="sbgn-terminology">SBGN terminology<a class="anchor" aria-label="anchor" href="#sbgn-terminology"></a>
 </h4>
-<p>SBGN is a set of standardised graphical languages used to describe
-biological systems. The description of hypotheses has been restricted to
-the use of terminology that maps directly onto the SBGN Activity Flow
-language.</p>
+<p>System Biology Graphical Notation (SBGN) is a set of standardised
+graphical languages used to describe biological systems. The description
+of hypotheses has been restricted to the use of terminology that maps
+directly onto the SBGN Activity Flow language.</p>
 <p>There are many different mechanisms by which a biological system
 regulates itself. However, here the focus must be limited to whether the
 influence between nodes is either positive or negative in terms of the
 outcome of the downstream node.</p>
-<table class="table">
+<table style="width:100%;" class="table">
 <colgroup>
-<col width="33%">
-<col width="33%">
-<col width="33%">
+<col width="28%">
+<col width="42%">
+<col width="28%">
 </colgroup>
 <thead><tr class="header">
 <th>Type of edge</th>
@@ -177,18 +189,13 @@ outcome of the downstream node.</p>
 <td>Necessary stimulation</td>
 <td><img src="edges/necessaryStimulation.png" style="width:50.0%"></td>
 </tr>
-<tr class="even">
-<td>Unknown</td>
-<td>Unknown</td>
-<td><img src="edges/unknown.png" style="width:50.0%"></td>
-</tr>
 </tbody>
 </table>
-<table class="table">
+<table style="width:100%;" class="table">
 <colgroup>
-<col width="33%">
-<col width="33%">
-<col width="33%">
+<col width="28%">
+<col width="42%">
+<col width="28%">
 </colgroup>
 <thead><tr class="header">
 <th>Operator</th>
@@ -198,7 +205,8 @@ outcome of the downstream node.</p>
 <tbody>
 <tr class="odd">
 <td>and</td>
-<td>Linking two origin nodes with a single destination node.</td>
+<td>Linking more than one origin nodes with a single destination
+node.</td>
 <td><img src="edges/and.png" style="width:10.0%"></td>
 </tr>
 <tr class="even">
@@ -213,11 +221,12 @@ outcome of the downstream node.</p>
 <div class="section level3">
 <h3 id="syntax-guide">Syntax guide<a class="anchor" aria-label="anchor" href="#syntax-guide"></a>
 </h3>
-<p>Hypotheses (MOH), and the Edge Oriented Hypotheses (EOH). In either
-case, the modifier or edge will be contextualised by nodes. In the MOH,
-a modifier is being attached to a node which will allow the modifier to
-weight the strength of action of the node. A MOH will always be found in
-the following form:</p>
+<p>Hypotheses can fall into two classes: Modifier Oriented Hypotheses
+(MOH), and Edge Oriented Hypotheses (EOH). In either case, the modifier
+or edge will be contextualised by nodes. In the MOH, a modifier is being
+attached to a node which will allow the modifier to weight the strength
+of action of the node. A MOH will always be found in the following
+form:</p>
 <center>
 The &lt;modifier&gt; modifier is necessary to produce &lt;node&gt;.
 </center>
@@ -239,7 +248,7 @@ nodes must be present for an action to occur.</p>
 The first is to visually assist in understanding where different loci of
 influence exist in the system. The second is to allow for the
 possibility of differential expression of modifiers in the case that the
-same modulator has been assigned to nodes existing in different
+same modifier has been assigned to nodes existing in different
 compartments. This is useful when modelling plant development under
 different grafting conditions. Grafting involves attaching the rootstock
 of one plant, to the scion (shoot) of another plant. This allows for the
@@ -262,7 +271,7 @@ from the combination of intermediary interactions).
 as an alternate route of action.</li>
 </ol>
 </li>
-<li>Independent inputs should be distinguished from non-independent
+<li>Non-independent inputs should be distinguished from independent
 inputs. Non-independent inputs can be indicated using the word AND to
 list all the interacting inputs.</li>
 <li>Modifiers should be distinguished from nodes.</li>
@@ -285,8 +294,7 @@ stimulatory or inhibitory).</li>
 <li>It might be necessary to infer an ‘integrator’ or ‘intermediate’
 node to correctly represent what is going on. This decision can be left
 to the modeller, who will choose the best representation given the
-context of the full network (this of course should be confirmed later
-with the biologist).
+context of the full network.
 <ol style="list-style-type: lower-alpha">
 <li>A consequence of the modeller deciding that there needs to be an
 intermediary node, will be the creation of a new statement describing a
@@ -294,9 +302,6 @@ stimulatory relationship between the originating and intermediary
 node.</li>
 </ol>
 </li>
-<li>If there are multiple sources for the contents of a node, they
-should be distinguished from each other by placing the different
-representations of the node in different compartments.</li>
 <li>There must not be any nodes existing outside of a compartment.</li>
 <li>A record of supporting evidence behind each node should be kept for
 reference. This will help restrain the network to highly supported
@@ -308,6 +313,11 @@ against biological data.</li>
 <div class="section level3">
 <h3 id="example-statements">Example statements<a class="anchor" aria-label="anchor" href="#example-statements"></a>
 </h3>
+<p>The below table includes some examples of how you might structure
+hypotheses statements for maximum clarity. Figure 1 demonstrates how
+such statements could be converted into a diagram. This is of course a
+very simple example, PSoup is most useful in systems that contain some
+kind of feedback loop.</p>
 <table class="table">
 <thead><tr class="header">
 <th>No.</th>
@@ -316,11 +326,11 @@ against biological data.</li>
 <tbody>
 <tr class="odd">
 <td>1</td>
-<td>The a modifier is required to produce A in compartments 1 and 2</td>
+<td>The A modifier is required to produce A in compartments 1 and 2</td>
 </tr>
 <tr class="even">
 <td>2</td>
-<td>A stimulates B in compartment 1</td>
+<td>A necessarily stimulates B in compartment 1</td>
 </tr>
 <tr class="odd">
 <td>3</td>
@@ -328,23 +338,19 @@ against biological data.</li>
 </tr>
 <tr class="even">
 <td>4</td>
-<td>A stimulates D in compartment 2</td>
+<td>A necessarily stimulates D in compartment 2</td>
 </tr>
 <tr class="odd">
 <td>5</td>
-<td>D AND E inhibits F in compartment 2</td>
+<td>D AND F inhibits G in compartment 2</td>
 </tr>
 <tr class="even">
 <td>6</td>
-<td>The f modifier is required to produce F in compartment 2</td>
+<td>B in compartment 1 stimulates D in compartment 2</td>
 </tr>
 <tr class="odd">
 <td>7</td>
-<td>B in compartment 1 necessarily stimulates D in compartment 2</td>
-</tr>
-<tr class="even">
-<td>8</td>
-<td>C in compartment 1 stimulates F in compartment 2</td>
+<td>C in compartment 1 stimulates G in compartment 2</td>
 </tr>
 </tbody>
 </table>
