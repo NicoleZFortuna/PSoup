@@ -5,7 +5,12 @@
 \title{A function to generate a data frame which lists all of
 the edges of a network.}
 \usage{
-generateEdgeList(network, keepAltSource = F, keepNecessaryStimulant = F)
+generateEdgeList(
+  network,
+  keepAltSource = F,
+  keepNecessaryStimulant = F,
+  recordConjunctions = F
+)
 }
 \arguments{
 \item{network}{an object of class Network.}
@@ -19,6 +24,10 @@ as stimulants.}
 \item{keepNecessaryStimulant}{default set to FALSE.
 Specify if you want to distinguish necessary
 stimulants from stimulants.}
+
+\item{recordConjunctions}{default set to FALSE.
+Specify if you want to record any conjunctions
+that appear in the network.}
 }
 \description{
 A function to generate a data frame which lists all of
