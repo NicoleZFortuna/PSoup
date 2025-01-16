@@ -240,22 +240,42 @@ restoreBaseModel <- function() {
 #' @param keepNecessaryStimulant default set to FALSE.
 #'        Specify if you want to distinguish necessary
 #'        stimulants from stimulants.
+#' @param recordConjunctions default set to FALSE.
+#'        Specify if you want to record any conjunctions
+#'        that appear in the network.
 #' @export
 
 generateEdgeList <- function(network, keepAltSource = F,
-                             keepNecessaryStimulant = F) {
+                             keepNecessaryStimulant = F,
+                             recordConjunctions = F) {
   # function to collect a data.frame of wanted info for
   # a particular node
-  get <- function(x) {
-    got <- data.frame(From = x@inputs$Node,
+  get <- function(x, recordConjunctions) {
+    if (recordConjunctions == T & nrow(x@inputs) > 0) {
+      got <- data.frame(From = apply(x@inputs[, c('Node', 'Coregulator')],
+                                     MARGIN = 1,
+                                     FUN = function(x) paste(x, collapse = ", ")),
+                        To = rep(x@name, nrow(x@inputs)),
+                        Influence = x@inputs$Influence)
+
+      got$From <- sapply(strsplit(got$From, ", "),
+                         FUN = function(x) paste(x[order(x)], collapse = " AND "))
+
+      got <- got[!duplicated(got), ]
+      got$From <- gsub(" AND NA", "", got$From)
+      got$From <- gsub("NA AND ", "", got$From)
+    } else {
+      got <- data.frame(From = x@inputs$Node,
                       To = rep(x@name, nrow(x@inputs)),
                       Influence = x@inputs$Influence)
+    }
+
     got
   }
 
   # collect wanted info all at once
   frames <- lapply(network@objects$Hormones,
-                   FUN = function(x) get(x))
+                   FUN = function(x) get(x, recordConjunctions = recordConjunctions))
 
   # merge info into single data frame
   dat <- do.call("rbind", frames)
