@@ -317,9 +317,9 @@ setupSims <- function(folder,
 
   if (isTRUE(combinatorial)) {
     # Ensuring that the first row of any screening dataframes contain a wildtype condition in the first row
-    nodestartDef    <- tidyScreen(nodestartDef, "nodestartDef")
-    genotypeDef     <- tidyScreen(genotypeDef, "genotypeDef")
-    exogenousDef    <- tidyScreen(exogenousDef, "exogenousDef", exogenous = TRUE)
+    nodestartDef    <- tidyScreen(nodestartDef, "nodestartDef", preventDrop = preventDrop)
+    genotypeDef     <- tidyScreen(genotypeDef, "genotypeDef", preventDrop = preventDrop)
+    exogenousDef    <- tidyScreen(exogenousDef, "exogenousDef", exogenous = TRUE, preventDrop = preventDrop)
   } else {
     sizeCheck <- c(nrow(nodestartDef), nrow(genotypeDef), nrow(exogenousDef)) # collecting number of conditions
 
@@ -616,16 +616,20 @@ numCombn <- function(n, r) {
 #' @param exogenous logical. Indicates if the wild type row should be 1s or 0s.
 #'                  if checking modifier or node screens, should be set to F.
 #'                  If checking exogenous screens, should be T.
+#' @param preventDrop logical. Set to FALSE by default. If set to TRUE, prevents
+#'                  duplicated rows from being removed.
 #' @importFrom prodlim row.match
-tidyScreen <- function(frame, name, exogenous = FALSE) {
+tidyScreen <- function(frame, name, exogenous = FALSE, preventDrop = F) {
   WT <- as.numeric(!exogenous)
 
   warn <- NULL # initiate vector to store warning messages.
 
   # remove any row duplication
-  if (any(duplicated(frame))) {
+  if (isFALSE(preventDrop) & any(duplicated(frame))) {
     frame <- frame[!duplicated(frame), ]
     warn <- c(warn, "Have removed duplicate rows from the %s object.")
+  } else if (isTRUE(preventDrop) & any(duplicated(frame))) {
+    warning("There are duplicated conditions in your definition objects that you have chosen to ignore. If you would like to remove these objects, set preventDrop to FALSE.")
   }
 
   if (!all(frame[1, ] == WT)) { # if the first row is not WT, search for WT rows
