@@ -154,7 +154,7 @@ simulateNetwork <- function(folder,
     # If any node has reached infinity
     if (any(is.infinite(unlist(simDat[row, ])))) {
       warning(paste0("The simulation was terminated at time ", t, " as the following node/s reached infinity: ",
-                    paste(names(simDat)[is.infinite(unlist(simDat[row, ]))], collapse = ", "), "."))
+                     paste(names(simDat)[is.infinite(unlist(simDat[row, ]))], collapse = ", "), "."))
       simDat = simDat[delay:row, ]
       return(list(simulation = simDat, stable = FALSE))
     }
@@ -254,6 +254,8 @@ simulateNetwork <- function(folder,
 #' @importFrom parallel makeCluster
 #' @importFrom doParallel registerDoParallel
 #' @importFrom parallel stopCluster
+#' @importFrom progressr with_progress
+#' @importFrom progressr progressor
 #'
 #' @export
 
@@ -327,23 +329,15 @@ setupSims <- function(folder,
       stop("Objects defining the conditions to be explored must have the same number of rows (excluding any conditions that are being maintained at baseline.")
     }
 
-    WT <- c(n = F, g = F, e = F) # To keep track if
+    WT <- c(n = F, g = F, e = F) # To keep track if objects are to be saved
+                                 # given that they have been expanded to match
+                                 # the other def objects
 
     if (nrow(nodestartDef) == 1) nodestartDef[2:max(sizeCheck), ] <- nodestartDef[1, ]; WT['n'] <- T
     if (nrow(genotypeDef) == 1) genotypeDef[2:max(sizeCheck), ]   <- genotypeDef[1, ]; WT['g'] <- T
     if (!is.null(exogenousDef)) {
-      if (ncol(exogenousDef) == 1) { #
-        exNames <- colnames(exogenousDef)
-      }
-
-      if (nrow(exogenousDef) == 1) exogenousDef[2:max(sizeCheck), ]   <- exogenousDef[1, ]; WT['e'] <- T
-
-      if (ncol(exogenousDef) == 1) { #
-        exogenousDef  <- as.data.frame(exogenousDef)
-        colnames(exogenousDef) <- exNames
-      }
+      if (nrow(exogenousDef) == 1) exogenousDef[2:max(sizeCheck), ]   <- exogenousDef[1, , drop = F]; WT['e'] <- T
     }
-
 
     if (isFALSE(preventDrop)) {
       if (is.null(exogenousDef)) { # checking if simulations will be run more than once
@@ -355,12 +349,7 @@ setupSims <- function(folder,
       if (any(duplications)) {
         nodestartDef <- nodestartDef[-which(duplications), ]
         genotypeDef  <- genotypeDef[-which(duplications), ]
-        if (ncol(exogenousDef) == 1) {
-          exogenousDef <- as.data.frame(exogenousDef[-which(duplications), ])
-          colnames(exogenousDef) <- exNames
-        } else {
-          exogenousDef <- exogenousDef[-which(duplications), ]
-        }
+        exogenousDef <- exogenousDef[-which(duplications), , drop = F]
 
         if (isTRUE(WT['n'])) save(nodestartDef, file = paste0(folder, "/nodestartDef.RData"))
         if (isTRUE(WT['g'])) save(genotypeDef, file =  paste0(folder, "/genotypeDef.RData"))
@@ -374,47 +363,47 @@ setupSims <- function(folder,
     }
   }
 
-  # establishing the indexes for the various
+  # establishing the indexes for the various definition objects
   if (combinatorial == TRUE) {
     INDEX <- expand.grid(d = 1:nrow(nodestartDef), g = 1:nrow(genotypeDef),
                          ex = if (is.null(exogenousDef)) {FALSE} else {1:nrow(exogenousDef)})
   } else {
     INDEX <- data.frame(d = 1:nrow(nodestartDef), g = 1:nrow(genotypeDef),
-                         ex = if (is.null(exogenousDef)) {FALSE} else {1:nrow(exogenousDef)})
+                        ex = if (is.null(exogenousDef)) {FALSE} else {1:nrow(exogenousDef)})
   }
 
   # prepare clones to run in parallel
   cl <- makeCluster(nCores)
   registerDoParallel(cl)
 
-  # Run simulations
-  sims <- foreach(i = 1:nrow(INDEX), .packages = "PSoup") %dopar% {
-    if (is.null(exogenousDef)) {
-      exogenousCondition <- FALSE
-    } else {
-      exogenousCondition <- exogenousDef[INDEX$ex[i], ]
-      if (ncol(exogenousDef) == 1) {
-        names(exogenousCondition) <- exNames
+  count <- 1:nrow(INDEX)
+  with_progress({
+    p <- progressor(along = count) # set up counter
+    # Run simulations
+    sims <- foreach(i = count, .packages = "PSoup") %do% {
+      p() # report progress
+      if (is.null(exogenousDef)) {
+        exogenousCondition <- FALSE
+      } else {
+        exogenousCondition <- exogenousDef[INDEX$ex[i], ]
       }
+      simulation = simulateNetwork(folder = folder,
+                                   delay = delay,
+                                   maxStep = maxStep,
+                                   genotype = genotypeDef[INDEX$g[i], ],
+                                   startingValues = nodestartDef[INDEX$d[i], ],
+                                   exogenousSupply = exogenousCondition,
+                                   robustnessTest = robustnessTest,
+                                   altTopologyName = altTopologyName,
+                                   reduceSize = reduceSize)
+
+      list(scenario = list(genotype = genotypeDef[INDEX$g[i], ],
+                           startingValues = nodestartDef[INDEX$d[i], ],
+                           exogenousSupply = exogenousCondition),
+           simulation = simulation$simulation,
+           stable = simulation$stable)
     }
-    simulation = simulateNetwork(folder = folder,
-                                 delay = delay,
-                                 maxStep = maxStep,
-                                 genotype = genotypeDef[INDEX$g[i], ],
-                                 startingValues = nodestartDef[INDEX$d[i], ],
-                                 exogenousSupply = exogenousCondition,
-                                 robustnessTest = robustnessTest,
-                                 altTopologyName = altTopologyName,
-                                 reduceSize = reduceSize)
-
-    list(scenario = list(genotype = genotypeDef[INDEX$g[i], ],
-                                    startingValues = nodestartDef[INDEX$d[i], ],
-                                    exogenousSupply = exogenousCondition),
-                    simulation = simulation$simulation,
-                    stable = simulation$stable)
-
-    #report(i, nrow(nodestartDef))
-  }
+  })
 
   stopCluster(cl)
 
@@ -626,7 +615,7 @@ tidyScreen <- function(frame, name, exogenous = FALSE, preventDrop = F) {
 
   # remove any row duplication
   if (isFALSE(preventDrop) & any(duplicated(frame))) {
-    frame <- frame[!duplicated(frame), ]
+    frame <- frame[!duplicated(frame), , drop = F]
     warn <- c(warn, "Have removed duplicate rows from the %s object.")
   } else if (isTRUE(preventDrop) & any(duplicated(frame))) {
     warning("There are duplicated conditions in your definition objects that you have chosen to ignore. If you would like to remove these objects, set preventDrop to FALSE.")
@@ -730,22 +719,4 @@ modifierPriorScreen <- function(folder,
   if (savePriors == TRUE) save(priorDef, file = paste0(folder, "/priorDef.RData"))
 
   if (savePriors == FALSE) return(priorDef)
-}
-
-
-#' A function to produce a report of simulation progression
-#'
-#' @param x the index for the simulation completed
-#' @param r the total number of simulations to be completed
-#' @importFrom stats quantile
-
-report <- function(x, r) {
-  if (r < 20) return(NULL) # not worth reporting on progress
-
-  thresh <- round(quantile(1:r, seq(0, 1, 0.2)))
-
-  if (x %in% thresh) {
-    i <- which(x == thresh)
-    cat(paste0("\r", names(i), " of simulations are complete."))
-  }
 }
