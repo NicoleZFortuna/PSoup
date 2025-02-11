@@ -703,9 +703,10 @@ generateEquation <- function(node,
   return(allModulations)
 }
 
-#' A function that creates a string with coregulators multiplied together
+#' A function that creates a string generating the code that dictates how
+#' coregulators are treated.
 #'
-#' Coregulators are sorted so that their multiplications are only represented
+#' Coregulators are sorted so that each node is only represented
 #' once. Each modulator is given a temporal modifier. Sets of coregulators are
 #' summed.
 #'
@@ -835,3 +836,42 @@ differenceString <- function(string,
   fullString
 }
 
+#' A function for generating the code for a conjunction
+#'
+#' @param coregString
+#' @param language
+#' @param style
+
+ANDfuncString <- function(coregString, language, style) {
+  if (language == "R") {
+    #coregString[i] <- paste0("min(", coregString[i], ")")
+    coregString[i] <- sprintf("min(%s)", coregString)
+  } else if (language == "C") {
+    if (isFALSE(sharp)) {
+      coregString[i] <- paste0("getMin(", coregString[i], ")")
+    } else {
+      coregVector <- strsplit(coregString[i], ",")[[1]]
+      numCoreg <- length(coregVector)
+      coregString[i] <- paste0(paste0(rep("Math.Min(", numCoreg - 1),
+                                      coregVector[-numCoreg], collapse = ", "),
+                               ", ", coregVector[numCoreg], paste0(rep(")", numCoreg - 1),
+                                                                   collapse = ""))
+
+    }
+  }
+}
+
+funcs <- matrix(rep(NA, 9), ncol = 3)
+colnames(funcs) = c("R", "C", "C#")
+rownames(funcs) = c("Multiplicative", "Minimum", "Balanced")
+funcs["Multiplicative", "R"] <- "prod(%s)"
+funcs["Minimum", "R"] <- "min(%s)"
+funcs["Balanced", "R"] <- "prod(%s)^(1/%s)"
+
+funcs["Multiplicative", "C"]
+funcs["Minimum", "C"] <- "getMin(%s)"
+funcs["Balanced", "C"]
+
+funcs["Multiplicative", "C#"]
+funcs["Balanced", "C#"]
+funcs["Minimum", "C#"] <- "Math.Min(%s)"
