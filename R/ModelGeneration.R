@@ -139,6 +139,7 @@ buildModel <- function(network,
     dir.create(folder)
     genfile = paste0(folder, "/genotypeDef")
     nodefile = paste0(folder, "/nodestartDef")
+    if (isTRUE(exogenous)) exofile = paste0(folder, "/exogenousDef")
 
     if (robustnessTest == F) {
       funcfile = paste0(folder, "/nextStep.R")
@@ -191,6 +192,13 @@ buildModel <- function(network,
 
     if (file.exists(paste0(nodefile, ".RData"))) file.remove(paste0(nodefile, ".RData"))
     save(nodestartDef, file = paste0(nodefile, ".RData"))
+
+    if (isTRUE(exogenous)) {
+      if (file.exists(paste0(exofile, ".RData"))) file.remove(paste0(exofile, ".RData"))
+      exogenousDef = nodestartDef
+      exogenousDef[1,] <- 0
+      save(exogenousDef, file = paste0(exofile, ".RData"))
+    }
   }
 
   inhibition = c("inhibition", "sufficient inhibition", "necessary inhibition")
@@ -293,11 +301,21 @@ generateC <- function(network,
     insertEXOtype <- ""
     insertEXOmainDef <- "\n"
   } else {
-    insertEXOdefinition <- "\npublic struct ExoVals\n{\n\tinsertDATVALSdefinition\n\n\tpublic ExoVals(insertDATVALSarguments)\n\t{\n\t\tinsertDATVALSinternal\n\t}\n}\n"
-    insertEXOargument   <- ", ExoVals exo"
-    insertEXOobject   <- ", exo"
-    insertEXOtype <- ", exoVals"
-    insertEXOmainDef <- "\n\t\tExoVals exoVals = new ExoVals(insertEXOVALS);\n"
+    if (isTRUE(sharp)) { # is sharp
+      insertEXOdefinition <- "\npublic struct ExoVals\n{\n\tinsertDATVALSdefinition\n\n\tpublic ExoVals(insertDATVALSarguments)\n\t{\n\t\tinsertDATVALSinternal\n\t}\n}"
+      insertEXOargument   <- ", ExoVals exo"
+      insertEXOobject   <- ", exo"
+      insertEXOtype <- ", exoVals"
+      insertEXOmainDef <- "\n\t\tExoVals exoVals = new ExoVals(insertEXOVALS);\n"
+    } else {
+      insertEXOdefinition <- "\nstruct ExoVals {\n\tinsertSTRUCTNODENAMES\n}"
+      insertEXOargument   <- ", ExoVals exo"
+      insertEXOobject   <- ", exo"
+      insertEXOtype <- ", exo"
+      insertEXOmainDef <- "struct ExoVals exo"
+      insertEXOmainInternal <- ", struct ExoVals exo"
+    }
+
   }
 
   # function to append container info to hormone and genotype names
@@ -310,7 +328,7 @@ generateC <- function(network,
   geneList <- unname(unlist(sapply(network@objects$Genotypes, getGeneContainer)))
 
   # define node and gene names
-  if (isFALSE(sharp)) {
+  if (isFALSE(sharp)) { # is not sharp
     insertSTRUCTNODENAMES <- paste0("float m", hormoneList, ";", collapse = "\n\t")
     insertSTRUCTGENENAMES <- paste0("float m", geneList, ";", collapse = "\n\t")
   } else {
@@ -327,6 +345,11 @@ generateC <- function(network,
   if (isFALSE(sharp)) {
     insertDATVALS <- paste0("\tdat.m", hormoneList, " = 1;", collapse = "\n")
     insertGENEVALS <- paste0("\tgen.m", geneList, " = 1;", collapse = "\n")
+    if (isTRUE(exogenous)) {
+      insertEXOVALS <- paste0("\n", paste0("\texo.m", hormoneList, " = 0;", collapse = "\n"))
+    } else {
+      insertEXOVALS <- ""
+    }
   } else {
     insertDATVALS <- paste0(rep(1, length(hormoneList)), "f", collapse = ", ")
     insertGENEVALS <- paste0(rep(1, length(geneList)), "f", collapse = ", ")
@@ -371,10 +394,17 @@ generateC <- function(network,
     text_psoup.h <- readLines(file("./inst/Cscaffold/psoup.h"))
 
     insertReplacements <- list("insertTMAX" = insertTMAX,
+                               "insertEXOdefinition" = insertEXOdefinition,
+                               "insertEXOmainDef" = insertEXOmainDef,
+                               "insertEXOmainInternal" = insertEXOmainInternal,
                                "insertSTRUCTNODENAMES" = insertSTRUCTNODENAMES,
                                "insertSTRUCTGENENAMES" = insertSTRUCTGENENAMES,
                                "insertDATVALS" = insertDATVALS,
                                "insertGENEVALS" = insertGENEVALS,
+                               "insertEXOVALS" = insertEXOVALS,
+                               "insertEXOargument" = insertEXOargument,
+                               "insertEXOobject" = insertEXOobject,
+                               "insertEXOtype" = insertEXOtype,
                                "insertEQUATIONS" = insertEQUATIONS,
                                "insertTHRESHOLD" = insertTHRESHOLD,
                                "insertCOMPARISONCHAIN" = insertCOMPARISONCHAIN,
@@ -834,4 +864,45 @@ differenceString <- function(string,
 
   fullString
 }
+
+
+#' A function for generating the code for a conjunction
+#'
+#' @param coregString
+#' @param language
+#' @param style
+
+ANDfuncString <- function(coregString, language, style) {
+  if (language == "R") {
+    #coregString[i] <- paste0("min(", coregString[i], ")")
+    coregString[i] <- sprintf("min(%s)", coregString)
+  } else if (language == "C") {
+    if (isFALSE(sharp)) {
+      coregString[i] <- paste0("getMin(", coregString[i], ")")
+    } else {
+      coregVector <- strsplit(coregString[i], ",")[[1]]
+      numCoreg <- length(coregVector)
+      coregString[i] <- paste0(paste0(rep("Math.Min(", numCoreg - 1),
+                                      coregVector[-numCoreg], collapse = ", "),
+                               ", ", coregVector[numCoreg], paste0(rep(")", numCoreg - 1),
+                                                                   collapse = ""))
+
+    }
+  }
+}
+
+funcs <- matrix(rep(NA, 9), ncol = 3)
+colnames(funcs) = c("R", "C", "C#")
+rownames(funcs) = c("Multiplicative", "Minimum", "Balanced")
+funcs["Multiplicative", "R"] <- "prod(%s)"
+funcs["Minimum", "R"] <- "min(%s)"
+funcs["Balanced", "R"] <- "prod(%s)^(1/%s)"
+
+funcs["Multiplicative", "C"]
+funcs["Minimum", "C"] <- "getMin(%s)"
+funcs["Balanced", "C"]
+
+funcs["Multiplicative", "C#"]
+funcs["Balanced", "C#"]
+funcs["Minimum", "C#"] <- "Math.Min(%s)"
 

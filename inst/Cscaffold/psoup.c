@@ -8,7 +8,7 @@
 
 /* This function calculates the new element values based on the element values of
 the previous time step */
-void stepNext(struct GeneVals gen, struct NodeVals* pDat) {
+void stepNext(struct GeneVals gen, struct NodeVals* pDatinsertEXOmainInternal) {
 
     struct NodeVals oldDat = *pDat; /* NodeVals object to store the previous timestep. */
 
@@ -26,7 +26,7 @@ int checkSame(struct NodeVals oldDat, struct NodeVals newDat) {
         return 1;
 }
 
-void calculateVals (struct GeneVals gen, struct NodeVals* pDat, int* pTime) {
+void calculateVals (struct GeneVals gen, struct NodeVals* pDatinsertEXOmainInternal, int* pTime) {
 
     struct NodeVals oldDat; /* NodeVals object to store the previous timestep. */
     int check = TMAX/2; /* A value to communicate to the user that the calculation
@@ -38,7 +38,7 @@ void calculateVals (struct GeneVals gen, struct NodeVals* pDat, int* pTime) {
         oldDat = *pDat;
 
         /* Calculating out values from old values */
-        stepNext(gen, pDat);
+        stepNext(gen, pDatinsertEXOobject);
 
         /* If stability has been reached, break new of while loop */
         if (*pTime > 0 && checkSame(oldDat, *pDat)) {

@@ -11,11 +11,12 @@ struct NodeVals {
 struct GeneVals {
     insertSTRUCTGENENAMES
 };
+insertEXOdefinition;
 
 /* Declaring support functions. */
-void stepNext(struct GeneVals gen, struct NodeVals* pDat);
+void stepNext(struct GeneVals gen, struct NodeVals* pDatinsertEXOmainInternal);
 int checkSame(struct NodeVals first, struct NodeVals second);
-void calculateVals (struct GeneVals gen, struct NodeVals* pDat, int* pTime);
+void calculateVals (struct GeneVals gen, struct NodeVals* pDatinsertEXOmainInternal, int* pTime);
 float getMin(float num1, float num2);
 float getMax(float num1, float num2);
 
