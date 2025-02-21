@@ -74,13 +74,19 @@ fastPlot <- function(sim, logTransform = T, removeBaseline = T) {
     scale_x_continuous(breaks = breaks)
 }
 
-#' A function to pull the final states from a set of simulations.
+#' A function to pull the final states from simulations. This function will work
+#' for output from bothe the simulateNetwork, and setupSims functions.
 #'
 #' @param simulations a list containing the output of the setupSims function
 #' @importFrom utils tail
 #' @export
 
 finalStates <- function(simulations) {
+  if ("simulation" %in% names(simulations)) {
+    final <- tail(simulations$simulation, 1)
+    return(final)
+  }
+
   final <- tail(simulations[[1]]$simulation, 1)
   final[2:length(simulations), ] <- NA
 

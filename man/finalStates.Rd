@@ -2,7 +2,8 @@
 % Please edit documentation in R/plotting.R
 \name{finalStates}
 \alias{finalStates}
-\title{A function to pull the final states from a set of simulations.}
+\title{A function to pull the final states from simulations. This function will work
+for output from bothe the simulateNetwork, and setupSims functions.}
 \usage{
 finalStates(simulations)
 }
@@ -10,5 +11,6 @@ finalStates(simulations)
 \item{simulations}{a list containing the output of the setupSims function}
 }
 \description{
-A function to pull the final states from a set of simulations.
+A function to pull the final states from simulations. This function will work
+for output from bothe the simulateNetwork, and setupSims functions.
 }
