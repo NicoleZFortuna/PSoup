@@ -380,7 +380,7 @@ setupSims <- function(folder,
   with_progress({
     p <- progressor(along = count) # set up counter
     # Run simulations
-    sims <- foreach(i = count, .packages = "PSoup") %do% {
+    sims <- foreach(i = count, .packages = "PSoup") %dopar% {
       p() # report progress
       if (is.null(exogenousDef)) {
         exogenousCondition <- FALSE
