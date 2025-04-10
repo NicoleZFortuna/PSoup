@@ -843,6 +843,22 @@ differenceString <- function(string,
 #' @param style
 
 ANDfuncString <- function(coregString, language, style) {
+  funcs <- matrix(rep(NA, 9), ncol = 3)
+  colnames(funcs) = c("R", "C", "C#")
+  rownames(funcs) = c("Multiplicative", "Minimum", "Balanced")
+  funcs["Multiplicative", "R"] <- "prod(%s)"
+  funcs["Minimum", "R"] <- "min(%s)"
+  funcs["Balanced", "R"] <- "prod(%s)^(1/%s)"
+
+  funcs["Multiplicative", "C"]
+  funcs["Minimum", "C"] <- "getMin(%s)"
+  funcs["Balanced", "C"]
+
+  funcs["Multiplicative", "C#"]
+  funcs["Balanced", "C#"]
+  funcs["Minimum", "C#"] <- "Math.Min(%s)"
+
+  coregCalc <- sprintf(funcs[style, language], coregString)
   if (language == "R") {
     #coregString[i] <- paste0("min(", coregString[i], ")")
     coregString[i] <- sprintf("min(%s)", coregString)
@@ -861,17 +877,4 @@ ANDfuncString <- function(coregString, language, style) {
   }
 }
 
-funcs <- matrix(rep(NA, 9), ncol = 3)
-colnames(funcs) = c("R", "C", "C#")
-rownames(funcs) = c("Multiplicative", "Minimum", "Balanced")
-funcs["Multiplicative", "R"] <- "prod(%s)"
-funcs["Minimum", "R"] <- "min(%s)"
-funcs["Balanced", "R"] <- "prod(%s)^(1/%s)"
 
-funcs["Multiplicative", "C"]
-funcs["Minimum", "C"] <- "getMin(%s)"
-funcs["Balanced", "C"]
-
-funcs["Multiplicative", "C#"]
-funcs["Balanced", "C#"]
-funcs["Minimum", "C#"] <- "Math.Min(%s)"
