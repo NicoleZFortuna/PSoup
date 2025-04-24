@@ -4,6 +4,7 @@
 .Ruserdata
 .Rbuildignore
 R/.DS_Store
+R/.Rapp.history
 .DS_Store
 R/ObjStandard.R
 data/.Rapp.history
