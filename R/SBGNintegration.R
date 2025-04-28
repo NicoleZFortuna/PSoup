@@ -329,6 +329,30 @@ buildHormone <- function(nodeInfo, arcInfo, i, logicIndex, ids, nodesList, lang)
 languageConversion <- function(influenceFrame, language) {
   column <- which(c("activity flow", "entity relationship") %in% language) + 1
 
+  langConversion <- data.frame(PSoup = c("stimulation",
+                                         "inhibition",
+                                         "necessary stimulation",
+                                         "necessary inhibition",
+                                         "sufficient stimulation",
+                                         "sufficient inhibition",
+                                         "unknown",
+                                         "altSource"),
+                               AF = c("positive influence",
+                                      "negative influence",
+                                      "necessary stimulation",
+                                      NA, NA, NA,
+                                      "unknown influence",
+                                      "altSource"),
+                               ER = c("stimulation",
+                                      "inhibition",
+                                      "necessary stimulation",
+                                      NA,
+                                      "absolute stimulation",
+                                      "absolute inhibition",
+                                      "modulation",
+                                      "altSource"))
+
+
   replace <- langConversion$PSoup[match(influenceFrame, langConversion[,column])]
   replace
 }

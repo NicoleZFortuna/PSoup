@@ -322,6 +322,53 @@ generateGeneToNodeList <- function(network) {
   dat
 }
 
+#' A function to generate an adjacency matrix from a network object
+#'
+#' @param network an onject of class network generated from the
+#'                convertSBGNdiagram function.
+#' @param addGenes logical defaulting to FALSE. States if additional
+#'                incoming nodes should be added to and node in the
+#'                network that has a modifier.
+#' @param nGenes in the case that additional nodes will be added,
+#'                how many should be added.
+
+generateAjacencyMatrix <- function(network, addGenes = F, nGenes = NA) {
+  # add argument to add modifiers to the adjacency matrix?
+
+  mat <- matrix(nrow = length(names(network@objects$Hormones)),
+                ncol = length(names(network@objects$Hormones)))
+
+  rownames(mat) <- colnames(mat) <- names(network@objects$Hormones)
+
+  for (i in 1:nrow(mat)) {
+    mat[network@objects$Hormones[[i]]@inputs$Node,
+        network@objects$Hormones[[i]]@name] <- 1
+  }
+
+  if (isFALSE(addGenes)) return(mat)
+
+  baseMod <- rep(names(network@objects$Genotypes), each = nGenes)
+  newRowColNames <- paste(baseMod,
+                          1:nGenes,
+                          sep = ".")
+  toInfluence <- vector(length = length(newRowColNames))
+  for (j in 1:length(toInfluence)) {
+    toInfluence[j] <- network@objects$Genotypes[[baseMod[j]]]@influence$Node
+  }
+
+  mat = cbind(mat, matrix(NA, nrow = nrow(mat), ncol = length(newRowColNames)))
+  mat = rbind(mat, matrix(NA, ncol = ncol(mat), nrow = length(newRowColNames)))
+
+  rownames(mat)[tail(1:nrow(mat), length(newRowColNames))] <- newRowColNames
+  colnames(mat)[tail(1:nrow(mat), length(newRowColNames))] <- newRowColNames
+
+  for (i in 1:length(newRowColNames)) {
+    mat[newRowColNames[i], toInfluence[i]] <- 1
+  }
+
+  mat
+}
+
 #' a function to move the example .sbgn file into a folder of the users choice.
 #'
 #' @param folder a folder on the users computer. If the folder exists already
