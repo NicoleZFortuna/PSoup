@@ -868,9 +868,9 @@ differenceString <- function(string,
 
 #' A function for generating the code for a conjunction
 #'
-#' @param coregString
-#' @param language
-#' @param style
+#' @param coregString a string listing coregulators
+#' @param language programming language. "R" or "C"
+#' @param style form of mathematical representation of AND
 
 ANDfuncString <- function(coregString, language, style) {
   if (language == "R") {

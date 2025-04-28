@@ -6,6 +6,13 @@
 \usage{
 ANDfuncString(coregString, language, style)
 }
+\arguments{
+\item{coregString}{a string listing coregulators}
+
+\item{language}{programming language. "R" or "C"}
+
+\item{style}{form of mathematical representation of AND}
+}
 \description{
 A function for generating the code for a conjunction
 }
