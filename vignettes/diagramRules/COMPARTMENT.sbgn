@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
+<sbgn xmlns="http://sbgn.org/libsbgn/0.2">
+  <map language="activity flow">
+    <glyph id="nwtN_affec239-f07e-4d3b-81dd-7d9677ec7698" class="compartment">
+      <bbox x="534.375" y="214.375" w="311.25" h="151.25"/>
+    </glyph>
+    <glyph id="nwtN_06ab9a00-edb1-40bd-9cac-d41310cc15c7" class="biological activity" compartmentRef="nwtN_affec239-f07e-4d3b-81dd-7d9677ec7698">
+      <label text="C"/>
+      <bbox x="650" y="230" w="80" h="40"/>
+    </glyph>
+    <glyph id="nwtN_f77a7f7a-e034-4031-a6ce-624a6a334d57" class="biological activity" compartmentRef="nwtN_affec239-f07e-4d3b-81dd-7d9677ec7698">
+      <label text="A"/>
+      <bbox x="550" y="310" w="80" h="40"/>
+      <glyph id="nwtUOI_0e6600e5-3db9-414a-9f25-787f2add88c0" class="unit of information">
+        <label text="a"/>
+        <entity name="macromolecule"/>
+        <bbox x="558.6666666666666" y="304" w="12" h="12"/>
+      </glyph>
+    </glyph>
+    <glyph id="nwtN_ed05a2eb-0643-4309-8963-2670e78f0662" class="biological activity" compartmentRef="nwtN_affec239-f07e-4d3b-81dd-7d9677ec7698">
+      <label text="B"/>
+      <bbox x="750" y="310" w="80" h="40"/>
+      <glyph id="nwtUOI_8930a36a-7f5e-4e02-b6bf-78d8e04c35d8" class="unit of information">
+        <label text="b"/>
+        <entity name="macromolecule"/>
+        <bbox x="758.6666666666666" y="304" w="12" h="12"/>
+      </glyph>
+    </glyph>
+    <glyph id="nwtN_685c72bc-3241-4786-88ad-95bf618eb957" class="compartment">
+      <bbox x="534.375" y="407.75" w="311.25" h="77.875"/>
+    </glyph>
+    <glyph id="nwtN_55256b77-d9a5-44f1-9044-576051cc025f" class="biological activity" compartmentRef="nwtN_685c72bc-3241-4786-88ad-95bf618eb957">
+      <label text="A"/>
+      <bbox x="550" y="430" w="80" h="40"/>
+      <glyph id="nwtUOI_878e9028-5104-4a27-b43a-cf5a0f3de3d9" class="unit of information">
+        <label text="a"/>
+        <entity name="macromolecule"/>
+        <bbox x="558.6666666666666" y="424" w="12" h="12"/>
+      </glyph>
+    </glyph>
+    <glyph id="nwtN_ee6d6755-148c-490a-bbd3-b9f0d2047fc3" class="biological activity" compartmentRef="nwtN_685c72bc-3241-4786-88ad-95bf618eb957">
+      <label text="B"/>
+      <bbox x="750" y="430" w="80" h="40"/>
+      <glyph id="nwtUOI_d4c5e99e-e842-49be-ab60-1ed3ffb95331" class="unit of information">
+        <label text="b"/>
+        <entity name="macromolecule"/>
+        <bbox x="758.6666666666666" y="424" w="12" h="12"/>
+      </glyph>
+    </glyph>
+    <arc id="nwtE_cfe6736a-3998-4b68-85fa-576052f6e5b2" class="positive influence" source="nwtN_f77a7f7a-e034-4031-a6ce-624a6a334d57" target="nwtN_55256b77-d9a5-44f1-9044-576051cc025f">
+      <start x="590" y="350.625"/>
+      <end x="590" y="426.25"/>
+    </arc>
+    <arc id="nwtE_3eee4ab4-99fb-49d6-bf0e-34d6a73f7335" class="positive influence" source="nwtN_55256b77-d9a5-44f1-9044-576051cc025f" target="nwtN_ee6d6755-148c-490a-bbd3-b9f0d2047fc3">
+      <start x="630.625" y="450"/>
+      <end x="746.25" y="450"/>
+    </arc>
+    <arc id="nwtE_a798dc25-26a3-4a52-b272-7054422f1f54" class="positive influence" source="nwtN_ee6d6755-148c-490a-bbd3-b9f0d2047fc3" target="nwtN_ed05a2eb-0643-4309-8963-2670e78f0662">
+      <start x="790" y="429.375"/>
+      <end x="790" y="353.75"/>
+    </arc>
+    <arc id="nwtE_77ecaa5a-8ee5-415d-9dad-32ac17127b20" class="positive influence" source="nwtN_f77a7f7a-e034-4031-a6ce-624a6a334d57" target="nwtN_ed05a2eb-0643-4309-8963-2670e78f0662">
+      <start x="630.625" y="330"/>
+      <end x="746.25" y="330"/>
+    </arc>
+    <arc id="nwtE_a5ba93bf-0c73-48fd-9a93-ebe26d77ca95" class="positive influence" source="nwtN_ed05a2eb-0643-4309-8963-2670e78f0662" target="nwtN_06ab9a00-edb1-40bd-9cac-d41310cc15c7">
+      <start x="759.4046009238454" y="305.52368073907627"/>
+      <end x="718.2214650295094" y="272.5771720236076"/>
+    </arc>
+    <arc id="nwtE_338ce46f-a39c-4b7a-a721-f84043b2d2a5" class="negative influence" source="nwtN_06ab9a00-edb1-40bd-9cac-d41310cc15c7" target="nwtN_f77a7f7a-e034-4031-a6ce-624a6a334d57">
+      <start x="664.21875" y="270.625"/>
+      <end x="616.5621188094431" y="308.75030495244556"/>
+    </arc>
+  </map>
+</sbgn>

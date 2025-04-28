@@ -65,3 +65,17 @@ float getMin (float num1, float num2) {
 float getMax (float num1, float num2) {
   return (num1 > num2) ? num1 : num2;
 }
+
+/* This function takes the product of items in a vector */
+/* float getProd (float array[], int length) {
+  int product = 1;
+  for (int i = 0; i < length, i++)
+    product *= array[i];
+  return product;
+*/}
+
+/* This function takes the nth root of items in a vector */
+/* float getRoot (float array[], int length) {
+  float result = pow(getProd(array[], length), (1/(length - 1)));
+  return result;
+*/}

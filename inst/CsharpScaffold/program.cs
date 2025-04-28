@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Linq;
 
 /* Declare structures that will be used to hold node and modifier (genetic)
 information. Includes the names that will be used to communicate with an
