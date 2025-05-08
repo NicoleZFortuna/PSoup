@@ -51,6 +51,13 @@
 #'               original Dun equations normalised such that WT conditions are
 #'               always 1. The Mike style creates mirrored stimulatory and
 #'               inhibitory effects.
+#' @param ANDStyle form of mathematical representation of AND.
+#'               Either "Multiplicative" which takes the
+#'               product of the coregulators, "Minimum" which
+#'               treats the coregulator with the minimum
+#'               as a bottleneck, or "Balanced" which takes
+#'               the geometric mean of the coregulators. Default
+#'               set to "Balanced".
 #' @param necStimStyle the multiplicative effect taken on by necessary stimulants.
 #'               Can be "linear" (the default) or saturating. If saturating,
 #'               they can follow a standard "Michaelis-Menten" form, or a
@@ -96,6 +103,7 @@ buildModel <- function(network,
                        maxStep = 100,
                        steadyThreshold = 4,
                        ruleStyle = "Dun",
+                       ANDStyle = "Balanced",
                        necStimStyle = "Linear",
                        necStimFile = NULL,
                        necStimMap = NULL,
@@ -213,11 +221,20 @@ buildModel <- function(network,
   # Including a function to calculate the effects of a necessary stimulant in
   # in the case that the style is not linear and/or there is a provided function.
   if (!(necStimStyle == "Linear" & is.null(necStimFile))) {
-    cat("\t# functions to define the forms of a necessary stimulant.\n", file = funcfile, append = T)
+    cat("\t# functions to define the forms of a necessary stimulant.\n",
+        file = funcfile, append = T)
     for (i in 1:length(functionText)) {
       cat(paste0("\t", functionText[[i]]), sep = "\n", file = funcfile, append = T)
       cat("\n", file = funcfile, append = T)
     }
+  }
+
+  # Including a function defining how conjunctions should be treated if using
+  # the geometric mean method.
+  if (ANDStyle == "Balanced") {
+    cat("\t# function to define the forms of a conjunction based on the geometric mean.\n",
+        file = funcfile, append = T)
+    cat("\tgeoMean <- function(x) prod(x)^(1/length(x))")
   }
 
   for (i in 1:length(nodes)) {
@@ -870,39 +887,40 @@ differenceString <- function(string,
 #'
 #' @param coregString a string listing coregulators
 #' @param language programming language. "R" or "C"
-#' @param style form of mathematical representation of AND
+#' @param style form of mathematical representation of AND.
+#'              Either "Multiplicative" which takes the
+#'              product of the coregulators, "Minimum" which
+#'              treats the coregulator with the minimum
+#'              as a bottleneck, or "Balanced" which takes
+#'              the geometric mean of the coregulators.
 
 ANDfuncString <- function(coregString, language, style) {
-  if (language == "R") {
-    #coregString[i] <- paste0("min(", coregString[i], ")")
-    coregString[i] <- sprintf("min(%s)", coregString)
-  } else if (language == "C") {
-    if (isFALSE(sharp)) {
-      coregString[i] <- paste0("getMin(", coregString[i], ")")
-    } else {
-      coregVector <- strsplit(coregString[i], ",")[[1]]
-      numCoreg <- length(coregVector)
-      coregString[i] <- paste0(paste0(rep("Math.Min(", numCoreg - 1),
-                                      coregVector[-numCoreg], collapse = ", "),
-                               ", ", coregVector[numCoreg], paste0(rep(")", numCoreg - 1),
-                                                                   collapse = ""))
-
-    }
+  # Checking that valid arguments have been made
+  if (!style %in% c("Multiplicative", "Minimum", "Balanced")) {
+    stop("You have selected an incorrect style argument.")
   }
+
+  if (!language %in% c("R", "C", "C#")) {
+    stop("You have selected an incorrect language argument.")
+  }
+
+  funcs <- matrix(rep(NA, 9), ncol = 3)
+  colnames(funcs) = c("R", "C", "C#")
+  rownames(funcs) = c("Multiplicative", "Minimum", "Balanced")
+  funcs["Multiplicative", "R"] <- "prod(%s)"
+  funcs["Minimum", "R"] <- "min(%s)"
+  funcs["Balanced", "R"] <- "geoMean(c(%s))"
+
+  funcs["Multiplicative", "C"]
+  funcs["Minimum", "C"] <- "getMin(%s)"
+  funcs["Balanced", "C"]
+
+  funcs["Multiplicative", "C#"]
+  funcs["Minimum", "C#"] <- "Math.Min(%s)"
+  funcs["Balanced", "C#"]
+
+  coregEquation <- sprintf(funcs[style, language])
+
+  coregEquation
 }
-
-funcs <- matrix(rep(NA, 9), ncol = 3)
-colnames(funcs) = c("R", "C", "C#")
-rownames(funcs) = c("Multiplicative", "Minimum", "Balanced")
-funcs["Multiplicative", "R"] <- "prod(%s)"
-funcs["Minimum", "R"] <- "min(%s)"
-funcs["Balanced", "R"] <- "prod(%s)^(1/%s)"
-
-funcs["Multiplicative", "C"]
-funcs["Minimum", "C"] <- "getMin(%s)"
-funcs["Balanced", "C"]
-
-funcs["Multiplicative", "C#"]
-funcs["Balanced", "C#"]
-funcs["Minimum", "C#"] <- "Math.Min(%s)"
 
