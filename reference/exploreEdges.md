@@ -1,0 +1,115 @@
+# A function to test how network behavior changes in response to changing the nature of edge types.
+
+This function builds alternative network objects and their corresponding
+nextStep files. Alternate networks are build by one by one modifying the
+nature of edges. Specifically stimulations and inhibitions (necessary
+stimulations are left as is). These alternate networks can then be the
+basis of simulations designed to compare network behaviour, however this
+feature can be turned off.
+
+## Usage
+
+``` r
+exploreEdges(
+  startingNetwork,
+  folder,
+  excludeEdge = NULL,
+  runSim = TRUE,
+  maxStep = 100,
+  steadyThreshold = 4,
+  ruleStyle = "Dun",
+  necStimStyle = "Michaelis-Menten",
+  necStimFile = NULL,
+  exogenousSupply = NULL,
+  priorScreen = FALSE,
+  saveNetwork = TRUE,
+  saveOutput = FALSE
+)
+```
+
+## Arguments
+
+- startingNetwork:
+
+  an object of class network describing the system to to be tested
+
+- folder:
+
+  the directory containing the original nextStep function built on the
+  original network
+
+- excludeEdge:
+
+  a data.frame with the column names Origin and Destination. This
+  data.frame indicates edges that you want to remain unchanged. Default
+  is set to NULL.
+
+- runSim:
+
+  default set to TRUE. Specifies if the user wants to automatically run
+  simulations across the alternative networks generated to compare their
+  behaviour. If TRUE, the user must provide objects defining the
+  simulations to be run (eg. a genotypeDef object). including the
+  nextStep.R file. This can be done by running the buildModel function
+  on the original network, and defining the simulation conditions before
+  running this function. If runSim is set to FALSE, there is no need to
+  run the buildModel function as all objects for the starting network
+  will be build by this function.
+
+- maxStep:
+
+  the maximum number of steps that you want to simulate for. Will
+  terminate simulation when steady state is reached, unless maxStep is
+  reached first. If set to NA (the default), will simulate until
+  stability is reached.
+
+- steadyThreshold:
+
+  the number of decimal places to which node values must be equivalent
+  to be considered a steady state. This threshold must be passed for all
+  nodes.
+
+- ruleStyle:
+
+  either "Dun", or "Mike". The Dun style resembles the original Dun
+  equations normalised such that WT conditions are always 1. The Mike
+  style creates mirrored stimulatory and inhibitory effects.
+
+- necStimStyle:
+
+  the multiplicative effect taken on by necessary stimulants. Can be
+  "linear" (the default) or saturating. If saturating, they can follow a
+  standard "Michaelis-Menten" form, or a "switch-like" form.
+
+- necStimFile:
+
+  the file directory containing a function for determining the from for
+  the multiplicative effect of a necessary stimulant. This function
+  should only have a single argument representing the value of the
+  necessary stimulant. If a file path is provided, the necStimStyle
+  argument will be ignored.
+
+- exogenousSupply:
+
+  specifies if the value of a node (or nodes) is determined by an
+  outside supply. In this case, the value of the node is supplied by the
+  user and remains consistent throughout the course of the simulation.
+  The default value for this argument is NULL. To specify nodes with an
+  exogenous supply, provide a named vector containing the values of the
+  nodes, with each vector member named after their respective node.
+
+- priorScreen:
+
+  logical. Specifies if the function should collect modifier values
+  generated from generated prior distributions.
+
+- saveNetwork:
+
+  logical. Defaults to TRUE. Indicates if alternative network objects
+  should be saved in the generated folder.
+
+- saveOutput:
+
+  logical. Defaults to TRUE. Indicates if all the simulated output
+  should be saved in the provided folder. If set to FALSE, only the
+  outputs to simulations that have not achieved stability will be saved.

@@ -1,0 +1,148 @@
+# A function to generate equations from a network object
+
+This function is used to define the script that is needed to simulate
+the model of interest. It defines the genotypes of the network and sets
+them to a default of 1. It also initiates default starting node values
+of 1. A function is also defined, which provides the routine needed to
+calculate the next time step in the simulation. The folder containing
+the output of this function can be edited by the user as required. The
+folder directory will need to be provided to the simulateNetwork or
+setupSims functions as an input.
+
+## Usage
+
+``` r
+buildModel(
+  network,
+  folder = "./Model",
+  forceOverwrite = FALSE,
+  altSource = FALSE,
+  language = "R",
+  splitCompartment = FALSE,
+  maxStep = 100,
+  steadyThreshold = 4,
+  ruleStyle = "Dun",
+  necStimStyle = "Linear",
+  necStimFile = NULL,
+  necStimMap = NULL,
+  saveNetwork = T,
+  robustnessTest = F,
+  altTopologyName = NULL,
+  exogenous = TRUE
+)
+```
+
+## Arguments
+
+- network:
+
+  an object of class network
+
+- folder:
+
+  the name of the folder that you want the components of the model to be
+  saved to. The default is to create a directory called Model in the
+  current working directory. The user can provide their own directory
+  and folder name. If the language argument is set to "R", two objects:
+  one to define genotypes (genotypeDef.RData), one to define the
+  starting node values (nodestartDef.RData) will be saved in the folder.
+  In addition, a script to define the function that will calculate how
+  the nodevalues change with each timestep will be saved (nextStep.R).
+  If language is set to "C", a .h and a .c script will be generated in
+  the folder. These scripts will need to be compiled locally on your
+  computer before you will be able to execute the model.
+
+- forceOverwrite:
+
+  default set to FALSE. Will stop the function if the folder already
+  exits. Can set to true if you want to replace the existing folder. In
+  which case a warning will still be thrown.
+
+- altSource:
+
+  whether alternative sources should be additive to other inputs to a
+  node. If FALSE, should be treated as just another input.
+
+- language:
+
+  a string which indicates how the user wants the model to be returned.
+  The default is to create the model for use in R ("R"). Users can also
+  choose "C", or "C#".
+
+- splitCompartment:
+
+  determines if the network will be split into its separate compartments
+  or maintained as a whole. Separation of compartments should only be
+  done if you intend to use L-Systems to mediate the communication nodes
+  of different compartments. As such, the default has been set to FALSE.
+  NOT YET FINISHED!
+
+- maxStep:
+
+  this only needs to be specified in the case that language has been set
+  to "C/C#". The maximum value that the simulation will be allowed to
+  proceed. If the midpoint is reached, a warning will be returned. The
+  default value is set to 100.
+
+- steadyThreshold:
+
+  this only needs to be specified in the case that language has been set
+  to "C". The number of decimal places to which node values must be
+  equivalent to be considered a steady state. This threshold must be
+  passed for all nodes. The default is set to 4.
+
+- ruleStyle:
+
+  either "Dun", or "Mike". The Dun style resembles the original Dun
+  equations normalised such that WT conditions are always 1. The Mike
+  style creates mirrored stimulatory and inhibitory effects.
+
+- necStimStyle:
+
+  the multiplicative effect taken on by necessary stimulants. Can be
+  "linear" (the default) or saturating. If saturating, they can follow a
+  standard "Michaelis-Menten" form, or a "switch-like" form.
+
+- necStimFile:
+
+  the file directory containing a function for determining the form for
+  the multiplicative effect of a necessary stimulant. If more than one
+  form exists, this argument can be a vector of pathways. If the user
+  wants to use more than a single form, the nesStimMap argument must be
+  used. Default set to NULL, in which case the necStimStyle will be
+  applied to all necessary stimulants.
+
+- necStimMap:
+
+  if more than one form is to be used for necessary stimulants, the user
+  must indicate which form will be applied to which necessary stimulant.
+  Only the necessary stimulants deviate from the necStimStyle need to be
+  indicated. This indication will be achieve by passing a data.frame
+  with the following columns: to, from, style, and threshold. to
+  indicates the downstream node for the necessary stimulant. from the
+  origin node, and style the name of the functional form for the
+  necessary stimulant. The threshold column contains boolean values
+  indicating the presence or absence of a threshold parameter.
+
+- saveNetwork:
+
+  logical. Defaults to TRUE. Indicates if the provided network object
+  should be saved in the generated folder.
+
+- robustnessTest:
+
+  logical. Defaults to FALSE. Specifies if the nextStep function being
+  built is part of a network robustness check.
+
+- altTopologyName:
+
+  default to NULL. If robustnessTest = T, this argument allows the user
+  to keep the generated alternate nextStep function with a specific
+  name. If no name is provided, the alternate nextStep functions will be
+  names nextStepAlt.R.
+
+- exogenous:
+
+  default set to TRUE. This argument allows you to tailor the
+  construction of a model in either C or C#. If TRUE, the generated code
+  will allow for an exogenous supply to be added to the model.

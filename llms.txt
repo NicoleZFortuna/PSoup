@@ -1,0 +1,144 @@
+# PSoup
+
+The goal of PSoup is to enable users to quickly generate mathematical
+descriptions of complex systems, which can be used to run simulations.
+PSoup reads diagrammatic representations of biological systems
+(specifically of type SBGN), and uses algebraic rules to transform the
+diagram into a set of difference equations. PSoup provides support to
+enable the running of simulations, as well as analysing the resulting
+output.
+
+To build a diagram of type SBGN, go to [Newt Pathway Viewer &
+Editor](https://newteditor.org/).
+
+To see a series of tutorials on how to use PSoup, go to
+[nicolezfortuna.github.io/PSoup/](https://nicolezfortuna.github.io/PSoup/).
+
+## Installation
+
+You can install PSoup from [GitHub](https://github.com/) with:
+
+``` r
+
+# install.packages("devtools")
+devtools::install_github("NicoleZFortuna/PSoup")
+```
+
+# Package index
+
+## All functions
+
+- [`Genotype-class`](https://nicolezfortuna.github.io/PSoup/reference/Genotype-class.md)
+  [`Genotype`](https://nicolezfortuna.github.io/PSoup/reference/Genotype-class.md)
+  : A function to generate objects of class 'Genotype'
+- [`Hormone-class`](https://nicolezfortuna.github.io/PSoup/reference/Hormone-class.md)
+  [`Hormone`](https://nicolezfortuna.github.io/PSoup/reference/Hormone-class.md)
+  : A function to generate objects of class 'Hormone'
+- [`Network-class`](https://nicolezfortuna.github.io/PSoup/reference/Network-class.md)
+  [`Network`](https://nicolezfortuna.github.io/PSoup/reference/Network-class.md)
+  : A function to generate objects of class 'Network'
+- [`altSourceToStimulant()`](https://nicolezfortuna.github.io/PSoup/reference/altSourceToStimulant.md)
+  : A function to convert altSource inputs to stimulants.
+- [`buildHormone()`](https://nicolezfortuna.github.io/PSoup/reference/buildHormone.md)
+  : A function to build a hormone object
+- [`buildModel()`](https://nicolezfortuna.github.io/PSoup/reference/buildModel.md)
+  : A function to generate equations from a network object
+- [`buildNetwork()`](https://nicolezfortuna.github.io/PSoup/reference/buildNetwork.md)
+  : A function for building a network object
+- [`consistencyCheck()`](https://nicolezfortuna.github.io/PSoup/reference/consistencyCheck.md)
+  : A function to check the internal consistency of a Network object.
+- [`convertSBGNdiagram()`](https://nicolezfortuna.github.io/PSoup/reference/convertSBGNdiagram.md)
+  : A function that converts an SBGN-ML text file into a network object
+- [`coregulators()`](https://nicolezfortuna.github.io/PSoup/reference/coregulators.md)
+  : A function that creates a string with coregulators multiplied
+  together
+- [`differenceString()`](https://nicolezfortuna.github.io/PSoup/reference/differenceString.md)
+  : A function to build the difference equation including delays
+- [`exogenousScreen()`](https://nicolezfortuna.github.io/PSoup/reference/exogenousScreen.md)
+  : A function to generate all combinations of two vectors containing
+  the values to be screened for two nodes. This function will also
+  include the possibility of no exogenous values being provided in the
+  form of NA.
+- [`exploreEdges()`](https://nicolezfortuna.github.io/PSoup/reference/exploreEdges.md)
+  : A function to test how network behavior changes in response to
+  changing the nature of edge types.
+- [`fastPlot()`](https://nicolezfortuna.github.io/PSoup/reference/fastPlot.md)
+  : A plot to quickly inspect the progression of a simulation.
+- [`finalStates()`](https://nicolezfortuna.github.io/PSoup/reference/finalStates.md)
+  : A function to pull the final states from a set of simulations.
+- [`generateC()`](https://nicolezfortuna.github.io/PSoup/reference/generateC.md)
+  : A function to generate a C script which will execute a simulation of
+  the network given a starting condition.
+- [`generateEdgeList()`](https://nicolezfortuna.github.io/PSoup/reference/generateEdgeList.md)
+  : A function to generate a data frame which lists all of the edges of
+  a network.
+- [`generateEquation()`](https://nicolezfortuna.github.io/PSoup/reference/generateEquation.md)
+  : A function to generate an equation for a specific node
+- [`generateGeneToNodeList()`](https://nicolezfortuna.github.io/PSoup/reference/generateGeneToNodeList.md)
+  : a function to map the genes that effect nodes in a network
+- [`genotypeScreen()`](https://nicolezfortuna.github.io/PSoup/reference/genotypeScreen.md)
+  : A function to generate genotype screens.
+- [`getExampleDiagram()`](https://nicolezfortuna.github.io/PSoup/reference/getExampleDiagram.md)
+  : a function to move the example .sbgn file into a folder of the users
+  choice.
+- [`getSubmapNodes()`](https://nicolezfortuna.github.io/PSoup/reference/getSubmapNodes.md)
+  : A function to pull out information from with in submaps
+- [`langConversion`](https://nicolezfortuna.github.io/PSoup/reference/langConversion.md)
+  : A data.frame containing the language conventions and their
+  equivalence of the PSoup package, and the SBGN languages 'activity
+  flow' and 'entity relationship'.
+- [`languageConversion()`](https://nicolezfortuna.github.io/PSoup/reference/languageConversion.md)
+  : A function to convert SBGN language to PSoup language
+- [`listGenotypes()`](https://nicolezfortuna.github.io/PSoup/reference/listGenotypes.md)
+  : A function to list all objects of class genotype in the current
+  environment
+- [`listNodes()`](https://nicolezfortuna.github.io/PSoup/reference/listNodes.md)
+  : A function to list all objects of class hormone in the current
+  environment
+- [`modifierPriorScreen()`](https://nicolezfortuna.github.io/PSoup/reference/modifierPriorScreen.md)
+  : A function to generate a screen of modifier conditions based on a
+  set of prior distributions.
+- [`numCombn()`](https://nicolezfortuna.github.io/PSoup/reference/numCombn.md)
+  : A function to calculate the number of unique combinations of a
+  vector of length n of sample size r.
+- [`peaNetwork`](https://nicolezfortuna.github.io/PSoup/reference/peaNetwork.md)
+  : Definition for the peaNetwork object.
+- [`plot(`*`<simData>`*`)`](https://nicolezfortuna.github.io/PSoup/reference/plot.simData.md)
+  : A function to comparatively plot the outcomes of different
+  simulations
+- [`print.Network`](https://nicolezfortuna.github.io/PSoup/reference/print.Network.md)
+  : This is a function which specifies the print method for objects of
+  class Network.
+- [`randomStartScreen()`](https://nicolezfortuna.github.io/PSoup/reference/randomStartScreen.md)
+  : A function to generate a number of random starting point
+  reassignments.
+- [`reportCondition()`](https://nicolezfortuna.github.io/PSoup/reference/reportCondition.md)
+  : A function to report any deviation from the baseline for simulations
+- [`restoreBaseModel()`](https://nicolezfortuna.github.io/PSoup/reference/restoreBaseModel.md)
+  : A function to restore the base model.
+- [`setupSims()`](https://nicolezfortuna.github.io/PSoup/reference/setupSims.md)
+  : A wrapper function that allows you to run simulations of a network
+  under many different conditions.
+- [`simulateNetwork()`](https://nicolezfortuna.github.io/PSoup/reference/simulateNetwork.md)
+  : A function to simulate a network
+- [`stabilityVector()`](https://nicolezfortuna.github.io/PSoup/reference/stabilityVector.md)
+  : A function to create a vector that reports whether simulations have
+  managed to reach stability by the maximum timestep.
+- [`tidyScreen()`](https://nicolezfortuna.github.io/PSoup/reference/tidyScreen.md)
+  : A function to make sure that data.frames containing conditions to
+  screen are organised correctly. The wild-type condition is made to
+  come first, and any duplicate rows are removed.
+
+# Articles
+
+### All vignettes
+
+- [Introduction](https://nicolezfortuna.github.io/PSoup/articles/01_introduction.md):
+- [PSoup
+  Walkthrough](https://nicolezfortuna.github.io/PSoup/articles/02_walkthrough.md):
+- [Organising Prior
+  Knowledge](https://nicolezfortuna.github.io/PSoup/articles/03_priorknowledge.md):
+- [Newt Editor
+  Instructions](https://nicolezfortuna.github.io/PSoup/articles/04_newtinstructions.md):
+- [Algebraic
+  Rules](https://nicolezfortuna.github.io/PSoup/articles/05_algebraicrules.md):

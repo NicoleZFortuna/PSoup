@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Algebraic Rules • PSoup</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Algebraic Rules">
 </head>
@@ -67,9 +67,9 @@
 
     
     
-<div class="section level3">
-<h3 id="default-algorithmic-rule-set">Default algorithmic rule set<a class="anchor" aria-label="anchor" href="#default-algorithmic-rule-set"></a>
-</h3>
+<div class="section level2">
+<h2 id="default-algorithmic-rule-set">Default algorithmic rule set<a class="anchor" aria-label="anchor" href="#default-algorithmic-rule-set"></a>
+</h2>
 <p>There are several types of information that can contribute to the
 building of an equation. These types of information will be considered
 in a particular order to build an equation acording to the algorithmic
@@ -78,6 +78,8 @@ contribute, as well as the order in which they are considered when
 building an equation. Equations do not necessarily need to include every
 one of these components. An example of how incoming edge types can be
 used to generate a difference equation can be seen in Figure 1.</p>
+<p><em>Table 1: The types of building blocks used to generate the
+equation representing a node.</em></p>
 <table class="table">
 <colgroup>
 <col width="28%">
@@ -114,6 +116,9 @@ influences</td>
 </tr>
 </tbody>
 </table>
+<p><em>Table 2: An example of the diagramatic representation of
+different edges and their resulting mathematical
+representation.</em></p>
 <table class="table">
 <colgroup>
 <col width="75%">
@@ -125,39 +130,68 @@ influences</td>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><img src="diagramRules%2Fstimulation.png" style="width:80.0%"></td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mi>A</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">B[t] = A[t-1]</annotation></semantics></math></td>
+<td><img src="diagramRules/stimulation.png" style="width:80.0%"></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>A</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">B[t] = A[t-1]</annotation></semantics></math></td>
 </tr>
 <tr class="even">
-<td><img src="diagramRules%2Finhibition.png" style="width:80.0%"></td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mfrac><mn>2</mn><mrow><mn>1</mn><mo>+</mo><mi>A</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow></mrow></mfrac></mrow><annotation encoding="application/x-tex">B[t] = \frac{2}{1 + A[t-1]}</annotation></semantics></math></td>
+<td><img src="diagramRules/inhibition.png" style="width:80.0%"></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mfrac><mn>2</mn><mrow><mn>1</mn><mo>+</mo><mi>A</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">B[t] = \frac{2}{1 + A[t-1]}</annotation></semantics></math></td>
 </tr>
 <tr class="odd">
-<td><img src="diagramRules%2FnecStim.png" style="width:80.0%"></td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mn>1</mn><mo>*</mo><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>A</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">B[t] = 1*f(A[t-1])</annotation></semantics></math></td>
+<td><img src="diagramRules/necStim.png" style="width:80.0%"></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>1</mn><mo>×</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">B[t] = 1 \times f(A[t-1])</annotation></semantics></math></td>
 </tr>
 <tr class="even">
-<td><img src="diagramRules%2Fd.png" style="width:80.0%"></td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mfrac><mrow><mn>2</mn><mo>*</mo><mi>A</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow></mrow><mrow><mn>1</mn><mo>+</mo><mi>B</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow></mrow></mfrac><mo>*</mo><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>C</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo>*</mo><mi>d</mi></mrow><annotation encoding="application/x-tex">D[t] = \frac{2*A[t-1]}{1 + B[t-1]}*f(C[t-1])*d</annotation></semantics></math></td>
+<td><img src="diagramRules/d.png" style="width:80.0%"></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mfrac><mrow><mn>2</mn><mo>×</mo><mi>A</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><mrow><mn>1</mn><mo>+</mo><mi>B</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow></mfrac><mo>×</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>C</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="postfix">)</mo><mo>*</mo><mi>d</mi></mrow><annotation encoding="application/x-tex">D[t] = \frac{2 \times A[t-1]}{1 + B[t-1]} \times f(C[t-1])*d</annotation></semantics></math></td>
 </tr>
 </tbody>
 </table>
+<p>As a supplement to the above building blocks, it is possible to
+combine upstream nodes in the case that their influence only occurs when
+in combination with each other. An example of this could be an enzyme
+needing to interact with a substrate to produce a product.</p>
+<p><em>Table 3: Additional operator used to modify how incoming nodes
+affect the node of interest. The following equation dictates how these
+incoming nodes are treated, the final value of which is treated as a
+single input for the respective builing block that the interaction
+belongs in.</em></p>
+<table class="table">
+<colgroup>
+<col width="75%">
+<col width="25%">
+</colgroup>
+<thead><tr class="header">
+<th>SBGN-AF syntax</th>
+<th>Algorithmic rule</th>
+</tr></thead>
+<tbody><tr class="odd">
+<td><img src="diagramRules/AND.png" style="width:60.0%"></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>N</mi><mi>D</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo stretchy="false" form="postfix">]</mo><msup><mo>=</mo><mi>r</mi></msup><msqrt><mrow><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>r</mi></munderover><mi>N</mi><mi>o</mi><mi>d</mi><msub><mi>e</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo stretchy="false" form="postfix">]</mo></mrow></msqrt></mrow><annotation encoding="application/x-tex">AND[t]=^r\sqrt{\prod\limits_{i=1}^{r}Node_i[t]}</annotation></semantics></math></td>
+</tr></tbody>
+</table>
+<div class="section level3">
+<h3 id="example-network-and-its-conversion">Example network and its conversion<a class="anchor" aria-label="anchor" href="#example-network-and-its-conversion"></a>
+</h3>
 <p>Here is an example of a diagram showing a simplified diagram of the
 branching network in plants.</p>
 <div class="figure">
-<img src="diagramRules%2FBerthelootRecreation.png" alt="Figure 1. Simple branching network." width="80%"><p class="caption">
+<img src="diagramRules/BerthelootRecreation.png" class="r-plt" alt="Figure 1. Simple branching network." width="80%"><p class="caption">
 Figure 1. Simple branching network.
 </p>
 </div>
 <p>Using the above algorithmic rules, this diagram would be translated
 into the following set of equations.</p>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>u</mi><mi>x</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mi>A</mi><mi>u</mi><msup><mi>x</mi><mrow><mi>m</mi><mi>o</mi><mi>d</mi></mrow></msup></mrow><annotation encoding="application/x-tex">Aux[t] = Aux^{mod}</annotation></semantics></math></p>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mi>L</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mi>A</mi><mi>u</mi><mi>x</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow><mo>*</mo><mi>S</mi><msup><mi>L</mi><mrow><mi>m</mi><mi>o</mi><mi>d</mi></mrow></msup></mrow><annotation encoding="application/x-tex">SL[t] = Aux[t-1] * SL^{mod}</annotation></semantics></math></p>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mi>u</mi><mi>c</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mi>S</mi><mi>u</mi><msup><mi>c</mi><mrow><mi>m</mi><mi>o</mi><mi>d</mi></mrow></msup></mrow><annotation encoding="application/x-tex">Suc[t] = Suc^{mod}</annotation></semantics></math></p>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mi>K</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mi>S</mi><mi>u</mi><mi>c</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow><mo>*</mo><mfrac><mn>2</mn><mrow><mn>1</mn><mo>+</mo><mi>A</mi><mi>u</mi><mi>x</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow></mrow></mfrac><mo>*</mo><mi>C</mi><msup><mi>K</mi><mrow><mi>m</mi><mi>o</mi><mi>d</mi></mrow></msup></mrow><annotation encoding="application/x-tex">CK[t] = Suc[t-1] * \frac{2}{1 + Aux[t-1]} * CK^{mod}</annotation></semantics></math></p>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mi>S</mi><mi>L</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow><mo>*</mo><mfrac><mn>2</mn><mrow><mn>1</mn><mo>+</mo><mi>S</mi><mi>u</mi><mi>c</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow></mrow></mfrac></mrow><annotation encoding="application/x-tex">I[t] = SL[t-1] * \frac{2}{1 + Suc[t-1]}</annotation></semantics></math></p>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mi>O</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mfrac><mrow><mi>C</mi><mi>K</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow><mo>+</mo><mi>S</mi><mi>u</mi><mi>c</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow></mrow><mn>2</mn></mfrac><mo>*</mo><mfrac><mn>2</mn><mrow><mn>1</mn><mo>+</mo><mi>I</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>t</mi><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">]</mo></mrow></mrow></mfrac></mrow><annotation encoding="application/x-tex">BO[t] = \frac{CK[t-1] + Suc[t-1]}{2} * \frac{2}{1 + I[t-1]}</annotation></semantics></math></p>
-<p>The above example includes neither necessary stimulants, nor any
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="center" style="text-align: center"><mi>A</mi><mi>u</mi><mi>x</mi><mi>i</mi><mi>n</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>A</mi><mi>u</mi><mi>x</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>S</mi><mi>t</mi><mi>r</mi><mi>i</mi><mi>g</mi><mi>o</mi><mi>l</mi><mi>a</mi><mi>c</mi><mi>t</mi><mi>o</mi><mi>n</mi><mi>e</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>A</mi><mi>u</mi><mi>x</mi><mi>i</mi><mi>n</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo stretchy="false" form="postfix">]</mo><mo>×</mo><mi>S</mi><mi>L</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>S</mi><mi>u</mi><mi>c</mi><mi>r</mi><mi>o</mi><mi>s</mi><mi>e</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>S</mi><mi>u</mi><mi>c</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>C</mi><mi>y</mi><mi>t</mi><mi>o</mi><mi>k</mi><mi>i</mi><mi>n</mi><mi>i</mi><mi>n</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>S</mi><mi>u</mi><mi>c</mi><mi>r</mi><mi>o</mi><mi>s</mi><mi>e</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo stretchy="false" form="postfix">]</mo><mo>×</mo><mfrac><mn>2</mn><mrow><mn>1</mn><mo>+</mo><mi>A</mi><mi>u</mi><mi>x</mi><mi>i</mi><mi>n</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo stretchy="false" form="postfix">]</mo></mrow></mfrac><mo>×</mo><mi>C</mi><mi>K</mi></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>I</mi><mi>n</mi><mi>t</mi><mi>e</mi><mi>g</mi><mi>r</mi><mi>a</mi><mi>t</mi><mi>o</mi><mi>r</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>S</mi><mi>t</mi><mi>r</mi><mi>i</mi><mi>g</mi><mi>o</mi><mi>l</mi><mi>a</mi><mi>c</mi><mi>t</mi><mi>o</mi><mi>n</mi><mi>e</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo stretchy="false" form="postfix">]</mo><mo>×</mo><mfrac><mn>2</mn><mrow><mn>1</mn><mo>+</mo><mi>S</mi><mi>u</mi><mi>c</mi><mi>r</mi><mi>o</mi><mi>s</mi><mi>e</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo stretchy="false" form="postfix">]</mo></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mi>B</mi><mi>r</mi><mi>a</mi><mi>n</mi><mi>c</mi><mi>h</mi><mi>i</mi><mi>n</mi><mi>g</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>C</mi><mi>y</mi><mi>t</mi><mi>o</mi><mi>k</mi><mi>i</mi><mi>n</mi><mi>i</mi><mi>n</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo stretchy="false" form="postfix">]</mo><mo>×</mo><mfrac><mn>2</mn><mrow><mn>1</mn><mo>+</mo><mi>I</mi><mi>n</mi><mi>t</mi><mi>e</mi><mi>g</mi><mi>r</mi><mi>a</mi><mi>t</mi><mi>o</mi><mi>r</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo stretchy="false" form="postfix">]</mo></mrow></mfrac></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{gather}
+    Auxin[t+1]=Aux \label{eq3}\\
+    Strigolactone[t+1]=Auxin[t]\times SL \\
+    Sucrose[t+1]=Suc \\
+    Cytokinin[t+1]=Sucrose[t]\times\frac{2}{1+Auxin[t]}\times CK \\
+    Integrator[t+1] = Strigolactone[t]\times\frac{2}{1+Sucrose[t]} \\
+    Branching[t+1]=Cytokinin[t]\times\frac{2}{1+Integrator[t]}
+    \label{eq8}
+\end{gather}</annotation></semantics></math></p>
+<p>The above example does not include necessary stimulants, AND, or any
 exogenous supplies.</p>
 </div>
 <div class="section level3">
@@ -170,7 +204,7 @@ this case, a necessary stimulant will behave in the same was as a
 modifier. Users can choose to instead use a form that is either
 step-like, or based on Michaelis-Menten dynamics.</p>
 <div class="figure">
-<img src="nStimForms.png" alt="Figure 1. A depiction on how different forms for necessary stimulants can effect their downstream impact." width="80%"><p class="caption">
+<img src="nStimForms.png" class="r-plt" alt="Figure 1. A depiction on how different forms for necessary stimulants can effect their downstream impact." width="80%"><p class="caption">
 Figure 1. A depiction on how different forms for necessary stimulants
 can effect their downstream impact.
 </p>
@@ -200,6 +234,7 @@ exogenous supply, and would rather have simpler looking equations.</p>
 equation. Whatever supply that you have chosen to provide, will be a
 final addition to the equation.</p>
 </div>
+</div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>
@@ -211,7 +246,7 @@ final addition to the equation.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

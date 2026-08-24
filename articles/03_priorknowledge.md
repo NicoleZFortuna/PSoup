@@ -1,0 +1,211 @@
+# Organising Prior Knowledge
+
+### What is prior knowledge?
+
+Prior knowledge consists of the knowledge that exists in the scientific
+literature regarding the behaviour of the system. This relates to the
+components of the system (nodes), the interactions between components,
+the directionality and type of influence (edges). Scientific literature
+can also contain information relating to the rate at which information
+travels in the system, but the availibility and quaility of these
+estimates can vary wildly. Given that the style of modelling performed
+by PSoup is based on the structure of the developmental network, without
+reference to coefficients, this type of information is not included in
+the prior knowledge collected for developing a PSoup model.
+
+Prior knowledge can be orgainised into a series of statements that will
+ultimately be used to construct a diagrammatic representation of the
+system. To give support for the network as you have constructed it, you
+can attribute references to either the statements themselves or to the
+edges of the network diagram.
+
+### Language for model construction
+
+#### Model language: Nodes and Edges
+
+Nodes and edges represent our beliefs regarding how a system integrates
+information to make decisions. Nodes represent a kind of information or
+componant within the system. This can include internal hormones,
+signals, or externally sourced inputs such as light, or nitrogen. Each
+node type will be expressed as a value relative to some baseline 1.
+Often, this baseline will represent the wild-type of a biological system
+under ideal environmental conditions.
+
+Edges represent the directionality of influence, as well as the
+influence type, between nodes. Edges describe how a system uses the
+information contained in nodes to make decisions.
+
+Nodes will be represented by nouns as they represent something that can
+be used as a signal. Edges will be represented by verbs as they describe
+the influence of an upstream node on downstream nodes.
+
+#### Model language: Modifiers
+
+Modifiers act to scale the value of specific nodes in the network. They
+can represent critical genetic instructions that are necessary for the
+functioning of their specific node. Modifiers are given a value by the
+user and act by describing the level of expression of a node relative to
+baseline (1). The value of the modifier will be multiplied against the
+value of the node as determined by any other system inputs. Therefore, a
+modifier value of 0 will have the function of removing the node from the
+network irrespective of the other inputs being received by said node.
+
+In the context of the model, modifiers behave as parameters which define
+the conditions under which a simulation is occurring. They can be
+considered the inputs of the model. The values of modifiers remain
+static over the course of the simulation. In contrast, nodes behave as
+variables. The values of nodes are expected to change over the course of
+the simulation. Once the simulation reaches a stable state (node values
+are unchanging), the values of nodes will be taken as the output of the
+simulation. The network topology in this case is the model being tested.
+
+#### Model language: Compartments
+
+Compartments are useful in that they can help define locations of
+influence in the network. They have no influence on the progression of a
+simulation as they do not change the behaviour of either nodes or edges.
+However, they are useful when there are multiple sources of production
+for a node, and for allowing the differential expression of modifiers
+within different locations of the system. For example, the hormone
+Strigolactone is produced in both the root and shoot of the plant. By
+creating root and shoot compartments, a Strigolactone node can be
+defined in both the compartments without otherwise being distinguished
+from each other. PSoup will automatically treat the two nodes as
+separate entities while maintaining clarity for the user. Compartments
+also facilitate the case when modifiers are differentially expressed in
+different locations of a biological system. If a modifier is attached to
+nodes in different compartments, the user will be able to specify
+different values for each compartment. This is useful, for example, in
+the case that the user is trying to replicate the conditions of a
+grafting experiment where a gene is knocked out in one location but not
+in the other.
+
+#### SBGN terminology
+
+System Biology Graphical Notation (SBGN) is a set of standardised
+graphical languages used to describe biological systems. The description
+of hypotheses has been restricted to the use of terminology that maps
+directly onto the SBGN Activity Flow language.
+
+There are many different mechanisms by which a biological system
+regulates itself. However, here the focus must be limited to whether the
+influence between nodes is either positive or negative in terms of the
+outcome of the downstream node.
+
+| Type of edge | SBGN-AF equivalent language | Symbol |
+|----|----|----|
+| Stimulation | Positive influence | ![](edges/stimulation.png) |
+| Inhibition | Negative influence | ![](edges/inhibition.png) |
+| Necessary stimulation | Necessary stimulation | ![](edges/necessaryStimulation.png) |
+
+| Operator | Placement | Symbol |
+|----|----|----|
+| and | Linking more than one origin nodes with a single destination node. | ![](edges/and.png) |
+| delay | Link one origin node to one destination node. | ![](edges/delay.png) |
+
+### Syntax guide
+
+Hypotheses can fall into two classes: Modifier Oriented Hypotheses
+(MOH), and Edge Oriented Hypotheses (EOH). In either case, the modifier
+or edge will be contextualised by nodes. In the MOH, a modifier is being
+attached to a node which will allow the modifier to weight the strength
+of action of the node. A MOH will always be found in the following form:
+
+The \<modifier\> modifier is necessary to produce \<node\>.
+
+Modifiers must always be indicated as modifiers, otherwise they can be
+assumed to be nodes. The same modifier can be attached to multiple
+nodes. MOHs will never contain edge information.
+
+EOHs express the direction and type of influence between nodes and will
+never contain modifier information. They will always take the following
+form:
+
+\<origin node\> \<edge type\> \<destination node\>.
+
+The EOH has some additional flexibility built in as they can make use of
+logical operators. Combinations of nodes can be specified by making use
+of the AND operator as a separator to list all the relevant nodes. If
+you use the AND operator, you are indicating that all the specified
+nodes must be present for an action to occur.
+
+Compartmentalising nodes in the network can be good for two reasons. The
+first is to visually assist in understanding where different loci of
+influence exist in the system. The second is to allow for the
+possibility of differential expression of modifiers in the case that the
+same modifier has been assigned to nodes existing in different
+compartments. This is useful when modelling plant development under
+different grafting conditions. Grafting involves attaching the rootstock
+of one plant, to the scion (shoot) of another plant. This allows for the
+differential expression of the same gene within different locations in a
+plant. Compartmental information can be provided by adding ‘in the
+\<location\>’ to the end of either the MOH or EOH. Example statements
+can be seen in Table 4.
+
+Below is a list of considerations that should be kept in mind when
+constructing hypotheses and diagrams:
+
+1.  Each interaction should be represented only once.
+2.  Nodes must share an edge with at least one other node.
+3.  Each interaction that will be included in the model/diagram should
+    be included in the list of hypotheses.
+4.  Interactions should be specified only between neighbouring nodes (no
+    summary interactions should be stated, overall effects should be
+    deduced from the combination of intermediary interactions).
+    1.  Any summarising statements are likely to be mistakenly
+        interpreted as an alternate route of action.
+5.  Non-independent inputs should be distinguished from independent
+    inputs. Non-independent inputs can be indicated using the word AND
+    to list all the interacting inputs.
+6.  Modifiers should be distinguished from nodes.
+7.  Modifiers should be connected to all the nodes on which they act (a
+    single modifier can be attached to multiple nodes).
+    1.  If a ‘modifier’ itself has inputs in the system (e.g. if the
+        expression of a modifier can itself be regulated by other
+        nodes), that ‘modifier’ should be expressed as a node with an
+        attached modifier. The node and attached modifier can be given
+        the same name to communicate what you are doing. This node will
+        have a necessarily stimulatory relationship with all nodes for
+        which said modifier is essential. This is useful in instances
+        where the expression of a gene is regulated by the network.
+8.  Statements should be simplified as much as possible to the effect of
+    whether levels of the influenced node are expected to go up or down
+    (are stimulatory or inhibitory).
+9.  It might be necessary to infer an ‘integrator’ or ‘intermediate’
+    node to correctly represent what is going on. This decision can be
+    left to the modeller, who will choose the best representation given
+    the context of the full network.
+    1.  A consequence of the modeller deciding that there needs to be an
+        intermediary node, will be the creation of a new statement
+        describing a stimulatory relationship between the originating
+        and intermediary node.
+10. There must not be any nodes existing outside of a compartment.
+11. A record of supporting evidence behind each node should be kept for
+    reference. This will help restrain the network to highly supported
+    interactions (at least initially). In addition, it will make it
+    easier to interrogate the network in the case that the model is not
+    validated against biological data.
+
+### Example statements
+
+The below table includes some examples of how you might structure
+hypotheses statements for maximum clarity. Figure 1 demonstrates how
+such statements could be converted into a diagram. This is of course a
+very simple example, PSoup is most useful in systems that contain some
+kind of feedback loop.
+
+| No. | Hypothesis                                                      |
+|-----|-----------------------------------------------------------------|
+| 1   | The A modifier is required to produce A in compartments 1 and 2 |
+| 2   | A necessarily stimulates B in compartment 1                     |
+| 3   | A inhibits C in compartment 1                                   |
+| 4   | A necessarily stimulates D in compartment 2                     |
+| 5   | D AND F inhibits G in compartment 2                             |
+| 6   | B in compartment 1 stimulates D in compartment 2                |
+| 7   | C in compartment 1 stimulates G in compartment 2                |
+
+![Figure 1. An example network diagram built based on the above example
+hypothesis statements.](exampleDiagram.png)
+
+Figure 1. An example network diagram built based on the above example
+hypothesis statements.
