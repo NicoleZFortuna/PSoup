@@ -4,6 +4,7 @@
 # PSoup
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
 The goal of PSoup is to enable users to quickly generate mathematical
@@ -18,7 +19,7 @@ To build a diagram of type SBGN, go to [Newt Pathway Viewer &
 Editor](https://newteditor.org/).
 
 To see a series of tutorials on how to use PSoup, go to
-[nicolezfortuna.github.io/PSoup/](nicolezfortuna.github.io/PSoup/).
+[nicolezfortuna.github.io/PSoup/](https://nicolezfortuna.github.io/PSoup/).
 
 ## Installation
 

@@ -14,9 +14,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-### Default algorithmic rule set
+## Default algorithmic rule set
 
 There are several types of information that can contribute to the building of an equation. These types of information will be considered in a particular order to build an equation acording to the algorithmic rules. See the first Table for the different components that can contribute, as well as the order in which they are considered when building an equation. Equations do not necessarily need to include every one of these components. An example of how incoming edge types can be used to generate a difference equation can be seen in Figure 1.
+
+*Table 1: The types of building blocks used to generate the equation representing a node.*
 
 Order of consideration | Equation building block | Representation in equation
 -- | -- | ---
@@ -25,12 +27,24 @@ Order of consideration | Equation building block | Representation in equation
 3	| Necessary stimulant	| A function of the necessary stimulant multiplied against the above influences
 4	| Modifier | Multiplication against above influences
 
+*Table 2: An example of the diagramatic representation of different edges and their resulting mathematical representation.*
+
 SBGN-AF syntax | Algorithmic rule
 --- | -
 ![](diagramRules/stimulation.png){width=80%} | $B[t] = A[t-1]$
 ![](diagramRules/inhibition.png){width=80%} | $B[t] = \frac{2}{1 + A[t-1]}$
-![](diagramRules/necStim.png){width=80%} | $B[t] = 1*f(A[t-1])$
-![](diagramRules/d.png){width=80%} | $D[t] = \frac{2*A[t-1]}{1 + B[t-1]}*f(C[t-1])*d$
+![](diagramRules/necStim.png){width=80%} | $B[t] = 1 \times f(A[t-1])$
+![](diagramRules/d.png){width=80%} | $D[t] = \frac{2 \times A[t-1]}{1 + B[t-1]} \times f(C[t-1])*d$
+
+As a supplement to the above building blocks, it is possible to combine upstream nodes in the case that their influence only occurs when in combination with each other. An example of this could be an enzyme needing to interact with a substrate to produce a product.
+
+*Table 3: Additional operator used to modify how incoming nodes affect the node of interest. The following equation dictates how these incoming nodes are treated, the final value of which is treated as a single input for the respective builing block that the interaction belongs in.*
+
+SBGN-AF syntax | Algorithmic rule
+--- | -
+![](diagramRules/AND.png){width=60%} | $AND[t]=^r\sqrt{\prod\limits_{i=1}^{r}Node_i[t]}$
+
+### Example network and its conversion
 
 Here is an example of a diagram showing a simplified diagram of the branching network in plants.
 
@@ -40,19 +54,18 @@ knitr::include_graphics("diagramRules/BerthelootRecreation.png")
 
 Using the above algorithmic rules, this diagram would be translated into the following set of equations. 
 
-$Aux[t] = Aux^{mod}$
+\begin{gather}
+    Auxin[t+1]=Aux \label{eq3}\\
+    Strigolactone[t+1]=Auxin[t]\times SL \\
+    Sucrose[t+1]=Suc \\
+    Cytokinin[t+1]=Sucrose[t]\times\frac{2}{1+Auxin[t]}\times CK \\
+    Integrator[t+1] = Strigolactone[t]\times\frac{2}{1+Sucrose[t]} \\
+    Branching[t+1]=Cytokinin[t]\times\frac{2}{1+Integrator[t]}
+    \label{eq8}
+\end{gather}
 
-$SL[t] = Aux[t-1] * SL^{mod}$
 
-$Suc[t] = Suc^{mod}$
-
-$CK[t] = Suc[t-1] * \frac{2}{1 + Aux[t-1]} * CK^{mod}$
-
-$I[t] = SL[t-1] * \frac{2}{1 + Suc[t-1]}$
-
-$BO[t] = \frac{CK[t-1] + Suc[t-1]}{2} * \frac{2}{1 + I[t-1]}$
-
-The above example includes neither necessary stimulants, nor any exogenous supplies.
+The above example does not include necessary stimulants, AND, or any exogenous supplies.
 
 ### Modifications to the functional forms of necessary stimulants
 
